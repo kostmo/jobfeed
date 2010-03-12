@@ -1,0 +1,2 @@
+Uses the "geo" library from the "geomodel" project.
+Incorporated via "svn:externals" method (see http://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-howto-common-projects.html).
