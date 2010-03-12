@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Job Postings Feed List</title>
+
+  </head>
+  <body>
+    <h1>Job Postings Feed List</h1>
+  <ol>
+    {% for feed in feed_list %}
+      <li>{{feed.since}}: {{feed.link}}</li>
+    {% endfor %}
+  </ol>
+  </body>
+</html>

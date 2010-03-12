@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobfeed vocabulary="1.0">
+	<organization>
+		<name>ACME Industries</name>
+		<sites>
+			<site>
+				<name>Corporate Headquarters</name>
+				<location>
+					<geo lat="45.52" lon="-122.68" />
+					<address></address>
+				</location>
+				<departments>
+					<department>
+						<name>Research and Development</name>
+						<openings>
+							<position id="15366" expires="2010-03-13">
+								<title>Sr. Electrical Engineer</title>
+								<subject_matter>
+									<keyword>automotive</keyword>
+									<keyword>control systems</keyword>
+								</subject_matter>
+								<qualifications>
+									<education>
+										<degree level="Bachelors" area="Electrical Engineering"></degree>
+									</education>
+									<skills>
+										<required>
+											<programming_languages>
+												<lang name="MATLAB" years="7" />
+											</programming_languages>
+											<tools>
+												<tool name="git" />
+											</tools>
+										</required>
+									</skills>
+								</qualifications>
+							</position>
+							<position id="15368" expires="2010-03-16">
+								<title>Entry-level CAD Designer</title>
+								<subject_matter>
+									<keyword>automotive</keyword>
+									<keyword>wiring</keyword>
+								</subject_matter>
+								<qualifications>
+									<education>
+										<degree level="Bachelors" area="Electrical Engineering"></degree>
+									</education>
+									<skills>
+										<required>
+											<tools>
+												<tool name="Autocad"></tool>
+											</tools>
+										</required>
+										<preferred>
+											<programming_languages>
+												<lang name="MATLAB" />
+											</programming_languages>
+										</preferred>
+									</skills>
+								</qualifications>
+							</position>
+						</openings>
+					</department>
+				</departments>
+			</site>
+			<site>
+				<name>Topeka Satellite Office</name>
+				<location>
+					<geo lat="39.05" lon="-95.6" />
+					<address></address>
+				</location>
+				<departments>
+					<department>
+						<name>Manufacturing</name>
+						<openings>
+							<position id="15370" expires="2010-04-19">
+								<title>Quality Control Engineer</title>
+								<subject_matter>
+									<keyword>automotive</keyword>
+								</subject_matter>
+								<qualifications>
+									<education>
+										<degree level="Bachelors" area="Electrical Engineering"></degree>
+									</education>
+									<skills>
+										<preferred>
+											<programming_languages>
+												<lang name="BASH" />
+											</programming_languages>
+										</preferred>
+										<required>
+											<programming_languages>
+												<lang name="MATLAB" years="2" />
+											</programming_languages>
+										</required>
+									</skills>
+								</qualifications>
+							</position>
+							<position id="15371" expires="2010-03-13">
+								<title>Field Technician</title>
+								<subject_matter>
+									<keyword>repair</keyword>
+								</subject_matter>
+								<qualifications>
+									<education>
+										<degree level="Associates" area="Automotive"></degree>
+									</education>
+								</qualifications>
+							</position>
+						</openings>
+					</department>
+					<department>
+						<name>Customer Relations</name>
+						<openings>
+							<position id="15369" expires="2010-03-13">
+								<title>Database Maintainer</title>
+								<qualifications>
+									<education>
+										<degree level="Bachelors" area="Computer Science"
+											or_related="true" />
+										<certification type="Cisco networking" />
+									</education>
+									<skills>
+										<required>
+											<programming_languages>
+												<lang name="SQL" years="7" />
+											</programming_languages>
+										</required>
+									</skills>
+								</qualifications>
+							</position>
+						</openings>
+					</department>
+					<department>
+						<name>Marketing</name>
+						<openings />
+					</department>
+				</departments>
+			</site>
+		</sites>
+	</organization>
+</jobfeed>
