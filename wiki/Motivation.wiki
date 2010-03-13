@@ -6,6 +6,8 @@
 
   * project is not profit-motivated
     * accomplished on no-cost infrastructure (until possibly a point in the distant future)
+       * minimal storage and bandwidth used
+         * prose job descriptions stored on original host, fetched client-side on demand
     * coded in a few days (cost of effort negligible)
 
 === for job searchers ===
