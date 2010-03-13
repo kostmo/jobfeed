@@ -2,5 +2,7 @@
 #labels Featured
 
 This is not the first effort to solicit XML job feeds from companies.
-Here's one site that i found in a Google search:
-  * http://www.inovahire.com/xml-job-feed
+Here's one site that I found in a Google search:
+  * [http://www.inovahire.com/xml-job-feed InovaHire]
+
+Their site is ad-sponsored.  The feeds share some similarities, but do not appear to facilitate fine-grained search based on individual skills.
