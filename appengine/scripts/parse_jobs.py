@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 
@@ -17,12 +16,19 @@ SKILL_CATEGORIES = [SKILL_CATEGORY_APIS, SKILL_CATEGORY_APPLICATIONS, SKILL_CATE
 
 # =============================================================================
 class LanguageExperience():
-	def __init__(self, name, years):
+    def __init__(self, name, years):
 		self.name = name
 		self.years = years
+		if not (years is None):
+			self.years = float(years)
+
+    def __str__(self):
+        return str(tuple([self.name, self.years]))
+
+    def __repr__(self):
+        return str(self)
 
 # =============================================================================
-		
 class Job():
 	def __init__(self, handler):
 		self.job_id = int(handler.jobid)
@@ -99,7 +105,6 @@ class JobFeedHandler(ContentHandler):
 			self.job_title += ch
 
 # =============================================================================
-
 def fetchJobList(base_url):
     parser = make_parser()
     curHandler = JobFeedHandler()
@@ -122,11 +127,10 @@ def fetchJobList(base_url):
     return curHandler.joblist
 
 # =============================================================================
-
 if __name__ == '__main__':
 	
 	import sys
-	base_url = 'http://localhost:8080/rawjobs'
+	base_url = 'http://localhost:8080/static/example_joblist.xml'
 	if len(sys.argv) > 1:
 		base_url = sys.argv[1]
 

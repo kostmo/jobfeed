@@ -2,7 +2,7 @@
 
 from lxml import etree
 
-JOBFEED_SCHEMA_URL = "http://localhost:8080/jobfeed.rng"
+JOBFEED_SCHEMA_URL = "http://localhost:8080/static/jobfeed.xml"
 
 def doValidation(document_url, schema_url=JOBFEED_SCHEMA_URL):
 	from urllib import urlopen
