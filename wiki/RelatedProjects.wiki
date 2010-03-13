@@ -1,0 +1,6 @@
+#summary Similar/related projects and websites
+#labels Featured
+
+This is not the first effort to solicit XML job feeds from companies.
+Here's one site that i found in a Google search:
+  * http://www.inovahire.com/xml-job-feed
