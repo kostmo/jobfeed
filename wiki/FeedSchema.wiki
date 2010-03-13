@@ -22,11 +22,12 @@ Each job record should carry the following information:
 Since there may be many job openings at the same site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the company and/or department name.
 
 Within the `<required>` or `<preferred>` tag the following are allowed:
-|| *tag name* || *meaning* || *example value* ||
-|| `<lang>` || programming language || Java ||
-|| `<api>` || API/environment || Google App Engine ||
-|| `<app>` || software application || AutoCAD ||
-|| `<tool>` || other unclassified tool || multimeter ||
+|| *tag name* || *meaning* || *example values* ||
+|| `<lang>` || programming language || Java, C++ ||
+|| `<api>` || API/environment || Google App Engine, OpenGL ||
+|| `<app>` || software application || AutoCAD, git ||
+|| `<equip>` || equipment || multimeter, cappuccino machine ||
+|| `<activity>` || some kind of task || system administration, PCB layout ||
 
 == supplemental information ==
   * [http://www.oasis-open.org/committees/relax-ng/tutorial-20011203.html relax-ng tutorial]
