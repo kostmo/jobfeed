@@ -19,6 +19,7 @@ Each job record should carry the following information:
   * required/preferred skills
     * programming languages (e.g. - Java)
     * APIs/environments (e.g. - Google App Engine)
+    * applications (e.g. AutoCAD)
     * other tools (e.g. multimeter)
   * expiration date
 
