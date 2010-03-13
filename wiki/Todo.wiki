@@ -1,0 +1,9 @@
+#summary Project TODO list
+#labels Featured
+
+  * Login and save profile
+    * Import existing DOAC XMLfile as search profile
+    * Export as DOAC format
+  * Project-months as a metric of language proficiency
+  * When registering feed, ask for update frequency in weeks
+  * Use contact email to notify upon failed feed parse
