@@ -54,7 +54,6 @@ class JobFeedUrl(db.Model):
 	contact =  db.EmailProperty()
 	
 # =============================================================================
-
 class JobFeedSpamReport(db.Model):
 	reporter = db.UserProperty(auto_current_user_add=True)
 	feed = db.ReferenceProperty(JobFeedUrl, required=True)
@@ -66,6 +65,7 @@ class JobOpening(GeoModel):
 
   job_id = db.IntegerProperty()
   title = db.StringProperty()
+  contract = db.BooleanProperty(default=False) # vs. permanent employment
   expiration = db.DateProperty()
   expired = db.BooleanProperty(default=False)
   feed = db.ReferenceProperty(JobFeedUrl, required=True)
