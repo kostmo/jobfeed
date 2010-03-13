@@ -7,7 +7,8 @@
   * Project-months as a metric of language proficiency
   * When registering feed, ask for update frequency in weeks
   * Use contact email to notify upon failed feed parse
-  * Add salary field
+  * Add (optional) salary field
+  * Add job count to main page
 
 Employment terms
   * part time
