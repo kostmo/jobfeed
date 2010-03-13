@@ -36,25 +36,25 @@ register = webapp.template.create_template_register()
 
 @register.simple_tag
 def jsapi_key():
-  # the os environ is actually the current web request's environ
-  server_key = '%s:%s' % (os.environ['SERVER_NAME'], os.environ['SERVER_PORT'])
-  return JSAPI_KEYS[server_key] if server_key in JSAPI_KEYS else ''
+    # the os environ is actually the current web request's environ
+    server_key = '%s:%s' % (os.environ['SERVER_NAME'], os.environ['SERVER_PORT'])
+    return JSAPI_KEYS[server_key] if server_key in JSAPI_KEYS else ''
 
 
 def _current_request_uri():
-  """Returns the current request URI."""
-  return os.environ['PATH_INFO'] + (('?' + os.environ['QUERY_STRING'])
-                                    if os.environ['QUERY_STRING'] else '')
+    """Returns the current request URI."""
+    return os.environ['PATH_INFO'] + (('?' + os.environ['QUERY_STRING'])
+                                      if os.environ['QUERY_STRING'] else '')
 
 @register.simple_tag
 def login_url(dest_url=''):
-  """Template tag for creating login URLs."""
-  dest_url = dest_url or _current_request_uri()
-  return users.create_login_url(dest_url)
+    """Template tag for creating login URLs."""
+    dest_url = dest_url or _current_request_uri()
+    return users.create_login_url(dest_url)
 
 
 @register.simple_tag
 def logout_url(dest_url=''):
-  """Template tag for creating logout URLs."""
-  dest_url = dest_url or _current_request_uri()
-  return users.create_logout_url(dest_url)
+    """Template tag for creating logout URLs."""
+    dest_url = dest_url or _current_request_uri()
+    return users.create_logout_url(dest_url)

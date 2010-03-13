@@ -26,130 +26,130 @@ EXPERIENCE_YEARS_BUCKETS = [1, 2, 4, 7, 10]
 
 # =============================================================================
 class NamedTool(db.Model):
-	name = db.StringProperty()
-	canonical = db.StringProperty()    # Lowercase version
+    name = db.StringProperty()
+    canonical = db.StringProperty()    # Lowercase version
 
 # =============================================================================
 class ToolExperienceBucket(db.Model):
-	lang = db.ReferenceProperty(NamedTool, required=True)
-	years = db.IntegerProperty()
+    lang = db.ReferenceProperty(NamedTool, required=True)
+    years = db.IntegerProperty()
 
 # =============================================================================
 class ProgrammingLanguageTool(NamedTool):
-	pass
+    pass
 
 # =============================================================================
 class ApiTool(NamedTool):
-	pass
+    pass
 
 # =============================================================================
 class ApplicationTool(NamedTool):
-	pass
+    pass
 
 # =============================================================================
 
 class JobFeedUrl(db.Model):
-	link = db.LinkProperty(required=True)
-	since = db.DateTimeProperty(required=True, auto_now_add=True)
-	contact =  db.EmailProperty()
-	
+    link = db.LinkProperty(required=True)
+    since = db.DateTimeProperty(required=True, auto_now_add=True)
+    contact =  db.EmailProperty()
+
 # =============================================================================
 class JobFeedSpamReport(db.Model):
-	reporter = db.UserProperty(auto_current_user_add=True)
-	feed = db.ReferenceProperty(JobFeedUrl, required=True)
+    reporter = db.UserProperty(auto_current_user_add=True)
+    feed = db.ReferenceProperty(JobFeedUrl, required=True)
 
 # =============================================================================
 
 class JobOpening(GeoModel):
-  """A location-aware model for Job postings."""
+    """A location-aware model for Job postings."""
 
-  job_id = db.IntegerProperty()
-  title = db.StringProperty()
-  contract = db.BooleanProperty(default=False) # vs. permanent employment
-  expiration = db.DateProperty()
-  expired = db.BooleanProperty(default=False)
-  feed = db.ReferenceProperty(JobFeedUrl, required=True)
-  updated = db.DateTimeProperty(required=True, auto_now_add=True)
+    job_id = db.IntegerProperty()
+    title = db.StringProperty()
+    contract = db.BooleanProperty(default=False) # vs. permanent employment
+    expiration = db.DateProperty()
+    expired = db.BooleanProperty(default=False)
+    feed = db.ReferenceProperty(JobFeedUrl, required=True)
+    updated = db.DateTimeProperty(required=True, auto_now_add=True)
 
 
-  
-  
-  @staticmethod
-  def public_attributes():
-    """Returns a set of simple attributes on public school entities."""
-    return [
-      'job_id', 'title'
-    ]
 
-  def _get_latitude(self):
-    return self.location.lat if self.location else None
 
-  def _set_latitude(self, lat):
-    if not self.location:
-      self.location = db.GeoPt()
+    @staticmethod
+    def public_attributes():
+        """Returns a set of simple attributes on public school entities."""
+        return [
+          'job_id', 'title'
+        ]
 
-    self.location.lat = lat
+    def _get_latitude(self):
+        return self.location.lat if self.location else None
 
-  latitude = property(_get_latitude, _set_latitude)
+    def _set_latitude(self, lat):
+        if not self.location:
+            self.location = db.GeoPt()
 
-  def _get_longitude(self):
-    return self.location.lon if self.location else None
+        self.location.lat = lat
 
-  def _set_longitude(self, lon):
-    if not self.location:
-      self.location = db.GeoPt()
+    latitude = property(_get_latitude, _set_latitude)
 
-    self.location.lon = lon
+    def _get_longitude(self):
+        return self.location.lon if self.location else None
 
-  longitude = property(_get_longitude, _set_longitude)
+    def _set_longitude(self, lon):
+        if not self.location:
+            self.location = db.GeoPt()
+
+        self.location.lon = lon
+
+    longitude = property(_get_longitude, _set_longitude)
 
 
 # =============================================================================
 
 class PublicSchool(GeoModel):
-  """A location-aware model for public school entities.
-  
-  See http://nces.ed.gov/ccd/psadd.asp for details on attributes.
-  """
-  school_id = db.StringProperty()
-  name = db.StringProperty()
-  address = db.StringProperty()
-  city = db.StringProperty()
-  state = db.StringProperty()
-  zip_code = db.IntegerProperty()
-  enrollment = db.IntegerProperty()
-  phone_number = db.StringProperty()
-  locale_code = db.IntegerProperty()
-  school_type = db.IntegerProperty()
-  school_level = db.IntegerProperty()
-  grades_taught = db.ListProperty(int)
-  
-  @staticmethod
-  def public_attributes():
-    """Returns a set of simple attributes on public school entities."""
-    return [
-      'school_id', 'name', 'address', 'city', 'state', 'zip_code',
-      'enrollment', 'phone_number', 'locale_code', 'school_type', 'school_level'
-    ]
+    """A location-aware model for public school entities.
 
-  def _get_latitude(self):
-    return self.location.lat if self.location else None
+    See http://nces.ed.gov/ccd/psadd.asp for details on attributes.
+    """
+    school_id = db.StringProperty()
+    name = db.StringProperty()
+    address = db.StringProperty()
+    city = db.StringProperty()
+    state = db.StringProperty()
+    zip_code = db.IntegerProperty()
+    enrollment = db.IntegerProperty()
+    phone_number = db.StringProperty()
+    locale_code = db.IntegerProperty()
+    school_type = db.IntegerProperty()
+    school_level = db.IntegerProperty()
+    grades_taught = db.ListProperty(int)
 
-  def _set_latitude(self, lat):
-    if not self.location:
-      self.location = db.GeoPt()
+    @staticmethod
+    def public_attributes():
+        """Returns a set of simple attributes on public school entities."""
+        return [
+          'school_id', 'name', 'address', 'city', 'state', 'zip_code',
+          'enrollment', 'phone_number', 'locale_code', 'school_type', 'school_level'
+        ]
 
-    self.location.lat = lat
+    def _get_latitude(self):
+        return self.location.lat if self.location else None
 
-  latitude = property(_get_latitude, _set_latitude)
+    def _set_latitude(self, lat):
+        if not self.location:
+            self.location = db.GeoPt()
 
-  def _get_longitude(self):
-    return self.location.lon if self.location else None
+        self.location.lat = lat
 
-  def _set_longitude(self, lon):
-    if not self.location:
-      self.location = db.GeoPt()
+    latitude = property(_get_latitude, _set_latitude)
 
-    self.location.lon = lon
+    def _get_longitude(self):
+        return self.location.lon if self.location else None
 
-  longitude = property(_get_longitude, _set_longitude)
+    def _set_longitude(self, lon):
+        if not self.location:
+            self.location = db.GeoPt()
+
+        self.location.lon = lon
+
+    longitude = property(_get_longitude, _set_longitude)
