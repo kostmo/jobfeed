@@ -8,3 +8,13 @@
   * When registering feed, ask for update frequency in weeks
   * Use contact email to notify upon failed feed parse
   * Add salary field
+
+Employment terms
+  * part time
+  * intern
+
+nominal experience levels
+  * entry-level
+  * junior
+  * senior
+  * executive
