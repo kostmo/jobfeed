@@ -2,7 +2,12 @@
 #labels Featured
 
 This is not the first effort to solicit XML job feeds from companies.
-Here's one site that I found in a Google search:
+Here are just a couple I found in a Google search, along with some aspects to compare/contrast *jobfeed* with.
+
+[http://www.simplyhired.com/a/add-jobs/feed#feed_spec SimplyHired]
+
+  * lacks Google Maps integration
+  * has way more jobs listed (as of now)
 
 [http://www.inovahire.com/xml-job-feed InovaHire]
 
