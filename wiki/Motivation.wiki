@@ -1,11 +1,13 @@
 #summary Why create this project?
 #labels Featured
 
+
+== advantages ==
+
   * project is not profit-motivated
     * accomplished on no-cost infrastructure (until a possibly a point in the distant future)
     * coded in a few days (cost of effort negligible)
 
-== advantages ==
 === for job searchers ===
   * free in every respect
 === for employers ===
