@@ -3,5 +3,22 @@
 
 The [http://code.google.com/p/jobfeed/#example exerpt on the main page] gives a partial idea of the intended form of job feeds. Take a look at a [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/static/example_joblist.xml complete example].
 
-
 Here is the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/static/jobfeed.xml official jobfeed schema] written in [http://en.wikipedia.org/wiki/RELAX_NG RELAX NG]. You should [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/scripts/validate.py validate] your own feed against this schema before [http://jobcrawlr.appspot.com/register submitting] it.
+
+== job records ==
+Each job record should carry the following information:
+  * Nominal location
+  * Lat/Lon
+  * Company name
+  * position title
+  * minimum degree
+    * degree area/concentration
+  * subject matter keywords
+  * required/preferred languages
+  * required/preferred APIs
+  * required/preferred tools
+  * expiration date
+
+== supplemental information ==
+  * [http://www.oasis-open.org/committees/relax-ng/tutorial-20011203.html relax-ng tutorial]
+  * [http://www.w3.org/TR/xmlschema-2/#built-in-datatypes standard XML schema datatypes]
