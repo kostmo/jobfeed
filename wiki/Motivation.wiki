@@ -9,7 +9,7 @@ I have these objectives for the project:
   * bypass recruiting middlemen
     * access employer organization identity transparently
 
-The greatest challenge is that cooperation is required from employers' HR.  However, it is to the employer's advantage, and hopefully they will recognize it as a low-risk improvement upon the status quo.
+The greatest challenge is that cooperation is required from employers' HR.  However, connecting with skill-matched employees it is to the employer's advantage, and hopefully they will recognize it as a low-risk improvement upon the status quo.
 
 == advantages ==
 
