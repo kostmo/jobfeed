@@ -33,22 +33,22 @@ import models
 
 
 class LocationGeocellMigration(mapper.Mapper):
-  """location_geocell property migration using mapper framework."""
-  KIND = models.PublicSchool
+    """location_geocell property migration using mapper framework."""
+    KIND = models.PublicSchool
 
-  def map(self, entity):
-    dirty = False
-    for f in range(1, 14):
-      if getattr(entity, 'location_geocell_%d' % f):
-        dirty = True
-        setattr(entity, 'location_geocell_%d' % f, None)
-    
-    if dirty:
-      entity.update_location()
-      return ([entity], [])
-    else:
-      return ([], [])
+    def map(self, entity):
+        dirty = False
+        for f in range(1, 14):
+            if getattr(entity, 'location_geocell_%d' % f):
+                dirty = True
+                setattr(entity, 'location_geocell_%d' % f, None)
+
+        if dirty:
+            entity.update_location()
+            return ([entity], [])
+        else:
+            return ([], [])
 
 
 if __name__ == '__main__':
-  LocationGeocellMigration().run(batch_size=100)
+    LocationGeocellMigration().run(batch_size=100)

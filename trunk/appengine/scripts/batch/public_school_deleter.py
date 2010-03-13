@@ -32,13 +32,12 @@ import models
 
 
 class PublicSchoolDeleter(mapper.Mapper):
-  """Public school deleter using mapper framework."""
-  KIND = models.PublicSchool
+    """Public school deleter using mapper framework."""
+    KIND = models.PublicSchool
 
-  def map(self, entity):
-    return ([], [entity])
+    def map(self, entity):
+        return ([], [entity])
 
 
 if __name__ == '__main__':
-  PublicSchoolDeleter().run(batch_size=100)
-
+    PublicSchoolDeleter().run(batch_size=100)
