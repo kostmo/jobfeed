@@ -45,6 +45,11 @@
 														<attribute name="expires">
 															<data type="date" />
 														</attribute>
+                                                        <optional>
+                                                            <attribute name="contract">
+                                                                <data type="boolean" />
+                                                            </attribute>
+                                                        </optional>
 														<interleave>
 															<element name="title">
 																<text />
@@ -131,6 +136,15 @@
 			<element name="tools">
 				<zeroOrMore>
 					<element name="tool">
+						<attribute name="name" />
+					</element>
+				</zeroOrMore>
+			</element>
+		</optional>
+		<optional>
+			<element name="applications">
+				<zeroOrMore>
+					<element name="app">
 						<attribute name="name" />
 					</element>
 				</zeroOrMore>

@@ -24,7 +24,7 @@ def doValidation(document_url, schema_url=JOBFEED_SCHEMA_URL):
 if __name__ == '__main__':
 
     import sys
-    document_url = 'http://localhost:8080/rawjobs'
+    document_url = 'http://localhost:8080/static/example_joblist.xml'
     if len(sys.argv) > 1:
         document_url = sys.argv[1]
 

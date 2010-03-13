@@ -5,14 +5,23 @@ from xml.sax.handler import ContentHandler
 
 from datetime import datetime
 
+GEO_ATTRIBUTES = ["lat", "lon"]
+
 SKILL_REQUIRED = "required"
 SKILL_PREFERRED = "preferred"
 SKILL_PREFERENCE_TYPES = [SKILL_REQUIRED, SKILL_PREFERRED]
 
 SKILL_CATEGORY_APIS = "apis"
+SKILL_CATEGORY_TOOLS = "tools"
 SKILL_CATEGORY_APPLICATIONS = "applications"
 SKILL_CATEGORY_PROGRAMMING_LANGUAGES = "programming_languages"
-SKILL_CATEGORIES = [SKILL_CATEGORY_APIS, SKILL_CATEGORY_APPLICATIONS, SKILL_CATEGORY_PROGRAMMING_LANGUAGES]
+
+SKILL_CATEGORIES_CHILDREN = {
+    SKILL_CATEGORY_APIS: "api",
+    SKILL_CATEGORY_TOOLS: "tool",
+    SKILL_CATEGORY_APPLICATIONS: "app",
+    SKILL_CATEGORY_PROGRAMMING_LANGUAGES: "lang"
+}
 
 # =============================================================================
 class LanguageExperience():
@@ -37,6 +46,7 @@ class Job():
         self.degree_level = handler.degree_level
         self.degree_area = handler.degree_area
         self.expiration = datetime.strptime(handler.expiration, "%Y-%m-%d").date()
+        self.contract = bool(handler.contract)
 
         self.skills = handler.skills
 
@@ -55,41 +65,43 @@ class JobFeedHandler(ContentHandler):
         self.skills = {}
         self.skill_category = None
         self.skill_preference_type = None
+        self.contract = False
 
     def startElement(self, name, attrs):
 
         if name == 'position':
             self.in_position = True
-            self.jobid = attrs.get('id', "")
-            self.expiration = attrs.get('expires', "")
+            self.jobid = attrs.get('id')
+            self.contract = attrs.get('contract')
+            self.expiration = attrs.get('expires')
 
         elif name in SKILL_PREFERENCE_TYPES:
             self.skill_preference_type = name
             self.skills[self.skill_preference_type] = {}
 
-        elif name in SKILL_CATEGORIES:
+        elif name in SKILL_CATEGORIES_CHILDREN.keys():
             self.skill_category = name
             self.skills[self.skill_preference_type][self.skill_category] = []
 
+        elif name in SKILL_CATEGORIES_CHILDREN.values():
+            self.skills[self.skill_preference_type][self.skill_category].append(
+                    LanguageExperience(
+                            attrs.get('name'),
+                            attrs.get('years', None)
+                    )
+            )
+            
         elif name == 'geo':
-            self.geo = map(float, [attrs.get('lat', ""), attrs.get('lon', "")])
+            self.geo = [float(attrs.get(a)) for a in GEO_ATTRIBUTES]
 
         elif name == 'degree':
-            self.degree_level = attrs.get('level', "")
-            self.degree_area = attrs.get('area', "")
+            self.degree_level = attrs.get('level')
+            self.degree_area = attrs.get('area')
 
         elif name == 'title':
             self.in_title = True
             self.job_title = ""
 
-        elif name == 'lang':
-
-            self.skills[self.skill_preference_type][self.skill_category].append(
-                    LanguageExperience(
-                            attrs.get('name', ""),
-                            attrs.get('years', None)
-                    )
-            )
 
     def endElement(self, name):
         if name == 'position':
@@ -140,6 +152,7 @@ if __name__ == '__main__':
     for job in jobs:
 
         print "\t", job.title
+        print "\t\t", "Contract employment?", job.contract
         print "\t\t", job.expiration
         print "\t\t", job.job_id
         print "\t\t", job.geo
