@@ -1,7 +1,7 @@
 #summary Description and justification of feed schema
 #labels Featured
 
-The exerpt on the main page gives a partial idea of the intended form of job feeds. Take a look at a [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/static/example_joblist.xml complete example].
+The [http://code.google.com/p/jobfeed/#example exerpt on the main page] gives a partial idea of the intended form of job feeds. Take a look at a [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/static/example_joblist.xml complete example].
 
 
 Here is the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/static/jobfeed.xml official jobfeed schema] written in [http://en.wikipedia.org/wiki/RELAX_NG RELAX NG].
