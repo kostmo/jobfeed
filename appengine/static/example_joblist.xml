@@ -25,12 +25,8 @@
 									</education>
 									<skills>
 										<required>
-											<programming_languages>
-												<lang name="MATLAB" years="7" />
-											</programming_languages>
-											<tools>
-												<tool name="git" />
-											</tools>
+                                            <lang name="MATLAB" years="7" />
+                                            <app name="git" />
 										</required>
 									</skills>
 								</qualifications>
@@ -47,14 +43,10 @@
 									</education>
 									<skills>
 										<required>
-											<applications>
-												<app name="AutoCAD"></app>
-											</applications>
+                                            <app name="AutoCAD" />
 										</required>
 										<preferred>
-											<programming_languages>
-												<lang name="MATLAB" />
-											</programming_languages>
+                                            <lang name="MATLAB" />
 										</preferred>
 									</skills>
 								</qualifications>
@@ -84,14 +76,11 @@
 									</education>
 									<skills>
 										<preferred>
-											<programming_languages>
 												<lang name="BASH" />
-											</programming_languages>
 										</preferred>
 										<required>
-											<programming_languages>
 												<lang name="MATLAB" years="2" />
-											</programming_languages>
+												<equip name="multimeter" />
 										</required>
 									</skills>
 								</qualifications>
@@ -122,9 +111,7 @@
 									</education>
 									<skills>
 										<required>
-											<programming_languages>
 												<lang name="SQL" years="7" />
-											</programming_languages>
 										</required>
 									</skills>
 								</qualifications>

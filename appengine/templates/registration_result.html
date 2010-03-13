@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html>
-
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Job Postings Feed Registration</title>
-
   </head>
+  
   <body>
     <h1>Job Postings Feed Registration</h1>
     <hr>
-      Result: {{submission_result}}<br/>
-      <!--
-      Validation only: {{validation_only_option}}<br/>
-      -->
-      Link URL: {{link_url}}<br/>
-      Hostname: {{link_hostname}}<br/>
-      Job Count: {{job_count}}<br/>
+      Result: <b>{{submission_result}}</b><br/>
+      Link URL: <b><a href="{{link_url}}">{{link_url}}</a></b><br/>
+      Hostname: <b>{{link_hostname}}</b><br/>
+      Jobs added: <b>{{job_count}}</b><br/>
+      Jobs updated: <b>?</b>
   </body>
 </html>

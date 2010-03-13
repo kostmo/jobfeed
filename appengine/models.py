@@ -25,34 +25,42 @@ from geo.geomodel import GeoModel
 EXPERIENCE_YEARS_BUCKETS = [1, 2, 4, 7, 10]
 
 # =============================================================================
-class NamedTool(db.Model):
+class NamedSkill(db.Model):
     name = db.StringProperty()
-    # Instead of an additional property, we'll use "key_name".
+    # XXX Instead of an additional property, we'll use the "key_name" kwarg.
 #    canonical = db.StringProperty()    # Lowercase version
 
 # =============================================================================
-class ToolExperienceBucket(db.Model):
-    lang = db.ReferenceProperty(NamedTool, required=True)
-    years = db.IntegerProperty()
-
-# =============================================================================
-class ProgrammingLanguageTool(NamedTool):
+class ApiSkill(NamedSkill):
     pass
 
 # =============================================================================
-class ApiTool(NamedTool):
+class EquipmentSkill(NamedSkill):
     pass
 
 # =============================================================================
-class ApplicationTool(NamedTool):
+class ActivitySkill(NamedSkill):
     pass
 
+# =============================================================================
+class ApplicationSkill(NamedSkill):
+    pass
+
+# =============================================================================
+class ProgrammingLanguageSkill(NamedSkill):
+    pass
+
+# =============================================================================
+class SkillExperience(db.Model):
+    skill = db.ReferenceProperty(NamedSkill, required=True)
+    years = db.IntegerProperty(required=True)
+    
 # =============================================================================
 class JobFeedUrl(db.Model):
     link = db.LinkProperty(required=True)
     contact =  db.EmailProperty()
     since = db.DateTimeProperty(required=True, auto_now_add=True)
-    lastcrawl = db.DateTimeProperty(required=True, auto_now_add=True)
+    lastcrawl = db.DateTimeProperty(required=True, auto_now=True)
     interval = db.IntegerProperty() # in days
     crawlcount = db.IntegerProperty(default=0)
 
@@ -62,7 +70,6 @@ class JobFeedSpamReport(db.Model):
     feed = db.ReferenceProperty(JobFeedUrl, required=True)
 
 # =============================================================================
-
 class JobOpening(GeoModel):
     """A location-aware model for Job postings."""
 
@@ -72,10 +79,12 @@ class JobOpening(GeoModel):
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
     feed = db.ReferenceProperty(JobFeedUrl, required=True)
-    updated = db.DateTimeProperty(required=True, auto_now_add=True)
-
-
-
+    
+    required = db.ListProperty(db.Key)
+    preferred = db.ListProperty(db.Key)
+    
+#    since = db.DateTimeProperty(required=True, auto_now_add=True)   # Redundant with the feed
+    updated = db.DateTimeProperty(required=True, auto_now=True)
 
     @staticmethod
     def public_attributes():
@@ -108,7 +117,7 @@ class JobOpening(GeoModel):
 
 
 # =============================================================================
-
+# FIXME DEPRECATED
 class PublicSchool(GeoModel):
     """A location-aware model for public school entities.
 
