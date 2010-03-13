@@ -5,7 +5,7 @@
 == advantages ==
 
   * project is not profit-motivated
-    * accomplished on no-cost infrastructure (until a possibly a point in the distant future)
+    * accomplished on no-cost infrastructure (until possibly a point in the distant future)
     * coded in a few days (cost of effort negligible)
 
 === for job searchers ===
