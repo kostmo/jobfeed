@@ -10,7 +10,7 @@
   * Add (optional) salary field
   * Add job count to main page
 
-Employment terms
+Employment term/duration options:
   * part time
   * intern
 
