@@ -9,7 +9,7 @@ Here is the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/stat
 Each job record should carry the following information:
   * location
     * Nominal location/address
-    * geographic coordinate (Lat/Lon)
+    * geographic coordinates (Lat/Lon)
   * company name
   * position title
   * educational requirements
