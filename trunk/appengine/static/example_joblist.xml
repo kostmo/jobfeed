@@ -47,9 +47,9 @@
 									</education>
 									<skills>
 										<required>
-											<tools>
-												<tool name="Autocad"></tool>
-											</tools>
+											<applications>
+												<app name="AutoCAD"></app>
+											</applications>
 										</required>
 										<preferred>
 											<programming_languages>
@@ -112,7 +112,7 @@
 					<department>
 						<name>Customer Relations</name>
 						<openings>
-							<position id="15369" expires="2010-03-13">
+							<position id="15369" expires="2010-03-13" contract="true">
 								<title>Database Maintainer</title>
 								<qualifications>
 									<education>

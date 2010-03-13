@@ -27,7 +27,8 @@ EXPERIENCE_YEARS_BUCKETS = [1, 2, 4, 7, 10]
 # =============================================================================
 class NamedTool(db.Model):
     name = db.StringProperty()
-    canonical = db.StringProperty()    # Lowercase version
+    # Instead of an additional property, we'll use "key_name".
+#    canonical = db.StringProperty()    # Lowercase version
 
 # =============================================================================
 class ToolExperienceBucket(db.Model):
@@ -47,11 +48,13 @@ class ApplicationTool(NamedTool):
     pass
 
 # =============================================================================
-
 class JobFeedUrl(db.Model):
     link = db.LinkProperty(required=True)
-    since = db.DateTimeProperty(required=True, auto_now_add=True)
     contact =  db.EmailProperty()
+    since = db.DateTimeProperty(required=True, auto_now_add=True)
+    lastcrawl = db.DateTimeProperty(required=True, auto_now_add=True)
+    interval = db.IntegerProperty() # in days
+    crawlcount = db.IntegerProperty(default=0)
 
 # =============================================================================
 class JobFeedSpamReport(db.Model):

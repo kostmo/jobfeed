@@ -62,33 +62,58 @@ def make_static_xml_handler(template_file):
 
     return StaticXmlHandler
 
+
+# =============================================================================
+# As per http://code.google.com/appengine/docs/python/datastore/keysandentitygroups.html#Kinds_Names_and_IDs
+def langToKey(original):
+    unsanitized_name = original.lower()
+    disallowed_prefix_suffix = "__" # two underscores
+    if unsanitized_name.endswith(disallowed_prefix_suffix) and disallowed_prefix_suffix.startswith(disallowed_prefix_suffix):
+        return "x" + unsanitized_name
+    return unsanitized_name
+
+
+import models
+
+
+# =============================================================================
 from google.appengine.ext import db
-from models import JobOpening, JobFeedUrl, ToolExperienceBucket, ProgrammingLanguageTool
 class UrlSubmission(webapp.RequestHandler):
+
+    def convert_job(self, job, feed_url_object):
+        x = models.JobOpening(location=db.GeoPt(job.geo[0], job.geo[1]), feed=feed_url_object)
+        x.update_location()
+        
+        
+        logging.info("Source contract: " + str(job.contract))
+        
+        x.contract = job.contract
+        
+        logging.info("After assignment: " + str(x.contract))
+        
+        x.job_id = job.job_id
+        x.title = job.title
+        x.expiration = job.expiration
+        x.expired = datetime.now().date() >= job.expiration
+        return x
 
     def convert_joblist(self, joblist, feed_url_object):
 
         # Convert simple Job() objects into the database entities
         converted_jobs = []
         unique_languages = {}
-        for job in joblist:
-            x = JobOpening(location=db.GeoPt(job.geo[0], job.geo[1]), feed=feed_url_object)
-            x.update_location()
+        for raw_job in joblist:
+            job_entity = self.convert_job(raw_job, feed_url_object)
 
-            x.job_id = job.job_id
-            x.title = job.title
-            x.expiration = job.expiration
-            x.expired = datetime.now().date() >= job.expiration
-
-            if parse_jobs.SKILL_REQUIRED in job.skills and parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES in job.skills[parse_jobs.SKILL_REQUIRED]:
-                required_programming_languages = job.skills[parse_jobs.SKILL_REQUIRED][parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES]
+            if parse_jobs.SKILL_REQUIRED in raw_job.skills and parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES in raw_job.skills[parse_jobs.SKILL_REQUIRED]:
+                required_programming_languages = raw_job.skills[parse_jobs.SKILL_REQUIRED][parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES]
 
                 # For each unique programming language, create a list of JobOpening entities that reference it.
                 for lang_experience in required_programming_languages:
                     lang_joblist = unique_languages.setdefault(lang_experience.name, [])
-                    lang_joblist.append(x)
+                    lang_joblist.append(job_entity)
 
-            converted_jobs.append( x )
+            converted_jobs.append( job_entity )
 
         return converted_jobs, unique_languages
 
@@ -111,7 +136,7 @@ class UrlSubmission(webapp.RequestHandler):
         joblist = []
         if link_hostname:
 
-            q = JobFeedUrl.all()
+            q = models.JobFeedUrl.all()
             q.filter("link =", link_url)
             if q.get():
                 submission_result = "Duplicate URL"
@@ -121,7 +146,7 @@ class UrlSubmission(webapp.RequestHandler):
                 try:
                     joblist = parse_jobs.fetchJobList(link_url)
 
-                    feed_url_object = JobFeedUrl(link=db.Link(link_url))
+                    feed_url_object = models.JobFeedUrl(link=db.Link(link_url))
                     if contact_email:
                         feed_url_object.contact = db.Email(contact_email)
                     feed_url_object.put()
@@ -130,7 +155,7 @@ class UrlSubmission(webapp.RequestHandler):
 
                     prog_lang_entities = []
                     for unique_language, jobs in unique_languages.items():
-                        lang_entity = ProgrammingLanguageTool(name=unique_language, canonical=unique_language.lower())
+                        lang_entity = models.ProgrammingLanguageTool(name=unique_language, key_name=langToKey(unique_language))
                         prog_lang_entities.append(lang_entity)
 
                     prog_lang_entity_keys = db.put( prog_lang_entities )
@@ -180,7 +205,7 @@ class FeedList(webapp.RequestHandler):
 
     def get(self):
 
-        q = JobFeedUrl.all()
+        q = models.JobFeedUrl.all()
 #               q.filter("sleeping =", True)
         q.order("since")
         feed_list = q.fetch(20) # TODO - paginate results
