@@ -17,10 +17,6 @@ Each job record should carry the following information:
   * subject matter keywords
   * contract vs. permanent employment
   * required/preferred skills
-    *  (e.g. - )
-    * APIs/environments (e.g. - Google App Engine)
-    * applications (e.g. )
-    *  (e.g. )
   * expiration date
 
 Since there may be many job openings at the same site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the company and/or department name.
@@ -30,7 +26,7 @@ Within the `<required>` or `<preferred>` tag the following are allowed:
 || `<lang>` || programming language || Java ||
 || `<api>` || API/environment || Google App Engine ||
 || `<app>` || software application || AutoCAD ||
-|| `<tools>` || other unclassified tool || multimeter ||
+|| `<tool>` || other unclassified tool || multimeter ||
 
 == supplemental information ==
   * [http://www.oasis-open.org/committees/relax-ng/tutorial-20011203.html relax-ng tutorial]
