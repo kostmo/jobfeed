@@ -1,6 +1,15 @@
 #summary Why create this project?
 #labels Featured
 
+This project arose from a dissatisfaction with the status quo of technology job search sites. I wanted to be able to pick a location, quickly find jobs that matched my programming skills, and look up information about the company.  Instead I found myself struggling with poorly designed user-interfaces and hampered by recruiting companies that obscure their clients' identity.
+
+I have these objectives for the project:
+  * fine-grained skill-based
+  * no hosting expenses
+  * bypass recruiting middlemen
+    * access employer organization identity transparently
+
+The greatest challenge is that cooperation is required from employers' HR.  However, it is to the employer's advantage, and hopefully they will recognize it as a low-risk improvement upon the status quo.
 
 == advantages ==
 
@@ -9,8 +18,4 @@
        * minimal storage and bandwidth used
          * prose job descriptions stored on original host, fetched client-side on demand
     * coded in a few days (cost of effort negligible)
-
-=== for job searchers ===
-  * free in every respect
-=== for employers ===
-  * free in every respect
+  * free in every respect for job searchers and employers
