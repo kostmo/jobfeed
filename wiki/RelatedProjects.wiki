@@ -8,10 +8,11 @@ Here are just a couple I found in a Google search, along with some aspects to co
 
   * lacks Google Maps integration
   * has way more jobs listed (as of now)
+  * do not facilitate fine-grained search based on individual skills.
 
 [http://www.inovahire.com/xml-job-feed InovaHire]
 
   * site is ad-sponsored.
   * lacks Google Maps integration
   * not as focused in scope (they also offer "live interview" services)
-  * feeds share some similarities, but do not appear to facilitate fine-grained search based on individual skills.
+  * do not facilitate fine-grained search based on individual skills.
