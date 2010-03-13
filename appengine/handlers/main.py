@@ -67,7 +67,7 @@ from models import JobOpening, JobFeedUrl, ToolExperienceBucket, ProgrammingLang
 class UrlSubmission(webapp.RequestHandler):
 
   def convert_joblist(self, joblist, feed_url_object):
-	
+
     # Convert simple Job() objects into the database entities
     converted_jobs = []
     unique_languages = {}
@@ -80,12 +80,13 @@ class UrlSubmission(webapp.RequestHandler):
 		x.expiration = job.expiration
 		x.expired = datetime.now().date() >= job.expiration
 
-		required_programming_languages = job.skills[parse_jobs.SKILL_REQUIRED][parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES]
-		
-		# For each unique programming language, create a list of JobOpening entities that reference it.
-		for lang_experience in required_programming_languages:
-			lang_joblist = unique_languages.setdefault(lang_experience.name, [])
-			lang_joblist.append(x)
+		if parse_jobs.SKILL_REQUIRED in job.skills and parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES in job.skills[parse_jobs.SKILL_REQUIRED]:
+		    required_programming_languages = job.skills[parse_jobs.SKILL_REQUIRED][parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES]
+		    
+		    # For each unique programming language, create a list of JobOpening entities that reference it.
+		    for lang_experience in required_programming_languages:
+			    lang_joblist = unique_languages.setdefault(lang_experience.name, [])
+			    lang_joblist.append(x)
 		
 		converted_jobs.append( x )
 
@@ -195,7 +196,6 @@ class FeedList(webapp.RequestHandler):
 		)
 
 # =============================================================================
-
 def main():
   application = webapp.WSGIApplication([
 	      ('/', make_static_handler('../templates/index.html')),
