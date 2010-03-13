@@ -9,12 +9,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="81.914062"
-   height="126.91406"
+   width="128"
+   height="128"
    id="svg2"
    version="1.1"
    inkscape:version="0.47pre4 r22446"
-   sodipodi:docname="logo.svg">
+   sodipodi:docname="shortlogo.svg"
+   inkscape:export-filename="/home/kostmo/hacks/jobfeed/graphics/shortlogo16.png"
+   inkscape:export-xdpi="11.454545"
+   inkscape:export-ydpi="11.454545">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -32,9 +35,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="-177.43973"
-     inkscape:cy="-318.03796"
+     inkscape:zoom="3.959798"
+     inkscape:cx="69.152871"
+     inkscape:cy="56.46193"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -59,20 +62,34 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-39.582589,-87.410159)">
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot2816"
-       style="font-size:144px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Impact;-inkscape-font-specification:Impact Bold"
-       transform="translate(-5.7142857,-220)"><flowRegion
-         id="flowRegion2818"><rect
-           id="rect2820"
-           width="640"
-           height="345.71429"
-           x="45.714287"
-           y="272.36218"
-           style="font-size:144px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact Bold" /></flowRegion><flowPara
-         id="flowPara2822">j<flowSpan
-   style="fill:#0000d2;fill-opacity:1"
-   id="flowSpan3598">f</flowSpan></flowPara></flowRoot>  </g>
+     transform="translate(102.31752,-78.352682)">
+    <g
+       id="g2840"
+       transform="translate(1.2626907,-0.50507628)">
+      <path
+         transform="translate(137.68248,95.981588)"
+         d="m -114.28571,46.914062 c 0,34.715042 -28.1421,62.857148 -62.85714,62.857148 -34.71504,0 -62.85715,-28.142106 -62.85715,-62.857147 0,-34.715042 28.14211,-62.857144 62.85715,-62.857144 34.71504,0 62.85714,28.142102 62.85714,62.857143 z"
+         sodipodi:ry="62.857143"
+         sodipodi:rx="62.857143"
+         sodipodi:cy="46.914062"
+         sodipodi:cx="-177.14285"
+         id="path2817"
+         style="fill:#ececec;fill-opacity:1;stroke:none"
+         sodipodi:type="arc" />
+      <flowRoot
+         transform="translate(-125.71428,-227.97154)"
+         style="font-size:144px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Impact;-inkscape-font-specification:Impact Bold"
+         id="flowRoot2816"
+         xml:space="preserve"><flowRegion
+           id="flowRegion2818"><rect
+             style="font-size:144px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact Bold"
+             y="272.36218"
+             x="45.714287"
+             height="345.71429"
+             width="640"
+             id="rect2820" /></flowRegion><flowPara
+           id="flowPara2822">j<flowSpan
+   id="flowSpan3598"
+   style="fill:#0000d2;fill-opacity:1">f</flowSpan></flowPara></flowRoot>    </g>
+  </g>
 </svg>

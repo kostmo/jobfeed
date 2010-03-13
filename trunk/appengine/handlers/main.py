@@ -200,8 +200,6 @@ def main():
   application = webapp.WSGIApplication([
 	      ('/', make_static_handler('../templates/index.html')),
 	      ('/speedtest', make_static_handler('../templates/speedtest.html')),
-	      ('/rawjobs', make_static_xml_handler('../templates/example_joblist.xml')),
-	      ('/jobfeed.rng', make_static_xml_handler('../templates/jobfeed.xml')),
 	      ('/register', make_static_handler('../templates/registration.html')),
 	      ('/urlsubmission', UrlSubmission),
 	      ('/feedlist', FeedList)
