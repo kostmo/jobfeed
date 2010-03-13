@@ -27,7 +27,7 @@ Within the `<required>` or `<preferred>` tag the following are allowed:
 || `<api>` || API/environment || Google App Engine, OpenGL ||
 || `<app>` || software application || AutoCAD, git ||
 || `<equip>` || equipment || multimeter, cappuccino machine ||
-|| `<activity>` || some kind of task || system administration, PCB layout ||
+|| `<activity>` || some procedure or task || system administration, PCB layout ||
 
 == supplemental information ==
   * [http://www.oasis-open.org/committees/relax-ng/tutorial-20011203.html relax-ng tutorial]
