@@ -11,31 +11,42 @@ SKILL_REQUIRED = "required"
 SKILL_PREFERRED = "preferred"
 SKILL_PREFERENCE_TYPES = [SKILL_REQUIRED, SKILL_PREFERRED]
 
-SKILL_CATEGORY_APIS = "apis"
-SKILL_CATEGORY_TOOLS = "tools"
-SKILL_CATEGORY_APPLICATIONS = "applications"
-SKILL_CATEGORY_PROGRAMMING_LANGUAGES = "programming_languages"
+SKILL_CATEGORY_APIS = "api"
+SKILL_CATEGORY_EQUIPMENT = "equip"
+SKILL_CATEGORY_ACTIVITIES = "activity"
+SKILL_CATEGORY_APPLICATIONS = "app"
+SKILL_CATEGORY_PROGRAMMING_LANGUAGES = "lang"
 
-SKILL_CATEGORIES_CHILDREN = {
-    SKILL_CATEGORY_APIS: "api",
-    SKILL_CATEGORY_TOOLS: "tool",
-    SKILL_CATEGORY_APPLICATIONS: "app",
-    SKILL_CATEGORY_PROGRAMMING_LANGUAGES: "lang"
-}
+SKILL_CATEGORIES = [
+    SKILL_CATEGORY_APIS,
+    SKILL_CATEGORY_EQUIPMENT,
+    SKILL_CATEGORY_ACTIVITIES,
+    SKILL_CATEGORY_APPLICATIONS,
+    SKILL_CATEGORY_PROGRAMMING_LANGUAGES
+]
+
+SKILL_CATEGORY_NAMES = [
+    "API",
+    "Equipment",
+    "Activity",
+    "Software application",
+    "Programming language"
+]
 
 # =============================================================================
-class LanguageExperience():
-    def __init__(self, name, years):
+class SkillExperience():
+    def __init__(self, name, years, required):
         self.name = name
         self.years = years
         if not (years is None):
             self.years = float(years)
+        self.required = required
 
     def __str__(self):
-        return str(tuple([self.name, self.years]))
+        return str(tuple([self.name, self.years, self.required]))
 
     def __repr__(self):
-        return str(self)
+        return "SkillExperience" + str(self)
 
 # =============================================================================
 class Job():
@@ -61,9 +72,7 @@ class JobFeedHandler(ContentHandler):
         self.in_position = False
         self.in_title = False
         self.job_title = ""
-
         self.skills = {}
-        self.skill_category = None
         self.skill_preference_type = None
         self.contract = False
 
@@ -77,17 +86,14 @@ class JobFeedHandler(ContentHandler):
 
         elif name in SKILL_PREFERENCE_TYPES:
             self.skill_preference_type = name
-            self.skills[self.skill_preference_type] = {}
 
-        elif name in SKILL_CATEGORIES_CHILDREN.keys():
-            self.skill_category = name
-            self.skills[self.skill_preference_type][self.skill_category] = []
-
-        elif name in SKILL_CATEGORIES_CHILDREN.values():
-            self.skills[self.skill_preference_type][self.skill_category].append(
-                    LanguageExperience(
-                            attrs.get('name'),
-                            attrs.get('years', None)
+        elif name in SKILL_CATEGORIES:
+            sublist = self.skills.setdefault(name, [])
+            sublist.append(
+                    SkillExperience(
+                        attrs.get('name'),
+                        attrs.get('years', None),
+                        self.skill_preference_type == SKILL_REQUIRED
                     )
             )
             

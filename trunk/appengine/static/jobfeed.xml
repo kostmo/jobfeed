@@ -118,37 +118,32 @@
 		</element>
 	</start>
 	<define name="skillset">
-		<optional>
-			<element name="programming_languages">
-				<zeroOrMore>
-					<element name="lang">
-						<attribute name="name" />
-						<optional>
-							<attribute name="years">
-								<data type="float" />
-							</attribute>
-						</optional>
-					</element>
-				</zeroOrMore>
-			</element>
-		</optional>
-		<optional>
-			<element name="tools">
-				<zeroOrMore>
-					<element name="tool">
-						<attribute name="name" />
-					</element>
-				</zeroOrMore>
-			</element>
-		</optional>
-		<optional>
-			<element name="applications">
-				<zeroOrMore>
-					<element name="app">
-						<attribute name="name" />
-					</element>
-				</zeroOrMore>
-			</element>
-		</optional>
+        <zeroOrMore>
+            <choice>
+                <element name="activity">
+                    <ref name="skillprops"/>
+                </element>
+                <element name="equip">
+                    <ref name="skillprops"/>
+                </element>
+                <element name="api">
+                    <ref name="skillprops"/>
+                </element>
+                <element name="app">
+                    <ref name="skillprops"/>
+                </element>
+                <element name="lang">
+                    <ref name="skillprops"/>
+                </element>
+            </choice>
+        </zeroOrMore>
 	</define>
+    <define name="skillprops">
+        <attribute name="name" />
+        <optional>
+            <attribute name="years">
+                <data type="float" />
+            </attribute>
+        </optional>
+    </define>
 </grammar>
