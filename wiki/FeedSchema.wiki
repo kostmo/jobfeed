@@ -7,16 +7,19 @@ Here is the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/stat
 
 == job records ==
 Each job record should carry the following information:
-  * Nominal location
-  * Lat/Lon
-  * Company name
+  * location
+    * Nominal location/address
+    * geographic coordinate (Lat/Lon)
+  * company name
   * position title
-  * minimum degree
+  * educational requirements
     * degree area/concentration
   * subject matter keywords
-  * required/preferred languages
-  * required/preferred APIs
-  * required/preferred tools
+  * contract vs. permanent employment
+  * required/preferred skills
+    * programming languages (e.g. - Java)
+    * APIs/environments (e.g. - Google App Engine)
+    * other tools (e.g. multimeter)
   * expiration date
 
 == supplemental information ==
