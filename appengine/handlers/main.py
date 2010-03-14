@@ -82,12 +82,10 @@ SKILL_CATEGORY_ENTITY_MAPPING = {
     parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES: models.ProgrammingLanguageSkill
 }
 
-
 # =============================================================================
 class SkillConversionHelper:
     def __init__(self):
         pass
-
 
 # =============================================================================
 # skill_experience_entities is guaranteed to have at least one item
@@ -104,8 +102,8 @@ def getHighestBucketWithAtMost(skill_experience_entities, years):
 from google.appengine.ext import db
 class UrlSubmission(webapp.RequestHandler):
 
-    def convert_job(self, job, feed_url_object):
-        x = models.JobOpening(location=db.GeoPt(job.geo[0], job.geo[1]), feed=feed_url_object)
+    def convert_job(self, job):
+        x = models.JobOpening(location=db.GeoPt(job.geo[0], job.geo[1]))
         x.update_location()
 
         x.contract = job.contract
@@ -120,7 +118,7 @@ class UrlSubmission(webapp.RequestHandler):
 
         link_url = self.request.get('submission_url')
         contact_email = self.request.get('contact_email')
-        crawl_interval_days = 7*int(self.request.get('crawl_interval_weeks'))
+        crawl_interval_days = 7*max(1, int(self.request.get('crawl_interval_weeks')))
 
         validate_only = self.request.get('validate_only')   # XXX Not used
 
@@ -147,7 +145,9 @@ class UrlSubmission(webapp.RequestHandler):
                     feed_url_object.interval = crawl_interval_days
                     if contact_email:
                         feed_url_object.contact = db.Email(contact_email)
-                    feed_url_object.put()
+                    # We hold off on committing the feed url in case there are any problems    
+                
+                    
 
 
                     experience_bucketed_skills_entities = []
@@ -156,7 +156,7 @@ class UrlSubmission(webapp.RequestHandler):
                     for raw_job in joblist:
                         
                         # Convert simple Job() objects into model entities
-                        raw_job.converted_job_entity = self.convert_job(raw_job, feed_url_object)
+                        raw_job.converted_job_entity = self.convert_job(raw_job)
                         
                         
                         for skill_category, skill_list in raw_job.skills.items():
@@ -176,7 +176,8 @@ class UrlSubmission(webapp.RequestHandler):
                                     # queue to be "put()"
                                     basic_skills_entities_by_category.setdefault(skill_category, []).append( basic_skill_entity )
                                     
-                                    skill_experience_entities = [models.SkillExperience(skill=basic_skill_entity, years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
+#                                    skill_experience_entities = [models.SkillExperience(skill=basic_skill_entity, years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
+                                    skill_experience_entities = [models.SkillExperience(parent=basic_skill_entity, key_name=str(years), years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
                                     experience_bucketed_skills_entities.extend( skill_experience_entities )  # queue to be "put()"
                                     
                                     skill_buckets_unique_by_name[normalized_skillname] = skill_experience_entities
@@ -186,10 +187,12 @@ class UrlSubmission(webapp.RequestHandler):
                                 raw_skill.bucket_entity = getHighestBucketWithAtMost(skill_experience_entities, raw_skill.years)
                                     
                     # put() each type into the datastore in separate groups
+                    # Here it's okay if the entity already exists; it will just get overwritten by sharing the same key_name.
                     for skill_category_name, skill_entity_list in basic_skills_entities_by_category.items():
                         db.put( skill_entity_list )
 
                     # We can put() the buckets all in one batch, since they use a supertype shared by each skill category and are homogeneous
+                    # Here, since we've also specified the key_name and parent, duplicates will also be overwritten.
                     db.put( experience_bucketed_skills_entities )
 
                     # The final thing to do before put()-ing the jobs into the datastore is adding the skill buckets to the correct list.
@@ -204,7 +207,15 @@ class UrlSubmission(webapp.RequestHandler):
                                     bucket_list = raw_job.converted_job_entity.preferred
                                 bucket_list.append( raw_skill.bucket_entity.key() )
 
-                    db.put( [raw_job.converted_job_entity for raw_job in joblist] )
+                    # We put() the feed URL in the datastore as late as possible in case there
+                    # were any problems with data in the feed
+                    feed_url_object.put()
+                    job_entities = []
+                    for raw_job in joblist:
+                        raw_job.converted_job_entity.feed = feed_url_object
+                        job_entities.append( raw_job.converted_job_entity )
+
+                    db.put( job_entities )
 
                 except IOError, e:
                     submission_result = "Failed; Couldn't fetch URL"
@@ -214,6 +225,11 @@ class UrlSubmission(webapp.RequestHandler):
 
         validation_only_option = bool(validate_only)
 
+        
+        # TODO - use sharded counter
+        job_counter_entity = models.SimpleCounter.get_or_insert("job_count")
+        job_counter_entity.count += len(joblist)
+        job_counter_entity.put()
 
         template_file = '../templates/registration_result.html'
         self.response.out.write(template.render(
@@ -230,11 +246,12 @@ class UrlSubmission(webapp.RequestHandler):
 # =============================================================================
 class FriendlyFeedRepresentation:
     def __init__(self, job_feed_object):
-        self.link = "<a href=\"" + str(job_feed_object.link) + "\">" + str(job_feed_object.link) + "</a>"
+#        self.link = "<a href=\"" + str(job_feed_object.link) + "\">" + str(job_feed_object.link) + "</a>"
+        self.link = job_feed_object.link
         self.since = str( job_feed_object.since.date() )
 
 # =============================================================================
-class SkillsList(webapp.RequestHandler):
+class SkillsListHandler(webapp.RequestHandler):
 
     def get(self):
 
@@ -264,11 +281,16 @@ class FeedList(webapp.RequestHandler):
     def get(self):
 
         q = models.JobFeedUrl.all()
-#               q.filter("sleeping =", True)
+#       q.filter("sleeping =", True)
         q.order("since")
         feed_list = q.fetch(20) # TODO - paginate results
 
+
         template_file = '../templates/feedlist.html'
+        if self.request.get('format') == "xml":
+            template_file = '../templates/feedlist.xml'
+            self.response.headers['Content-Type'] = "application/xml"
+        
         self.response.out.write(template.render(
             os.path.join(os.path.dirname(__file__), template_file),
                 {
@@ -285,7 +307,7 @@ class SkillCategoryObject:
         self.title = title
 
 # =============================================================================
-class SkillsTest(webapp.RequestHandler):
+class SkillsTestHandler(webapp.RequestHandler):
 
     def get(self):
 
@@ -302,16 +324,88 @@ class SkillsTest(webapp.RequestHandler):
         )
 
 # =============================================================================
+class SkillsList:
+    def __init__(self, skills_list, category, label):
+        self.skills_list = skills_list
+        self.category = category
+        self.label = label
+
+# =============================================================================
+class SaveSearchHandler(webapp.RequestHandler):
+    
+    def post(self):
+        
+        formval = self.request.get('skill_keys')
+        if formval:
+            logging.info("skill keys: " + formval)
+            saved_name = self.request.get('saved_name')
+            logging.info("saved name: " + saved_name)
+            skill_keys_list = formval.split(",")
+            logging.info("skill keys list: " + str(skill_keys_list))
+            entity = models.SavedSearch(title=saved_name, qualifications=map(db.Key, skill_keys_list))
+            entity.put()
+
+        renderProfilePage(self)
+
+# =============================================================================
+def quoteString(val):
+    return "\"" + str(val) + "\""
+
+# =============================================================================
+def renderProfilePage(self):
+
+    loaded_skills = ""
+
+    load_key = self.request.get('load_key')
+    if load_key:
+        loaded_skills = ",".join( map(quoteString, models.SavedSearch.get(load_key).qualifications) )
+
+    q = models.SavedSearch.all()
+    saved_searches = q.fetch(100)
+    
+    skills_lists = []
+    for i, category in enumerate(parse_jobs.SKILL_CATEGORIES):
+        model = SKILL_CATEGORY_ENTITY_MAPPING[category]
+        q = model.all()
+        q.order("name")
+        skills_lists.append( SkillsList( q.fetch(1000), category, parse_jobs.SKILL_CATEGORY_NAMES[i] ) )
+    
+    self.response.out.write(template.render(
+        os.path.join(os.path.dirname(__file__), '../templates/searchprofile.html'),
+        {
+            'current_user': users.get_current_user(),
+            'skills_lists': skills_lists,
+            'saved_searches': saved_searches,
+            'loaded_skills': loaded_skills
+        }))
+
+# =============================================================================
+class SearchProfileHandler(webapp.RequestHandler):
+    
+    def get(self):
+        renderProfilePage(self)
+        
+
+# =============================================================================
+class MainHandler(webapp.RequestHandler):
+    
+    def get(self):
+        self.response.out.write(template.render(
+            os.path.join(os.path.dirname(__file__), '../templates/index.html'),
+            {'current_user': users.get_current_user()}))
+
+# =============================================================================
 def main():
     application = webapp.WSGIApplication([
-                ('/', make_static_handler('../templates/index.html')),
-                ('/speedtest', make_static_handler('../templates/speedtest.html')),
-                ('/register', make_static_handler('../templates/registration.html')),
-                ('/urlsubmission', UrlSubmission),
-                ('/feedlist', FeedList),
-                ('/skillslist', SkillsList),
-                ('/skillstest', SkillsTest),
-                
+            ('/', MainHandler),
+            ('/speedtest', make_static_handler('../templates/speedtest.html')),
+            ('/register', make_static_handler('../templates/registration.html')),
+            ('/urlsubmission', UrlSubmission),
+            ('/feeds', FeedList),
+            ('/skillslist', SkillsListHandler),
+            ('/skillstest', SkillsTestHandler),
+            ('/profile', SearchProfileHandler),
+            ('/save', SaveSearchHandler),
         ],
         debug=('Development' in os.environ['SERVER_SOFTWARE']))
     wsgiref.handlers.CGIHandler().run(application)

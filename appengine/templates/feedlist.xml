@@ -1,0 +1,6 @@
+<!DOCTYPE xml>
+<feeds>
+    {% for feed in feed_list %}
+      <feed since="{{feed.since}}" url="{{feed.link}}" />
+    {% endfor %}
+</feeds>

@@ -1,5 +1,21 @@
 #!/usr/bin/python
 
+#!/usr/bin/python2.5
+#
+# Copyright 2010 Karl Ostmo
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 
@@ -51,7 +67,7 @@ class SkillExperience():
 # =============================================================================
 class Job():
     def __init__(self, handler):
-        self.job_id = int(handler.jobid)
+        self.job_id = handler.jobid
         self.geo = handler.geo
         self.title = handler.job_title
         self.degree_level = handler.degree_level
@@ -62,9 +78,14 @@ class Job():
         self.skills = handler.skills
 
 # =============================================================================
+class DuplicateIdException(Exception):
+    pass
+
+# =============================================================================
 class JobFeedHandler(ContentHandler):
 
     def __init__ (self):
+        self.job_ids = []   # For error checking only
         self.joblist = []
         self.resetJob()
 
@@ -80,7 +101,12 @@ class JobFeedHandler(ContentHandler):
 
         if name == 'position':
             self.in_position = True
-            self.jobid = attrs.get('id')
+            self.jobid = int(attrs.get('id'))
+            if self.jobid in self.job_ids:
+                raise DuplicateIdException("Job id " + str(self.jobid) + " was already used")
+            else:
+                self.job_ids.append(self.jobid)
+            
             self.contract = attrs.get('contract')
             self.expiration = attrs.get('expires')
 
@@ -90,11 +116,11 @@ class JobFeedHandler(ContentHandler):
         elif name in SKILL_CATEGORIES:
             sublist = self.skills.setdefault(name, [])
             sublist.append(
-                    SkillExperience(
-                        attrs.get('name'),
-                        attrs.get('years', None),
-                        self.skill_preference_type == SKILL_REQUIRED
-                    )
+                SkillExperience(
+                    attrs.get('name'),
+                    attrs.get('years', None),
+                    self.skill_preference_type == SKILL_REQUIRED
+                )
             )
             
         elif name == 'geo':
