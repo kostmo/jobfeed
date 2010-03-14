@@ -9,7 +9,7 @@ I have these objectives for the project:
   * bypass recruiting middlemen
     * access employer organization identity transparently
 
-The greatest challenge is that cooperation is required from employers' HR.  However, connecting with skill-matched employees it is to the employer's advantage, and hopefully they will recognize it as a zero-risk, minimal-effort improvement upon the status quo.
+The greatest challenge is that direct cooperation is required from employers in annotating their existing prose descriptions for searchability.  The advantages should be apparent to the hiring manager, however: it helps you find the right talent more quickly.  Hopefully it is recognized as a zero-risk, minimal-effort improvement upon the status quo.
 
 == advantages ==
 
@@ -19,3 +19,4 @@ The greatest challenge is that cooperation is required from employers' HR.  Howe
          * prose job descriptions stored on original host, fetched client-side on demand
     * coded in a few days (cost of effort negligible)
   * free in every respect for job searchers and employers
+  * need not replace existing systems; merely augments them
