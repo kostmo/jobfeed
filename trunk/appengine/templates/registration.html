@@ -22,6 +22,10 @@
 
     </form>
     
-    <p><a href="http://jobcrawlr.appspot.com/static/example_joblist.xml">example feed</a></p>
+	<p>
+	  <!-- The development server is not multithreaded, so we can't feed a local page to the parser unless we run separate instances of the server. -->
+	  <!--<a href="/static/example_joblist.xml">example feed</a>-->
+	  <a href="http://jobcrawlr.appspot.com/static/example_joblist.xml">example feed</a> (drag into box)
+	  | <a href="/feeds">all feeds</a> (<a href="/feeds?format=xml">XML</a>)</p>
   </body>
 </html>

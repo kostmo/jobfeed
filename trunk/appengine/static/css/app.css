@@ -36,7 +36,6 @@ strong {
 
 body {
   font-family: helvetica, arial, sans-serif;
-  font-size: 62.5%;
   color: #333;
 }
 
@@ -77,23 +76,6 @@ a:active {
   min-height: 78px;
 }
 
-#logo {
-  width: 278px;
-  height: 78px;
-  background: transparent url(../images/logo.png) no-repeat scroll top left;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-#logo #slogan {
-  position: absolute;
-  left: 84px;
-  top: 53px;
-  width: 194px;
-  height: 25px;
-  color: #888;
-}
 
 /* search box */
 

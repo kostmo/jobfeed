@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Defines models for the PubSchool demo application."""
+"""Defines models for the "jobfeed" application."""
 
 __author__ = 'kostmo@gmail.com (Karl Ostmo)'
 
@@ -23,6 +23,18 @@ from google.appengine.ext import db
 from geo.geomodel import GeoModel
 
 EXPERIENCE_YEARS_BUCKETS = [1, 2, 4, 7, 10]
+
+# =============================================================================
+class DegreeArea(db.Model):
+    name = db.StringProperty()
+
+# =============================================================================
+class DegreeLevel(db.Model):
+    name = db.StringProperty()
+
+# =============================================================================
+class SimpleCounter(db.Model):
+    count = db.IntegerProperty(default=0)
 
 # =============================================================================
 class NamedSkill(db.Model):
@@ -52,8 +64,8 @@ class ProgrammingLanguageSkill(NamedSkill):
 
 # =============================================================================
 class SkillExperience(db.Model):
-    skill = db.ReferenceProperty(NamedSkill, required=True)
-    years = db.IntegerProperty(required=True)
+#    skill = db.ReferenceProperty(NamedSkill, required=True)    # We can set the parent instead
+    years = db.IntegerProperty(required=True)   # XXX Duplicates "key_name"
     
 # =============================================================================
 class JobFeedUrl(db.Model):
@@ -63,6 +75,13 @@ class JobFeedUrl(db.Model):
     lastcrawl = db.DateTimeProperty(required=True, auto_now=True)
     interval = db.IntegerProperty() # in days
     crawlcount = db.IntegerProperty(default=0)
+
+# =============================================================================
+class SavedSearch(db.Model):
+    title = db.StringProperty()
+    address = db.StringProperty()
+    geo = db.GeoPtProperty()
+    qualifications = db.ListProperty(db.Key)
 
 # =============================================================================
 class JobFeedSpamReport(db.Model):
@@ -78,8 +97,9 @@ class JobOpening(GeoModel):
     contract = db.BooleanProperty(default=False) # vs. permanent employment
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
-    feed = db.ReferenceProperty(JobFeedUrl, required=True)
+    feed = db.ReferenceProperty(JobFeedUrl)
     
+    fullpost = db.LinkProperty()   # Optionally link back to the full description on employer's website
     required = db.ListProperty(db.Key)
     preferred = db.ListProperty(db.Key)
     
@@ -88,7 +108,7 @@ class JobOpening(GeoModel):
 
     @staticmethod
     def public_attributes():
-        """Returns a set of simple attributes on public school entities."""
+        """Returns a set of simple attributes on job opening entities."""
         return [
           'job_id', 'title'
         ]

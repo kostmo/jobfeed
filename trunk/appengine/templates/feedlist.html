@@ -10,7 +10,7 @@
     <h1>Job Postings Feed List</h1>
   <ol>
     {% for feed in feed_list %}
-      <li>{{feed.since}}: {{feed.link}}</li>
+      <li>{{feed.since}}: <a href="{{feed.link}}">{{feed.link}}</a></li>
     {% endfor %}
   </ol>
   </body>
