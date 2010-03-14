@@ -26,7 +26,7 @@ Within the `<required>` or `<preferred>` tag the following are allowed:
 || `<lang>` || programming language || Java, C++ ||
 || `<api>` || API/environment || Google App Engine, OpenGL ||
 || `<app>` || software application || AutoCAD, git ||
-|| `<equip>` || equipment || multimeter, cappuccino machine ||
+|| `<equip>` || equipment || multimeter, cash register ||
 || `<activity>` || some procedure or task || system administration, PCB layout ||
 
 == supplemental information ==
