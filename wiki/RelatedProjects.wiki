@@ -24,4 +24,5 @@ Here are just a couple I found in a Google search, along with some aspects to co
 [http://www.rentacoder.com/ RentACoder]
 
   * Allows detailed specification of requirements to solicit bids for a single project, including programming languages
+  * not intended for long-term employment
   * commercial in nature
