@@ -5,7 +5,7 @@
     * Import existing DOAC XMLfile as search profile
     * Export as DOAC format
   * Project-months as a metric of language proficiency
-  * When registering feed, ask for update frequency in weeks
+  * implement periodic feed checks
   * Use contact email to notify upon failed feed parse
   * Add (optional) salary field
   * Add job count to main page
