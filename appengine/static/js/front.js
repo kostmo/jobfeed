@@ -34,8 +34,6 @@ var MAX_PROXIMITY_SEARCH_MILES = 50;
 var MAX_PROXIMITY_SEARCH_RESULTS = 10;
 var MAX_BOUNDS_SEARCH_RESULTS = 25;
 
-var MIN_GRADE_TAUGHT = -1; // PK
-var MAX_GRADE_TAUGHT = 12; // 12th grade
 
 /**
  * @type google.maps.Map2
@@ -97,51 +95,9 @@ function initMap() {
  * Initializes various UI features.
  */
 function initUI() {
-  $("#search-grade-slider").slider({
-    orientation: 'horizontal',
-    min: -1,
-    max: 12,
-    range: true,
-    step: 1,
-    values: [-1, 12],
-    slide: function(event, ui) {
-      if (ui.values[0] == ui.values[1])
-        $("#search-grade-display").text(formatGradeLevel(ui.values[0]));
-      else
-        $("#search-grade-display").text(
-            formatGradeLevel(ui.values[0]) + ' to ' +
-            formatGradeLevel(ui.values[1]));
-    },
-    change: function(event, ui) {
-      if (!g_searchOptions)
-        return;
-      
-      doSearch(updateObject(g_searchOptions, {
-        gradeRange: (ui.values[0] != MIN_GRADE_TAUGHT ||
-                     ui.values[1] != MAX_GRADE_TAUGHT) ? ui.values : null,
-        retainViewport: true,
-        clearResultsImmediately: false
-      }));
-    }
-  });
+
+
   
-  $("#search-grade-display").text(
-      formatGradeLevel(-1) + ' to ' +
-      formatGradeLevel(12));
-  
-  for (var type in SCHOOL_TYPES) {
-    var option = $('<option value="' + type + '">' +
-                   SCHOOL_TYPES[type] + '</option>');
-    $('#search-school-type').append(option);
-  }
-  
-  $('#search-school-type').change(function() {
-    doSearch(updateObject(g_searchOptions, {
-      schoolType: $(this).val(),
-      retainViewport: true,
-      clearResultsImmediately: false
-    }));
-  });
   
   $('#view-toggle a').click(function() {
     g_programmaticPanning = true;
@@ -296,14 +252,6 @@ function doGeocodeAndSearch() {
         clearResultsImmediately: true
       };
       
-      var searchGradeRange = $('#search-grade-slider').slider('values');
-      if (searchGradeRange[0] != MIN_GRADE_TAUGHT ||
-          searchGradeRange[1] != MAX_GRADE_TAUGHT) {
-        commonOptions.gradeRange = searchGradeRange;
-      }
-      
-      commonOptions.schoolType = $('#search-school-type').val();
-      
       
       // XXX New stuff:
       if (document.getElementById("checkbox_skill_filter").checked)
@@ -421,17 +369,7 @@ function doSearch(options) {
   }
   
   // Add in advanced options.
-  if (options.gradeRange) {
-    searchParameters = updateObject(searchParameters, {
-      mingrade: options.gradeRange[0],
-      maxgrade: options.gradeRange[1]
-    });
-  }
 
-  if (options.schoolType) {
-    searchParameters.schooltype = options.schoolType;
-  }
-  
   if (options.experience_keylist) {
     searchParameters.experience_keylist = options.experience_keylist;
   }
@@ -595,22 +533,6 @@ function updateObject(dest, src) {
   return dest;
 }
 
-/**
- * Formats a grade level for display purposes; i.e. returns 'PK' for level=-1,
- * 'K' for level=0, etc.
- * @param {Number} level The grade level code; -1 for PK, 0 for K,
- *     n for grade n.
- * @type String
- */
-function formatGradeLevel(level) {
-  if (level === null || typeof(level) == 'undefined')
-    return '';
-  
-  if (level == -1) return 'PK';
-  else if (level == 0) return 'K';
-  
-  return level.toString();
-}
 
 /**
  * Formats a distance in meters to a human readable distance in miles.

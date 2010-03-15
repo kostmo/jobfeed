@@ -84,25 +84,6 @@ class SearchService(webapp.RequestHandler):
         if self.request.get('maxdistance'):
             max_distance = float(self.request.get('maxdistance'))
 
-        school_type = None
-        if self.request.get('schooltype'):
-            try:
-                school_type = int(self.request.get('schooltype'))
-            except ValueError:
-                return _simple_error('If schooltype is provided, '
-                                     'it must be a valid number, as defined in '
-                                     'http://nces.ed.gov/ccd/psadd.asp#type')
-
-        grade_range = None
-        if self.request.get('mingrade') or self.request.get('maxgrade'):
-            try:
-                grade_range = (int(self.request.get('mingrade')),
-                               int(self.request.get('maxgrade')))
-                if grade_range[0] > grade_range[1]:
-                    return _simple_error('mingrade cannot exceed maxgrade.')
-            except ValueError:
-                return _simple_error('If mingrade or maxgrade is provided, '
-                                     'both must be valid integers.')
 
         experience_keylist = []
         if self.request.get('experience_keylist'):
@@ -115,33 +96,8 @@ class SearchService(webapp.RequestHandler):
             base_query = JobOpening.all()
             
             if experience_keylist:
-                
                 base_query.filter('required IN', map(db.Key, experience_keylist))
             
-            """
-            base_query = PublicSchool.all()
-
-            # Add in advanced options (rich query).
-            if grade_range:
-              if grade_range[0] == grade_range[1]:
-                # WARNING: don't forget to build this edge case index!
-                base_query.filter('grades_taught =', grade_range[0])
-              else:
-                (base_query.filter('grades_taught >=', grade_range[0])
-                           .filter('grades_taught <=', grade_range[1]))
-
-              # App Engine requires inequality filtered properties to be
-              # the first ordering. Also apply this ordering for grades_taught =
-              # filters to simplify indexes.
-              base_query.order('grades_taught')
-
-            if school_type:
-              base_query.filter('school_type =', school_type)
-
-            # Natural ordering chosen to be public school enrollment.
-            base_query.order('-enrollment')
-            """
-
 
             # Perform proximity or bounds fetch.
             if query_type == 'proximity':

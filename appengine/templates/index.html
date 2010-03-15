@@ -67,7 +67,6 @@
     
     
     <div id="user_qualifications_container" style="float:right;">
-      <input name="enable_skill_filter" type="checkbox" id="checkbox_skill_filter"/><label for="checkbox_skill_filter"> Filter by required experience</label><br/>
       <a href="/profile">Profiles</a> <select name="load_key" id="saved_searches" onchange="pickNewProfile(this)">
         {% for saved_search in saved_searches %}
         <option value="{{saved_search.key}}">{{saved_search.title}}</option>
@@ -77,11 +76,7 @@
       <span id="experience_table_holder"></span>
     </div>
     
-    
-    
-    
-    
-    
+
     
     
     
@@ -98,28 +93,9 @@
             <p><label for="search-query">Search for job openings near:</label></p>
             <input id="search-query" type="search" />
 
-            <input type="submit" value="Search"/>
-            
+            <input type="submit" value="Search"/><br/>
+                  <input name="enable_skill_filter" type="checkbox" id="checkbox_skill_filter"/><label for="checkbox_skill_filter"> Filter by required experience</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
-          </div>
-          
-          <div id="advanced-options-container">
-            <div id="search-error">&nbsp;</div>
-            <a id="advanced-options-toggle" href="#">Advanced Options</a>
-            
-            <div id="advanced-options">
-              <div class="row clearfix">
-                <label for="search-grade-slider">Grade level:</label>
-                <div id="search-grade-slider"></div>
-                <div id="search-grade-display"></div>
-              </div>
-              <div class="row clearfix">
-                <label for="search-school-type">School type:</label>
-                <select id="search-school-type">
-                  <option value="">(Any)</option>
-                </select>
-              </div>
-            </div>
           </div>
         </form>
       </div>
