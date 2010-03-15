@@ -26,173 +26,11 @@
 
 
   <script type="text/javascript">
-  
-  
-  String.prototype.startsWith = function(str)
-{return (this.match("^"+str)==str)}
-    
-  String.prototype.endsWith = function(str)
-{return (this.match(str+"$")==str)}
-  
-  
-  var loaded_skills = [{{loaded_skills}}];
-  
-  
-  function clickAddSkill(category) {
-    var dropdown = document.getElementById("dropdown_" + category);
-
-    if (dropdown.selectedIndex >= 0) {
-      var selected_option = dropdown.options[dropdown.selectedIndex];
-      
-      moveDown(category, dropdown, selected_option, dropdown.value);
-    }
-  }
-  
-  function removeChildren(cell) {
-    while(cell.hasChildNodes()) cell.removeChild(cell.firstChild);
-  }
-  
-  function removeCheckedSkills(category) {
-    var dropdown = document.getElementById("dropdown_" + category);
-    var table = document.getElementById("table_" + category);
-
-    var children = table.getElementsByTagName("input");
-    var removable = []
-    for (var child_key in children) {
-      var child = children[child_key];
-
-      if (child && child.type == "checkbox") {
-        if (child.checked) {
-
-          var label = document.getElementById("label_" + child.value);
-
-          var option = document.createElement('option');
-          option.text = label.firstChild.nodeValue;
-          option.value = child.value;
-          dropdown.appendChild( option )
-          
-          var row = document.getElementById("row_" + child.value);
-          removable.push(row)
-        }
-      }
-    }
-    for (var key in removable) table.removeChild(removable[key]);
-
-  }
-  
-  
-  
-  function findDropdownOptionIndexForLabel(dropdown, value) {
-    for (var i=0; i<dropdown.options.length; i++) {
-      var option = dropdown.options[i];
-      if (option.text == value) return i;
-    }
-    return -1;
-  }
-  
-  function findDropdownOptionIndexForValue(dropdown, value) {
-    for (var i=0; i<dropdown.options.length; i++) {
-      var option = dropdown.options[i];
-      if (option.value == value) return i;
-    }
-    return -1;
-  }
-  
-  
-  
-  function moveDown(category, dropdown, selected_option, keystring) {
-    
-      var table = document.getElementById("table_" + category);
-      var row = document.createElement('tr');
-      row.id = "row_" + keystring;
-      table.appendChild(row);
-      var data = document.createElement('td');
-      data.style.verticalAalign="middle"; // doesn't work
-      row.appendChild(data);
-      var checkbox = document.createElement('input');
-      checkbox.type = "checkbox"
-      checkbox.value = keystring;
-      checkbox.id = "checkbox_skill_" + keystring;
-     
-      data.appendChild(checkbox)
-
-      var label = document.createElement('label');
-      label.id = "label_" + dropdown.value;
-      label.setAttribute("for", checkbox.id);
-      
-      label.appendChild( document.createTextNode( selected_option.text ) )
-      data.appendChild(label)
-      
-      dropdown.removeChild(selected_option);
-  }
-  
-  
-  function markUsed(keystring) {
-    
-    var dropdowns = document.forms["save_form"].getElementsByTagName("select");
-    for (var key in dropdowns) {
-      var dropdown = dropdowns[key];
-      if (dropdown.id && dropdown.id.startsWith("dropdown_")) {
-        var category = dropdown.id.substr("dropdown_".length);
-        var found_index = findDropdownOptionIndexForValue(dropdown, keystring);
-        if (found_index >= 0) {
-          var option = dropdown.options[found_index];
-          moveDown(category, dropdown, option, keystring);
-        }
-      }
-    }
-  }
-  
-  
-  function loadSearch() {
-    for (var key in loaded_skills) {
-      var keystring = loaded_skills[key];
-      markUsed(keystring);
-    }
-  }
-
-
-  function getUsedKeys(form) {
-        var children = form.getElementsByTagName("input");
-    
-    var filtered = []
-    for (var key in children) {
-      if (children[key].type == "checkbox" && children[key].id.startsWith("checkbox_skill_")) {
-        filtered.push(children[key].value)
-      }
-    }
-    
-    return filtered;
-  }
-  
-  function saveSearch(form) {
-    // Populate form values before submitting
-    form["skill_keys"].value = getUsedKeys(form).join(",");
-    
-    
-    var dropdown = document.forms["load_form"]["load_key"];
-    var name = form["saved_name"].value;
-    if (findDropdownOptionIndexForLabel(dropdown, name) >= 0) {
-      return confirm("Name \"" + name + "\" is taken. Continue anyway?");
-    }
-    
-
-    return true;
-  }
-  
-  
-  function deleteSaved() {
-    alert("todo")
-  }
-  
-  
-  function clearForm() {
-    var form = document.forms["load_form"];
-    form["load_key"].selectedIndex = -1;
-    form.submit();
-  }
-  
+  var loaded_skills = {{loaded_skills}};
+  var years_bins = {{years_bins}};
   </script>
+  
+  <script type="text/javascript" src="/static/js/skills.js"></script>
 
   </head>
   <body onload="loadSearch()">
@@ -207,7 +45,8 @@
       {% endif %}
     </div>
 
-<p>The qualifications available to choose from here are ones that have been used in an actual job posting in the database.</p>
+<p>Only qualifications that have been used in an actual job posting are listed.</p>
+<p>Years of experience are rounded down to the next highest bin: {{years_bins}}</p>
 
 
   <form action="/save" method="post" onsubmit="return saveSearch(this)" name="save_form">
@@ -242,8 +81,11 @@
     {% endfor %}
   </select> <input type="button" value="Reset" onclick="clearForm()" /> <br />
   <button>Load</button> <button onclick="deleteSaved()" type="button">Delete</button>
-  
+  <input type="hidden" name="deleting" value="false" />
+
   </form>
+
+  [<a href="/">home</a>]
 
   </body>
 </html>

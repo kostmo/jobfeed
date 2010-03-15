@@ -144,10 +144,18 @@ class SearchService(webapp.RequestHandler):
 
             public_attrs = JobOpening.public_attributes()
 
+            import json
+            from datetime import datetime, time
             results_obj = [
                 _merge_dicts({
                   'lat': result.location.lat,
                   'lng': result.location.lon,
+                    # Although json usually automatically converts the "datetime" object
+                    # to the correct JavaScript representation, it must not recognize
+                    # App Engine's DateTimeProperty() as a wrapped instance of "datetime",
+                    # so we must convert it manually.
+                    
+                  'expiration': datetime.combine(result.expiration, time()).ctime()
       #            'lowest_grade_taught':
       #              min(result.grades_taught) if result.grades_taught else None,
       #            'highest_grade_taught':
@@ -157,7 +165,7 @@ class SearchService(webapp.RequestHandler):
                         for attr in public_attrs]))
                 for result in results]
 
-            self.response.out.write(simplejson.dumps({
+            self.response.out.write(json.dumps({
               'status': 'success',
               'results': results_obj
             }))

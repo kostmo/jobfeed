@@ -78,10 +78,12 @@ class JobFeedUrl(db.Model):
 
 # =============================================================================
 class SavedSearch(db.Model):
+    user = db.UserProperty(auto_current_user_add=True)
     title = db.StringProperty()
     address = db.StringProperty()
     geo = db.GeoPtProperty()
     qualifications = db.ListProperty(db.Key)
+    saved = db.DateTimeProperty(required=True, auto_now=True)
 
 # =============================================================================
 class JobFeedSpamReport(db.Model):

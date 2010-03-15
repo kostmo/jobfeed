@@ -82,10 +82,30 @@ SKILL_CATEGORY_ENTITY_MAPPING = {
     parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES: models.ProgrammingLanguageSkill
 }
 
+SKILL_CATEGORY_MODEL_NAME_MAPPING = {}
+for category, model in SKILL_CATEGORY_ENTITY_MAPPING.items():
+    SKILL_CATEGORY_MODEL_NAME_MAPPING[model.__name__] = category
+
+SKILL_CATEGORY_SHORT_TO_FULL_NAME = {}
+for i, shortname in enumerate(parse_jobs.SKILL_CATEGORIES):
+    SKILL_CATEGORY_SHORT_TO_FULL_NAME[shortname] = parse_jobs.SKILL_CATEGORY_NAMES[i]
+
 # =============================================================================
 class SkillConversionHelper:
     def __init__(self):
         pass
+
+
+# =============================================================================
+# skill_experience_entities is guaranteed to have at least one item
+def getHighestBinWithAtMost(bins, years):
+    
+    last_bucket = bins[0]
+    for bin in bins:
+        if bin > years:
+            return last_bucket
+        last_bucket =bin
+    return last_bucket
 
 # =============================================================================
 # skill_experience_entities is guaranteed to have at least one item
@@ -93,7 +113,7 @@ def getHighestBucketWithAtMost(skill_experience_entities, years):
     
     last_bucket = skill_experience_entities[0]
     for bucket in skill_experience_entities:
-        if years > bucket.years:
+        if bucket.years > years:
             return last_bucket
         last_bucket = bucket
     return last_bucket
@@ -281,21 +301,23 @@ class FeedList(webapp.RequestHandler):
     def get(self):
 
         q = models.JobFeedUrl.all()
-#       q.filter("sleeping =", True)
         q.order("since")
         feed_list = q.fetch(20) # TODO - paginate results
 
+
+        transformed_feed_list = map(FriendlyFeedRepresentation, feed_list)
 
         template_file = '../templates/feedlist.html'
         if self.request.get('format') == "xml":
             template_file = '../templates/feedlist.xml'
             self.response.headers['Content-Type'] = "application/xml"
+
         
         self.response.out.write(template.render(
             os.path.join(os.path.dirname(__file__), template_file),
                 {
                     'current_user': users.get_current_user(),
-                    'feed_list': map(FriendlyFeedRepresentation, feed_list)
+                    'feed_list': transformed_feed_list
                 }
             )
         )
@@ -340,10 +362,24 @@ class SaveSearchHandler(webapp.RequestHandler):
             logging.info("skill keys: " + formval)
             saved_name = self.request.get('saved_name')
             logging.info("saved name: " + saved_name)
-            skill_keys_list = formval.split(",")
-            logging.info("skill keys list: " + str(skill_keys_list))
-            entity = models.SavedSearch(title=saved_name, qualifications=map(db.Key, skill_keys_list))
+#            skill_keys_list = formval.split(",")
+#            logging.info("skill keys list: " + str(skill_keys_list))
+#            skill_keys_list = map(db.Key, skill_keys_list)
+
+            stringified_skill_keys_list = formval.split(";")
+            skill_keys_list = []
+            for binned_skill_lump in stringified_skill_keys_list:
+                
+                parent_keystring, years = binned_skill_lump.split(":")
+                appropriate_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, int(years))
+                
+                parent_key_object = db.Key(parent_keystring)
+                k = db.Key.from_path(parent_key_object.kind(), parent_key_object.name(), 'SkillExperience', str(appropriate_bin))
+                skill_keys_list.append(k)
+
+            entity = models.SavedSearch(title=saved_name, qualifications=skill_keys_list)
             entity.put()
+
 
         renderProfilePage(self)
 
@@ -352,16 +388,38 @@ def quoteString(val):
     return "\"" + str(val) + "\""
 
 # =============================================================================
-def renderProfilePage(self):
-
-    loaded_skills = ""
+def getSkillsDict(self):
+    skills_years_dict = {}
 
     load_key = self.request.get('load_key')
+    
     if load_key:
-        loaded_skills = ",".join( map(quoteString, models.SavedSearch.get(load_key).qualifications) )
+        if self.request.get('deleting') == "true":
+            db.delete(load_key);
+        else:
+            qualifications_keys = models.SavedSearch.get(load_key).qualifications
+            qualifications_entities = db.get(qualifications_keys)
+            
+            for entity in qualifications_entities:
+                skills_years_dict[str(entity.key().parent())] = entity.years
+
+    return skills_years_dict
+
+# =============================================================================
+def getSkillsJson(self):
+
+    import json
+    return json.dumps(getSkillsDict(self))
+    
+# =============================================================================
+def renderProfilePage(self):
+
+    loaded_skills = getSkillsJson(self)
 
     q = models.SavedSearch.all()
-    saved_searches = q.fetch(100)
+    q.filter("user =", users.get_current_user())
+    q.order("-saved")
+    saved_searches = q.fetch(50)
     
     skills_lists = []
     for i, category in enumerate(parse_jobs.SKILL_CATEGORIES):
@@ -376,23 +434,56 @@ def renderProfilePage(self):
             'current_user': users.get_current_user(),
             'skills_lists': skills_lists,
             'saved_searches': saved_searches,
-            'loaded_skills': loaded_skills
+            'loaded_skills': loaded_skills,
+            'years_bins': models.EXPERIENCE_YEARS_BUCKETS
         }))
 
+# =============================================================================
+class ProfileDataHandler(webapp.RequestHandler):
+    
+    def get(self):
+
+        loaded_skills = {}
+        
+        loaded_skills_dict = getSkillsDict(self)
+        loaded_skills["searchable_skill_keys"] = loaded_skills_dict
+        
+        
+        named_skill_entities = db.get(loaded_skills_dict.keys())
+        
+        readable = {}
+        for entity in named_skill_entities:
+            categorized_skill_list = readable.setdefault(SKILL_CATEGORY_SHORT_TO_FULL_NAME[SKILL_CATEGORY_MODEL_NAME_MAPPING[entity.key().kind()]], [])
+            categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
+        
+        loaded_skills["readable_skills"] = readable
+        
+        import json
+        self.response.out.write(json.dumps(loaded_skills))
+        
 # =============================================================================
 class SearchProfileHandler(webapp.RequestHandler):
     
     def get(self):
         renderProfilePage(self)
-        
 
 # =============================================================================
 class MainHandler(webapp.RequestHandler):
     
     def get(self):
+        
+        q = models.SavedSearch.all()
+        q.filter("user =", users.get_current_user())
+        q.order("-saved")
+        saved_searches = q.fetch(50)
+        
         self.response.out.write(template.render(
             os.path.join(os.path.dirname(__file__), '../templates/index.html'),
-            {'current_user': users.get_current_user()}))
+            {
+                'current_user': users.get_current_user(),
+                'saved_searches': saved_searches
+            }
+        ))
 
 # =============================================================================
 def main():
@@ -405,6 +496,7 @@ def main():
             ('/skillslist', SkillsListHandler),
             ('/skillstest', SkillsTestHandler),
             ('/profile', SearchProfileHandler),
+            ('/profiledata', ProfileDataHandler),
             ('/save', SaveSearchHandler),
         ],
         debug=('Development' in os.environ['SERVER_SOFTWARE']))

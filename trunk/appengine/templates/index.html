@@ -30,6 +30,10 @@
     <script type="text/javascript" src="/static/lib/jquery.scrollTo-1.4.2-min.js"></script>
     <script type="text/javascript" src="/static/lib/microtemplate.js"></script>
     <script type="text/javascript" src="/static/js/front.js"></script>
+    <script type="text/javascript" src="/static/js/date.format.js"></script>
+    
+    <script type="text/javascript" src="/static/js/skills.js"></script>
+    
     <script type="text/javascript">
       google.load('maps', '2');
       google.setOnLoadCallback(init);
@@ -45,6 +49,33 @@
         <a href="{% login_url %}">Sign in</a>
       {% endif %}
     </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div id="user_qualifications_container" style="float:right;">
+      <a href="/profile">Profiles</a> <select name="load_key" id="saved_searches" onchange="pickNewProfile(this)">
+        {% for saved_search in saved_searches %}
+        <option value="{{saved_search.key}}">{{saved_search.title}}</option>
+        {% endfor %}
+      </select><br />
+      <span id="status_bar"></span>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
     
     <div id="container">
       <div id="header" class="clearfix">
@@ -105,22 +136,17 @@
       </div>
       
 
-
-    <div id="login-bar">
-    </div>
     
-        <center><a href="/register">Register feed</a> | <a href="http://jobfeed.googlecode.com">About</a> | <a href="/profile">Profile</a></center>
-    
-    
-    
-      <div id="footer">
-        <p>Copyright &copy; 2010, Karl Ostmo</p>
-      </div>
+        <center><a href="/register">Register feed</a> | <a href="http://jobfeed.googlecode.com">About</a>
+            <p>Copyright &copy; 2010, Karl Ostmo</p>
+        </center>
     </div>
     
     <script type="text/html" id="tpl_result_info_window">
       <div class="result-info-window">
-        <h2><img src="<%= result.icon %>"/> <%= result.title %></h2>
+        <h3><img src="<%= result.icon %>"/> <%= result.title %></h3>
+        <b>Job ID:</b> <%= result.job_id %><br/>
+        <b>Expires on:</b> <%= (new Date(result.expiration)).format("m/dd/yyyy") %>
       
         <div class="details">
           <% if (result.distance) { %>
