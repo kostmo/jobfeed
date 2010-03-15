@@ -85,7 +85,7 @@
 									</skills>
 								</qualifications>
 							</position>
-							<position id="15371" expires="2010-03-13">
+							<position id="15371" expires="2010-03-25">
 								<title>Field Technician</title>
 								<subject_matter>
 									<keyword>repair</keyword>
@@ -94,6 +94,14 @@
 									<education>
 										<degree level="Associates" area="Automotive"></degree>
 									</education>
+									<skills>
+										<preferred>
+												<lang name="BASH" />
+										</preferred>
+										<required>
+                                            <equip name="multimeter" />
+										</required>
+									</skills>
 								</qualifications>
 							</position>
 						</openings>

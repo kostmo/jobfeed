@@ -304,6 +304,12 @@ function doGeocodeAndSearch() {
       
       commonOptions.schoolType = $('#search-school-type').val();
       
+      
+      // XXX New stuff:
+      if (document.getElementById("checkbox_skill_filter").checked)
+        commonOptions.experience_keylist = saved_skill_keys.join();
+      
+      
       if (proximitySearch) {
         doSearch(updateObject(commonOptions, {
           type: 'proximity',
@@ -424,6 +430,10 @@ function doSearch(options) {
 
   if (options.schoolType) {
     searchParameters.schooltype = options.schoolType;
+  }
+  
+  if (options.experience_keylist) {
+    searchParameters.experience_keylist = options.experience_keylist;
   }
   
   // Perform proximity or bounds search.

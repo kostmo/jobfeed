@@ -1,0 +1,10 @@
+<h3><img src="<%= result.icon %>"/> <%= result.title %></h3>
+<b>Job ID:</b> <%= result.job_id %><br/>
+<b>Expires on:</b> <%= (new Date(result.expiration)).format("m/dd/yyyy") %>
+
+<% if (result.distance) { %>
+  <p class="distance"><%= formatDistance(result.distance) %></p>
+<% } %>
+
+<span id="<%= "skills_bubble_" + result.job_key %>" />
+<%= loadJobExperience(result.job_key) %>

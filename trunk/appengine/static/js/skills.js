@@ -36,29 +36,48 @@ limitations under the License.
 
 var saved_skill_keys = {};
 
-function generateSkillsTable(skill_keys_string) {
+
+function parseSkills(skill_keys_string, parent) {
 
   var skill_keys = eval( "(" + skill_keys_string + ")" );
-  saved_skill_keys = skill_keys;  // Make a global copy for later use
-  
-  var searchable_skill_keys = skill_keys["searchable_skill_keys"]
-  var readable_skills = skill_keys["readable_skills"]
-  
 
-  var status_bar = document.getElementById("status_bar");
+  var readable_skills = skill_keys["readable_skills"];
+  generateSkillsTable(readable_skills, parent);
+}
+
+
+  // ==========================================================================
+function parseSkills2(skill_keys_string, parent) {
+
+  var skill_keys = eval( "(" + skill_keys_string + ")" );
+
+//  var searchable_skill_keys = skill_keys["searchable_skill_keys"];
+  var searchable_skill_keys = skill_keys["raw_search_keys"];
+  saved_skill_keys = searchable_skill_keys;  // Make a global copy for later use
+
+  var readable_skills = skill_keys["readable_skills"];
+  generateSkillsTable(readable_skills, parent);
+}
+
+  // ==========================================================================
+function generateSkillsTable(readable_skills, parent) {
+
+  removeChildren(parent);
   
   var table = document.createElement("table");
-  status_bar.appendChild(table);
+  parent.appendChild(table);
   for (var category in readable_skills) {
+
     var table_row = document.createElement("tr");
     table.appendChild(table_row);
     var table_header = document.createElement("th");
+    table_header.colSpan = "2";
     table_row.appendChild(table_header);
     table_header.appendChild(document.createTextNode(category));
     
     var category_dict = readable_skills[category];
     for (var skillpair_key in category_dict) {
-      var pair = category_dict[skillpair_key]
+      var pair = category_dict[skillpair_key];
      
       var table_row2 = document.createElement("tr");
       table.appendChild(table_row2);
@@ -73,11 +92,19 @@ function generateSkillsTable(skill_keys_string) {
 }
 
 // ============================================================================
-function pickNewProfile(select_form_element) {
-   ajaxGet( "/profiledata?load_key=" + select_form_element.value, "", function(x) {generateSkillsTable(x)} );
+function loadJobExperience2(job_key) {
+   ajaxGet( "/jobdata?job_posting_key=" + job_key, "", function(x) {parseSkills(x, document.getElementById("skills_list_item_" + job_key))} );
 }
 
+// ============================================================================
+function loadJobExperience(job_key) {
+   ajaxGet( "/jobdata?job_posting_key=" + job_key, "", function(x) {parseSkills(x, document.getElementById("skills_bubble_" + job_key))} );
+}
 
+// ============================================================================
+function pickNewProfile(select_form_element) {
+   ajaxGet( "/profiledata?load_key=" + select_form_element.value, "", function(x) {parseSkills2(x, document.getElementById("experience_table_holder"))} );
+}
 
 // AJAX Stuff
 // ============================================================================
@@ -97,8 +124,6 @@ function get_ajax_handle() {
 
 	return http;
 }
-
-
 
 // ============================================================================
 function ajaxGet( url, params, result_function ) {
