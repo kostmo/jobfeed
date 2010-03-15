@@ -30,6 +30,7 @@ from google.appengine.ext import webapp
 from geo import geotypes
 
 from models import JobOpening
+import logging
 
 
 def _merge_dicts(*args):
@@ -103,10 +104,20 @@ class SearchService(webapp.RequestHandler):
                 return _simple_error('If mingrade or maxgrade is provided, '
                                      'both must be valid integers.')
 
+        experience_keylist = []
+        if self.request.get('experience_keylist'):
+            experience_keylist = self.request.get('experience_keylist').split(",")
+            logging.info("experience_keylist: " + str(experience_keylist))
+
         try:
             # Can't provide an ordering here in case inequality filters are used.
 
             base_query = JobOpening.all()
+            
+            if experience_keylist:
+                
+                base_query.filter('required IN', map(db.Key, experience_keylist))
+            
             """
             base_query = PublicSchool.all()
 
@@ -154,7 +165,7 @@ class SearchService(webapp.RequestHandler):
                     # to the correct JavaScript representation, it must not recognize
                     # App Engine's DateTimeProperty() as a wrapped instance of "datetime",
                     # so we must convert it manually.
-                    
+                  'job_key': str(result.key()),
                   'expiration': datetime.combine(result.expiration, time()).ctime()
       #            'lowest_grade_taught':
       #              min(result.grades_taught) if result.grades_taught else None,

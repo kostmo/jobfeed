@@ -25,6 +25,16 @@ from geo.geomodel import GeoModel
 EXPERIENCE_YEARS_BUCKETS = [1, 2, 4, 7, 10]
 
 # =============================================================================
+class Organization(db.Model):
+    name = db.StringProperty()
+    
+# =============================================================================
+class JobSite(db.Model):
+    name = db.StringProperty()
+    geo = db.GeoPtProperty()
+    org = db.ReferenceProperty(Organization, required=True)
+
+# =============================================================================
 class DegreeArea(db.Model):
     name = db.StringProperty()
 
@@ -82,7 +92,7 @@ class SavedSearch(db.Model):
     title = db.StringProperty()
     address = db.StringProperty()
     geo = db.GeoPtProperty()
-    qualifications = db.ListProperty(db.Key)
+    qualifications = db.ListProperty(db.Key)  # SkillExperience
     saved = db.DateTimeProperty(required=True, auto_now=True)
 
 # =============================================================================
@@ -102,8 +112,8 @@ class JobOpening(GeoModel):
     feed = db.ReferenceProperty(JobFeedUrl)
     
     fullpost = db.LinkProperty()   # Optionally link back to the full description on employer's website
-    required = db.ListProperty(db.Key)
-    preferred = db.ListProperty(db.Key)
+    required = db.ListProperty(db.Key)  # SkillExperience
+    preferred = db.ListProperty(db.Key)  # SkillExperience
     
 #    since = db.DateTimeProperty(required=True, auto_now_add=True)   # Redundant with the feed
     updated = db.DateTimeProperty(required=True, auto_now=True)
@@ -113,57 +123,6 @@ class JobOpening(GeoModel):
         """Returns a set of simple attributes on job opening entities."""
         return [
           'job_id', 'title'
-        ]
-
-    def _get_latitude(self):
-        return self.location.lat if self.location else None
-
-    def _set_latitude(self, lat):
-        if not self.location:
-            self.location = db.GeoPt()
-
-        self.location.lat = lat
-
-    latitude = property(_get_latitude, _set_latitude)
-
-    def _get_longitude(self):
-        return self.location.lon if self.location else None
-
-    def _set_longitude(self, lon):
-        if not self.location:
-            self.location = db.GeoPt()
-
-        self.location.lon = lon
-
-    longitude = property(_get_longitude, _set_longitude)
-
-
-# =============================================================================
-# FIXME DEPRECATED
-class PublicSchool(GeoModel):
-    """A location-aware model for public school entities.
-
-    See http://nces.ed.gov/ccd/psadd.asp for details on attributes.
-    """
-    school_id = db.StringProperty()
-    name = db.StringProperty()
-    address = db.StringProperty()
-    city = db.StringProperty()
-    state = db.StringProperty()
-    zip_code = db.IntegerProperty()
-    enrollment = db.IntegerProperty()
-    phone_number = db.StringProperty()
-    locale_code = db.IntegerProperty()
-    school_type = db.IntegerProperty()
-    school_level = db.IntegerProperty()
-    grades_taught = db.ListProperty(int)
-
-    @staticmethod
-    def public_attributes():
-        """Returns a set of simple attributes on public school entities."""
-        return [
-          'school_id', 'name', 'address', 'city', 'state', 'zip_code',
-          'enrollment', 'phone_number', 'locale_code', 'school_type', 'school_level'
         ]
 
     def _get_latitude(self):

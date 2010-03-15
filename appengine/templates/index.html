@@ -38,6 +38,12 @@
       google.load('maps', '2');
       google.setOnLoadCallback(init);
     </script>
+    
+    
+    <style type="text/css">
+    th {font-weight: bold}
+    </style>
+    
   </head>
   <body onunload="GUnload()">
     <div id="login-bar">
@@ -61,12 +67,14 @@
     
     
     <div id="user_qualifications_container" style="float:right;">
+      <input name="enable_skill_filter" type="checkbox" id="checkbox_skill_filter"/><label for="checkbox_skill_filter"> Filter by required experience</label><br/>
       <a href="/profile">Profiles</a> <select name="load_key" id="saved_searches" onchange="pickNewProfile(this)">
         {% for saved_search in saved_searches %}
         <option value="{{saved_search.key}}">{{saved_search.title}}</option>
         {% endfor %}
       </select><br />
       <span id="status_bar"></span>
+      <span id="experience_table_holder"></span>
     </div>
     
     
@@ -135,89 +143,26 @@
         </div>
       </div>
       
-
-    
-        <center><a href="/register">Register feed</a> | <a href="http://jobfeed.googlecode.com">About</a>
-            <p>Copyright &copy; 2010, Karl Ostmo</p>
-        </center>
+      <center><a href="/register">Register feed</a> | <a href="http://jobfeed.googlecode.com">About</a>
+          <p>Copyright &copy; 2010, Karl Ostmo</p>
+      </center>
     </div>
+    
+    
+    
+    
     
     <script type="text/html" id="tpl_result_info_window">
       <div class="result-info-window">
-        <h3><img src="<%= result.icon %>"/> <%= result.title %></h3>
-        <b>Job ID:</b> <%= result.job_id %><br/>
-        <b>Expires on:</b> <%= (new Date(result.expiration)).format("m/dd/yyyy") %>
-      
-        <div class="details">
-          <% if (result.distance) { %>
-            <p class="distance"><%= formatDistance(result.distance) %></p>
-          <% } %>
-          
-          <address>
-          <%= result.address %><br/>
-          <%= result.city %>, <%= result.state %> <%= result.zip_code %><br/>
-          <%= result.phone_number || '(Phone Number N/A)' %>
-          </address>
-        
-          <ul>
-            <li>
-              <span class="label">Grades Taught:</span>
-                <%= formatGradeLevel(result.lowest_grade_taught) || 'N/A' %>
-                <% if (result.highest_grade_taught !== result.lowest_grade_taught) { %>
-                  to
-                  <%= formatGradeLevel(result.highest_grade_taught) || 'N/A' %>
-                <% } %>
-            </li>
-            <li>
-              <span class="label">School Type:</span>
-              <%= result.school_type ?
-                  ('<a target="_blank" href="http://nces.ed.gov/ccd/psadd.asp#type">' +
-                   SCHOOL_TYPES[result.school_type] + '</a>') : 'N/A' %>
-            </li>
-            <li>
-              <span class="label">Enrollment:</span>
-              <%= result.enrollment || 'N/A' %>
-            </li>
-          </ul>
-        </div>
+
+        {% include "skills_bubble.html" %}
+
       </div>
     </script>
     
     <script type="text/html" id="tpl_result_list_item">
-      <h2><img src="<%= result.icon %>"/> <%= result.title %></h2>
-      
-      <div class="details">
-        <% if (result.distance) { %>
-          <p class="distance"><%= formatDistance(result.distance) %></p>
-        <% } %>
-
-        <address>
-        <%= result.address %><br/>
-        <%= result.city %>, <%= result.state %> <%= result.zip_code %><br/>
-        <%= result.phone_number || '(Phone Number N/A)' %>
-        </address>
-        
-        <ul>
-          <li>
-            <span class="label">Grades Taught:</span>
-              <%= formatGradeLevel(result.lowest_grade_taught) || 'N/A' %>
-              <% if (result.highest_grade_taught !== result.lowest_grade_taught) { %>
-                to
-                <%= formatGradeLevel(result.highest_grade_taught) || 'N/A' %>
-              <% } %>
-          </li>
-          <li>
-            <span class="label">School Type:</span>
-            <%= result.school_type ?
-                ('<a target="_blank" href="http://nces.ed.gov/ccd/psadd.asp#type">' +
-                 SCHOOL_TYPES[result.school_type] + '</a>') : 'N/A' %>
-          </li>
-          <li>
-            <span class="label">Enrollment:</span>
-            <%= result.enrollment || 'N/A' %>
-          </li>
-        </ul>
-      </div>
+    
+       {% include "skills_listview_item.html" %}
     </script>
   </body>
 </html>

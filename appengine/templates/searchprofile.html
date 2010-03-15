@@ -74,7 +74,7 @@
   </form>
 
   <form action="/profile" method="get" name="load_form">
-  <label for="saved_searches">Saved: </label>
+  <label for="saved_searches">Previously saved: </label>
   <select name="load_key" id="saved_searches">
     {% for saved_search in saved_searches %}
     <option value="{{saved_search.key}}">{{saved_search.title}}</option>

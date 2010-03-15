@@ -387,6 +387,17 @@ class SaveSearchHandler(webapp.RequestHandler):
 def quoteString(val):
     return "\"" + str(val) + "\""
 
+
+# =============================================================================
+def getSkillsDictFromKeys(experience_keys):
+    skills_years_dict = {}
+
+    qualifications_entities = db.get(experience_keys)
+    for entity in qualifications_entities:
+        skills_years_dict[str(entity.key().parent())] = entity.years
+        
+    return skills_years_dict
+
 # =============================================================================
 def getSkillsDict(self):
     skills_years_dict = {}
@@ -398,10 +409,7 @@ def getSkillsDict(self):
             db.delete(load_key);
         else:
             qualifications_keys = models.SavedSearch.get(load_key).qualifications
-            qualifications_entities = db.get(qualifications_keys)
-            
-            for entity in qualifications_entities:
-                skills_years_dict[str(entity.key().parent())] = entity.years
+            skills_years_dict = getSkillsDictFromKeys(qualifications_keys)
 
     return skills_years_dict
 
@@ -439,27 +447,66 @@ def renderProfilePage(self):
         }))
 
 # =============================================================================
+def buildAjaxExperienceDict(loaded_skills_dict):
+    loaded_skills = {}
+    loaded_skills["searchable_skill_keys"] = loaded_skills_dict
+    
+    
+    named_skill_entities = db.get(loaded_skills_dict.keys())
+    
+    readable = {}
+    for entity in named_skill_entities:
+        categorized_skill_list = readable.setdefault(SKILL_CATEGORY_SHORT_TO_FULL_NAME[SKILL_CATEGORY_MODEL_NAME_MAPPING[entity.key().kind()]], [])
+#       categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
+        categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
+    
+    loaded_skills["readable_skills"] = readable
+
+    return loaded_skills
+
+# =============================================================================
+class JobDataHandler(webapp.RequestHandler):
+    
+    def get(self):
+
+        # TODO
+        job_posting_key = self.request.get('job_posting_key')
+        if job_posting_key:
+            
+            # TODO: Also do "preferred"!!
+            qualifications_keys = models.JobOpening.get(job_posting_key).required
+            loaded_skills_dict = getSkillsDictFromKeys(qualifications_keys)
+
+            loaded_skills = buildAjaxExperienceDict(loaded_skills_dict)
+        
+
+        
+        import json
+        self.response.out.write(json.dumps(loaded_skills))
+
+
+# =============================================================================
 class ProfileDataHandler(webapp.RequestHandler):
     
     def get(self):
 
-        loaded_skills = {}
+        loaded_skills_dict = {}
+
+        load_key = self.request.get('load_key')
         
-        loaded_skills_dict = getSkillsDict(self)
-        loaded_skills["searchable_skill_keys"] = loaded_skills_dict
+        if load_key:
+            qualifications_keys = models.SavedSearch.get(load_key).qualifications
+            loaded_skills_dict = getSkillsDictFromKeys(qualifications_keys)
         
-        
-        named_skill_entities = db.get(loaded_skills_dict.keys())
-        
-        readable = {}
-        for entity in named_skill_entities:
-            categorized_skill_list = readable.setdefault(SKILL_CATEGORY_SHORT_TO_FULL_NAME[SKILL_CATEGORY_MODEL_NAME_MAPPING[entity.key().kind()]], [])
-            categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
-        
-        loaded_skills["readable_skills"] = readable
-        
-        import json
-        self.response.out.write(json.dumps(loaded_skills))
+            
+            loaded_skills_dict = getSkillsDict(self)
+            loaded_skills = buildAjaxExperienceDict(loaded_skills_dict)
+            
+            
+            loaded_skills["raw_search_keys"] = map(str, qualifications_keys)
+            
+            import json
+            self.response.out.write(json.dumps(loaded_skills))
         
 # =============================================================================
 class SearchProfileHandler(webapp.RequestHandler):
@@ -497,6 +544,7 @@ def main():
             ('/skillstest', SkillsTestHandler),
             ('/profile', SearchProfileHandler),
             ('/profiledata', ProfileDataHandler),
+            ('/jobdata', JobDataHandler),
             ('/save', SaveSearchHandler),
         ],
         debug=('Development' in os.environ['SERVER_SOFTWARE']))
