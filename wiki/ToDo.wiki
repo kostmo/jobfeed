@@ -9,10 +9,14 @@
   * Use contact email to notify upon failed feed parse
   * Add (optional) salary field
   * Add job count to main page
+  * make "department" and "site" tags optional
+    * allow `<location>` element to occur as child of `<organization>` or `<position>`
+  * geocode address if geo coords not provided
 
 Employment term/duration options:
   * part time
   * intern
+
 
 nominal experience levels
   * entry-level
