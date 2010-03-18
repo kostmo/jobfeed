@@ -13,6 +13,7 @@
     * allow `<location>` element to occur as child of `<organization>` or `<position>`
   * geocode address if geo coords not provided
   * limit number of jobs, keywords, and skills per domain
+  * UI preferences filter to exclude "sample" jobs
 
 Employment term/duration options:
   * part time
