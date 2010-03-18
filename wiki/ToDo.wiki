@@ -12,6 +12,7 @@
   * make "department" and "site" tags optional
     * allow `<location>` element to occur as child of `<organization>` or `<position>`
   * geocode address if geo coords not provided
+  * limit number of jobs, keywords, and skills per domain
 
 Employment term/duration options:
   * part time
