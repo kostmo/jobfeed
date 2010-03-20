@@ -14,6 +14,11 @@
   * geocode address if geo coords not provided
   * limit number of jobs, keywords, and skills per domain
   * UI preferences filter to exclude "sample" jobs
+  * List jobs by domain (may span multiple "feeds")
+  * List feeds by domain
+  * Limit 250 jobs per feed
+  * Limit 1000 jobs per domain?
+  * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
 
 Employment term/duration options:
   * part time
