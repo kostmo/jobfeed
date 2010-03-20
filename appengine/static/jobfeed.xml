@@ -3,9 +3,16 @@
 	datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 	<start>
 		<element name="jobfeed">
+		    <optional>
 			<attribute name="vocabulary">
 				<data type="float" />
 			</attribute>
+		    </optional>
+		    <optional>
+		        <attribute name="sample">
+		            <data type="boolean" />
+		        </attribute>
+		    </optional>
 			<zeroOrMore>
 				<element name="organization">
 					<element name="name">
@@ -17,19 +24,7 @@
 								<element name="name">
 									<text />
 								</element>
-								<element name="location">
-									<element name="geo">
-										<attribute name="lat">
-											<data type="double" />
-										</attribute>
-										<attribute name="lon">
-											<data type="double" />
-										</attribute>
-									</element>
-									<element name="address">
-										<text />
-									</element>
-								</element>
+                                <ref name="location"/>
 								<element name="departments">
 									<zeroOrMore>
 										<element name="department">
@@ -145,5 +140,28 @@
                 <data type="float" />
             </attribute>
         </optional>
+    </define>
+    <define name="location">
+        <element name="location">
+	<interleave>
+	<optional>
+
+            <element name="geo">
+                <attribute name="lat">
+                    <data type="double" />
+                </attribute>
+                <attribute name="lng">
+                    <data type="double" />
+                </attribute>
+            </element>
+		</optional>
+<optional>
+            <element name="address">
+                <text />
+            </element>
+		</optional>
+
+	</interleave>
+        </element>
     </define>
 </grammar>

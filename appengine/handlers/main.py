@@ -104,7 +104,7 @@ def getHighestBinWithAtMost(bins, years):
     for bin in bins:
         if bin > years:
             return last_bucket
-        last_bucket =bin
+        last_bucket = bin
     return last_bucket
 
 # =============================================================================
@@ -119,8 +119,27 @@ def getHighestBucketWithAtMost(skill_experience_entities, years):
     return last_bucket
 
 # =============================================================================
+# skill_experience_entities is guaranteed to have at least one item
+def getBucketsAtOrAbove(skill_experience_entities, years):
+    
+    min_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, years)
+    
+    qualifying_buckets = []
+    for bucket in skill_experience_entities:
+        if bucket.years >= min_bin:
+            qualifying_buckets.append(bucket)
+
+    logging.info("Qualifying buckets: " + str(qualifying_buckets))
+
+    return qualifying_buckets
+
+
+# =============================================================================
 from google.appengine.ext import db
 class UrlSubmission(webapp.RequestHandler):
+    '''This routine extracts job entities from the XML feed. There are entities
+    that the job makes reference to; these are extracted into separate lists
+    and committed to the datstore first.'''
 
     def convert_job(self, job):
         x = models.JobOpening(location=db.GeoPt(job.geo[0], job.geo[1]))
@@ -131,6 +150,7 @@ class UrlSubmission(webapp.RequestHandler):
         x.title = job.title
         x.expiration = job.expiration
         x.expired = datetime.now().date() >= job.expiration
+        x.sample = job.sample
         return x
 
 
@@ -159,7 +179,9 @@ class UrlSubmission(webapp.RequestHandler):
                 submission_result = "Duplicate URL"
             else:
                 try:
-                    joblist = parse_jobs.fetchJobList(link_url)
+
+		    from urllib import urlopen
+                    joblist = parse_jobs.fetchJobList( urlopen(link_url) )
 
                     feed_url_object = models.JobFeedUrl(link=db.Link(link_url))
                     feed_url_object.interval = crawl_interval_days
@@ -204,7 +226,8 @@ class UrlSubmission(webapp.RequestHandler):
                                     
                                 # Whether or not the current skill's name has already been encountered, we
                                 # must link the cannonical bucket entity reference to the raw job's skill list.
-                                raw_skill.bucket_entity = getHighestBucketWithAtMost(skill_experience_entities, raw_skill.years)
+#                                raw_skill.bucket_entities = getHighestBucketWithAtMost(skill_experience_entities, raw_skill.years)
+                                raw_skill.bucket_entities = getBucketsAtOrAbove(skill_experience_entities, raw_skill.years)
                                     
                     # put() each type into the datastore in separate groups
                     # Here it's okay if the entity already exists; it will just get overwritten by sharing the same key_name.
@@ -225,7 +248,8 @@ class UrlSubmission(webapp.RequestHandler):
                                     bucket_list = raw_job.converted_job_entity.required
                                 else:
                                     bucket_list = raw_job.converted_job_entity.preferred
-                                bucket_list.append( raw_skill.bucket_entity.key() )
+                                
+                                bucket_list.extend( [x.key() for x in raw_skill.bucket_entities] )
 
                     # We put() the feed URL in the datastore as late as possible in case there
                     # were any problems with data in the feed
@@ -465,6 +489,20 @@ def buildAjaxExperienceDict(loaded_skills_dict):
     return loaded_skills
 
 # =============================================================================
+def extractMinimumBuckets(qualifications_keys):
+    mins = []
+    extracted = {}
+    for qual_key in qualifications_keys:
+        lst = extracted.setdefault(qual_key.parent(), [])
+        lst.append(qual_key)
+        
+    for value in extracted.values():
+        mins.append( min(value, key=lambda x: int(x.name())) )
+        
+    return mins
+    
+
+# =============================================================================
 class JobDataHandler(webapp.RequestHandler):
     
     def get(self):
@@ -475,6 +513,11 @@ class JobDataHandler(webapp.RequestHandler):
             
             # TODO: Also do "preferred"!!
             qualifications_keys = models.JobOpening.get(job_posting_key).required
+            
+            # For display, we're only interested in minium required experience.
+            qualifications_keys = extractMinimumBuckets(qualifications_keys)
+            
+            
             loaded_skills_dict = getSkillsDictFromKeys(qualifications_keys)
 
             loaded_skills = buildAjaxExperienceDict(loaded_skills_dict)

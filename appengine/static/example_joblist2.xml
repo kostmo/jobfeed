@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobfeed vocabulary="1.0" sample="true">
+	<organization>
+		<name>Generic Corporation</name>
+		<sites>
+			<site>
+				<name>Topeka Office</name>
+				<location>
+					<geo lat="39.05" lng="-95.61" />
+				</location>
+				<departments>
+					<department>
+						<name>Mobile Development</name>
+						<openings>
+							<position id="15370" expires="2010-04-30">
+								<title>iPhone Developer</title>
+								<subject_matter>
+									<keyword>games</keyword>
+								</subject_matter>
+								<qualifications>
+									<education>
+										<degree level="Bachelors" area="Computer Science"></degree>
+									</education>
+									<skills>
+										<preferred>
+											<lang name="JavaScript" />
+										</preferred>
+										<required>
+											<lang name="C#" years="2" />
+										</required>
+									</skills>
+								</qualifications>
+							</position>
+							<position id="15371" expires="2010-03-25">
+								<title>Android Developer</title>
+								<subject_matter>
+									<keyword>games</keyword>
+								</subject_matter>
+								<qualifications>
+									<education>
+										<degree level="Bachelors" area="Computer Science"></degree>
+									</education>
+									<skills>
+										<preferred>
+											<lang name="C++" years="1" />
+											<api name="OpenGL" years="1" />
+										</preferred>
+										<required>
+											<lang name="Java" years="2" />
+										</required>
+									</skills>
+								</qualifications>
+							</position>
+						</openings>
+					</department>
+				</departments>
+			</site>
+		</sites>
+	</organization>
+</jobfeed>

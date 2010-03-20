@@ -21,7 +21,7 @@ from xml.sax.handler import ContentHandler
 
 from datetime import datetime
 
-GEO_ATTRIBUTES = ["lat", "lon"]
+GEO_ATTRIBUTES = ["lat", "lng"]
 
 SKILL_REQUIRED = "required"
 SKILL_PREFERRED = "preferred"
@@ -70,10 +70,14 @@ class Job():
         self.job_id = handler.jobid
         self.geo = handler.geo
         self.title = handler.job_title
-        self.degree_level = handler.degree_level
-        self.degree_area = handler.degree_area
+	if hasattr(handler, "degree_level"):
+	        self.degree_level = handler.degree_level
+        	if hasattr(handler, "degree_area"):
+			self.degree_area = handler.degree_area
+
         self.expiration = datetime.strptime(handler.expiration, "%Y-%m-%d").date()
         self.contract = bool(handler.contract)
+        self.sample = handler.sample
 
         self.skills = handler.skills
 
@@ -85,8 +89,12 @@ class DuplicateIdException(Exception):
 class JobFeedHandler(ContentHandler):
 
     def __init__ (self):
+	self.geo_lookups = 0
         self.job_ids = []   # For error checking only
         self.joblist = []
+        self.sample = False # A feed-wide property
+	self.site_address = ""
+	self.in_address = False
         self.resetJob()
 
     def resetJob(self):
@@ -96,6 +104,17 @@ class JobFeedHandler(ContentHandler):
         self.skills = {}
         self.skill_preference_type = None
         self.contract = False
+
+    def addJob(self):
+        if not hasattr(self, "geo"):
+            if self.site_address:
+                from geocode import getGeo
+                geocoding = getGeo(self.site_address)
+                self.geo = [geocoding[key] for key in GEO_ATTRIBUTES]
+                self.geo_lookups += 1
+
+        self.joblist.append(Job(self))
+        self.resetJob()
 
     def startElement(self, name, attrs):
 
@@ -126,59 +145,55 @@ class JobFeedHandler(ContentHandler):
         elif name == 'geo':
             self.geo = [float(attrs.get(a)) for a in GEO_ATTRIBUTES]
 
+        elif name == 'address':
+            self.in_address = True
+
         elif name == 'degree':
-            self.degree_level = attrs.get('level')
             self.degree_area = attrs.get('area')
+            self.degree_level = attrs.get('level')
 
         elif name == 'title':
             self.in_title = True
             self.job_title = ""
+            
+        elif name == 'jobfeed':
+            self.sample = attrs.get('sample') == "true"
+            self.vocab_version  = attrs.get('vocab')
+            # TODO: Do something based on the vocabulary version
 
 
     def endElement(self, name):
         if name == 'position':
-            self.joblist.append(Job(self))
-            self.resetJob()
+            self.addJob()
 
         elif name == 'title':
             self.in_title = False
+
+        elif name == 'address':
+            self.in_address = False
 
 
     def characters (self, ch):
         if self.in_title:
             self.job_title += ch
 
+        if self.in_address:
+            self.site_address += ch
+
 # =============================================================================
-def fetchJobList(base_url):
+def fetchJobList( filehandle ):
     parser = make_parser()
     curHandler = JobFeedHandler()
     parser.setContentHandler(curHandler)
 
-    from urllib import urlencode, urlopen
 
-    query_dict = {
-                "action" : "query",
-                "format" : "xml",
-        }
-
-#    url = base_url + '?' + urlencode(query_dict)
-    url = base_url
-#    print url
-
-    parser.parse(urlopen(url))
+    parser.parse( filehandle )
 
     print "Length before filtering:", len(curHandler.joblist)
     return curHandler.joblist
 
 # =============================================================================
-if __name__ == '__main__':
-
-    import sys
-    base_url = 'http://localhost:8080/static/example_joblist.xml'
-    if len(sys.argv) > 1:
-        base_url = sys.argv[1]
-
-    jobs = fetchJobList(base_url)
+def dumpJobs(jobs):
 
     print len(jobs), "jobs."
     for job in jobs:
@@ -188,5 +203,19 @@ if __name__ == '__main__':
         print "\t\t", job.expiration
         print "\t\t", job.job_id
         print "\t\t", job.geo
-        print "\t\t", job.degree_level, "in", job.degree_area
+
+        if hasattr(job, "degree_level") and hasattr(job, "degree_area"):
+            print "\t\t", job.degree_level, "in", job.degree_area
         print "\t\t", "Skills:", job.skills
+
+# =============================================================================
+if __name__ == '__main__':
+
+	import sys
+	base_url = 'http://localhost:8080/static/example_joblist.xml'
+	if len(sys.argv) > 1:
+		base_url = sys.argv[1]
+
+	from urllib import urlopen
+	jobs = fetchJobList( urlopen(base_url) )
+	dumpJobs(jobs)

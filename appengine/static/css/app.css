@@ -39,6 +39,10 @@ body {
   color: #333;
 }
 
+.underlined {
+  text-decoration: underline;
+}
+
 a, a:visited, a:hover {
   color: #00c;
 }
