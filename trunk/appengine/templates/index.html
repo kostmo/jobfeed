@@ -40,12 +40,21 @@
     </script>
     
     
+    
+    <script type="text/javascript">
+      function loadSearchProfile() {
+        var dropdown = document.getElementById("saved_searches_dropdown");
+        pickNewProfile(dropdown);
+      }
+      
+    </script>
+    
     <style type="text/css">
     th {font-weight: bold}
     </style>
     
   </head>
-  <body onunload="GUnload()">
+  <body onunload="GUnload()" onload="loadSearchProfile()">
     <div id="login-bar">
       {% if current_user %}
         <strong>{{ current_user.email }}</strong>
@@ -67,7 +76,7 @@
     
     
     <div id="user_qualifications_container" style="float:right;">
-      <a href="/profile">Profiles</a> <select name="load_key" id="saved_searches" onchange="pickNewProfile(this)">
+      <a href="/profile">Search Profiles</a> <select name="load_key" id="saved_searches_dropdown" onchange="pickNewProfile(this)">
         {% for saved_search in saved_searches %}
         <option value="{{saved_search.key}}">{{saved_search.title}}</option>
         {% endfor %}

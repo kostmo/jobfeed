@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jobfeed vocabulary="1.0">
+<jobfeed vocabulary="1.0" sample="true">
 	<organization>
 		<name>ACME Industries</name>
 		<sites>
 			<site>
 				<name>Corporate Headquarters</name>
 				<location>
-					<geo lat="45.52" lon="-122.68" />
+					<geo lat="45.52" lng="-122.68" />
 					<address></address>
 				</location>
 				<departments>
@@ -58,7 +58,7 @@
 			<site>
 				<name>Topeka Satellite Office</name>
 				<location>
-					<geo lat="39.05" lon="-95.6" />
+					<geo lat="39.05" lng="-95.6" />
 					<address></address>
 				</location>
 				<departments>

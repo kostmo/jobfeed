@@ -254,7 +254,7 @@ function doGeocodeAndSearch() {
       
       
       // XXX New stuff:
-      if (document.getElementById("checkbox_skill_filter").checked)
+      if (document.getElementById("checkbox_skill_filter").checked && saved_skill_keys.length)
         commonOptions.experience_keylist = saved_skill_keys.join();
       
       

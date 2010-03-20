@@ -65,6 +65,19 @@ function generateSkillsTable(readable_skills, parent) {
   removeChildren(parent);
   
   var table = document.createElement("table");
+  table.style.borderSpacing = "10px 0px";
+  table.style.borderCollapse = "separate";
+  var row = document.createElement("tr");
+  table.appendChild(row);
+  var header1 = document.createElement("th");
+  header1.setAttribute("class", "underlined");
+  row.appendChild(header1);
+  header1.appendChild(document.createTextNode("Skill"));
+  var header2 = document.createElement("th");
+  header2.setAttribute("class", "underlined");
+  row.appendChild(header2);
+  header2.appendChild(document.createTextNode("Years"));
+  
   parent.appendChild(table);
   for (var category in readable_skills) {
 
@@ -108,8 +121,6 @@ function pickNewProfile(select_form_element) {
 
 // AJAX Stuff
 // ============================================================================
-
-
 var pending_transaction_count = 0;
 
 function get_ajax_handle() {
@@ -200,12 +211,25 @@ function ajaxPost( url, params ) {
     if (dropdown.selectedIndex >= 0) {
       var selected_option = dropdown.options[dropdown.selectedIndex];
       markUsed(category, dropdown, selected_option, dropdown.value);
+      
+      updateUsedCount();
     }
   }
 
   // ==========================================================================  
   function removeChildren(cell) {
     while(cell.hasChildNodes()) cell.removeChild(cell.firstChild);
+  }
+  
+  // ==========================================================================  
+  function updateUsedCount() {
+     var checkboxes = []
+     var inputs = document.getElementsByTagName("input");
+     for (var key in inputs) {
+      if (inputs[key].type == "checkbox") checkboxes.push(inputs[key]);
+     }
+     
+     document.getElementById("checkbox_counter").innerHTML = "" + checkboxes.length;
   }
   
   // ==========================================================================  
@@ -235,6 +259,8 @@ function ajaxPost( url, params ) {
     }
     
     for (var key in removable) table.removeChild(removable[key]);
+    
+    updateUsedCount();
   }
 
   // ==========================================================================  
@@ -302,12 +328,13 @@ function ajaxPost( url, params ) {
       data.appendChild(document.createTextNode( " " ))  // spacer
       
       var years_textbox = document.createElement('input');
-      years_textbox.id = "years_textbox_" + dropdown.value
+      years_textbox.id = "years_textbox_" + dropdown.value;
+      years_textbox.onkeypress = function(event){return disableEnterKey(event);};
       years_textbox.type = "text";
       years_textbox.size = "1";
       years_textbox.maxLength = "2";
       years_textbox.value = populated_years ? populated_years : "1";
-      years_textbox.onchange = function(){years_textbox.value = getHighestBucketWithAtMost(parseInt(years_textbox.value)); return false;};  // register input validator
+      years_textbox.onchange = function(){years_textbox.value = (years_textbox.value.length > 0 ? getHighestBucketWithAtMost(parseInt(years_textbox.value)) : -1); return false;};  // register input validator
       
       data.appendChild(years_textbox);
       var label2 = formLabelFor("label_years_" + dropdown.value, years_textbox, " year(s)");
@@ -406,3 +433,30 @@ function ajaxPost( url, params ) {
     form["load_key"].selectedIndex = -1;
     form.submit();
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  // ==========================================================================
+  
+  function disableEnterKey(e)
+{
+     var key;
+
+     if(window.event)
+          key = window.event.keyCode;     //IE
+     else
+          key = e.which;     //firefox
+
+     if(key == 13)
+          return false;
+     else
+          return true;
+}
+  

@@ -20,14 +20,14 @@ from lxml import etree
 
 JOBFEED_SCHEMA_URL = "http://localhost:8080/static/jobfeed.xml"
 
-def doValidation(document_url, schema_url=JOBFEED_SCHEMA_URL):
+def doValidation(document_filehandle, schema_url=JOBFEED_SCHEMA_URL):
     from urllib import urlopen
 
     relaxng_doc = etree.parse( urlopen( schema_url ) )
     relaxng = etree.RelaxNG( relaxng_doc )
 
-    jobs_doc = etree.parse( urlopen( document_url ) )
-#       print "Is valid?", relaxng.validate( jobs_doc )
+    jobs_doc = etree.parse( document_filehandle )
+    print "Is valid?", relaxng.validate( jobs_doc )
 
     from lxml.etree import DocumentInvalid
     try:
@@ -52,4 +52,5 @@ if __name__ == '__main__':
     parsed_url = urlsplit(document_url)
     print "Host:", parsed_url.hostname
 
-    doValidation(document_url, schema_url)
+    from urllib import urlopen
+    doValidation( urlopen( document_url ), schema_url )

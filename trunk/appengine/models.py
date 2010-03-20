@@ -22,7 +22,9 @@ from google.appengine.ext import db
 
 from geo.geomodel import GeoModel
 
-EXPERIENCE_YEARS_BUCKETS = [1, 2, 4, 7, 10]
+# If "-1" is given for the experience, this may be interpreted as "unspecified".
+# All of the buckets will then be added to the job record.
+EXPERIENCE_YEARS_BUCKETS = [0, 1, 2, 4, 7, 10]
 
 # =============================================================================
 class Organization(db.Model):
@@ -75,7 +77,7 @@ class ProgrammingLanguageSkill(NamedSkill):
 # =============================================================================
 class SkillExperience(db.Model):
 #    skill = db.ReferenceProperty(NamedSkill, required=True)    # We can set the parent instead
-    years = db.IntegerProperty(required=True)   # XXX Duplicates "key_name"
+    years = db.IntegerProperty(required=True, default=-1)   # XXX Duplicates "key_name"
     
 # =============================================================================
 class JobFeedUrl(db.Model):
@@ -114,6 +116,8 @@ class JobOpening(GeoModel):
     fullpost = db.LinkProperty()   # Optionally link back to the full description on employer's website
     required = db.ListProperty(db.Key)  # SkillExperience
     preferred = db.ListProperty(db.Key)  # SkillExperience
+    
+    sample = db.BooleanProperty(default=False)  # For debugging/test deployments
     
 #    since = db.DateTimeProperty(required=True, auto_now_add=True)   # Redundant with the feed
     updated = db.DateTimeProperty(required=True, auto_now=True)
