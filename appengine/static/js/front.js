@@ -257,6 +257,10 @@ function doGeocodeAndSearch() {
       if (document.getElementById("checkbox_skill_filter").checked && saved_skill_keys.length)
         commonOptions.experience_keylist = saved_skill_keys.join();
       
+	// XXX also new:
+	commonOptions.sample_search = document.getElementById("checkbox_sample_jobs").checked;
+
+
       
       if (proximitySearch) {
         doSearch(updateObject(commonOptions, {
@@ -369,9 +373,12 @@ function doSearch(options) {
   }
   
   // Add in advanced options.
-
   if (options.experience_keylist) {
     searchParameters.experience_keylist = options.experience_keylist;
+  }
+
+  if (options.sample_search) {
+    searchParameters.sample_search = options.sample_search;
   }
   
   // Perform proximity or bounds search.

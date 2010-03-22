@@ -16,6 +16,29 @@ limitations under the License.
 
 /* general css patterns */
 
+
+
+.skills_table {
+  text-align: left;
+  background-color: #EEE;
+}
+
+.skills_table td {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+
+.skills_table tr.even {
+  background-color: #DDF;
+}
+
+.skills_table tr.odd {
+  background-color: #DFD;
+}
+
+
+
 strong {
   font-weight: bold;
 }
@@ -73,12 +96,7 @@ a:active {
   margin: 0 auto;
 }
 
-#header {
-  position: relative;
-  padding-left: 320px;
-  margin-bottom: 0.5em;
-  min-height: 78px;
-}
+
 
 
 /* search box */
@@ -261,12 +279,13 @@ a:active {
 /* list view items */
 
 #list-view li.result {
-  border-bottom: 1px solid #ccc;
+  clear: right;
+  border-top: 1px solid #ccc;
   padding-bottom: 1em;
   margin-bottom: 1em;
 }
 
-#list-view li.result h2 {
+#list-view li.result h3 {
   color: #333;
   font-weight: bold;
   font-size: 1.3em;
@@ -274,7 +293,7 @@ a:active {
   position: relative;
 }
 
-#list-view li.result h2,
+#list-view li.result h3,
 #list-view li.result .details {
   padding-left: 30px;
 }
@@ -290,7 +309,7 @@ a:active {
   color: #888;
 }
 
-#list-view li.result h2 img {
+#list-view li.result h3 img {
   position: absolute;
   left: 0;
   top: 0;

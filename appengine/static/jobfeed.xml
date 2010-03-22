@@ -45,6 +45,12 @@
                                                                 <data type="boolean" />
                                                             </attribute>
                                                         </optional>
+                                                        <optional>
+                                                            <attribute name="link">
+                                                                <data type="anyURI" />
+                                                            </attribute>
+                                                        </optional>
+
 														<interleave>
 															<element name="title">
 																<text />

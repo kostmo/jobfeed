@@ -13,7 +13,7 @@
 					<department>
 						<name>Research and Development</name>
 						<openings>
-							<position id="15366" expires="2010-03-13">
+							<position id="15366" expires="2010-03-13" link="http://www.example.com/">
 								<title>Sr. Electrical Engineer</title>
 								<subject_matter>
 									<keyword>automotive</keyword>
@@ -31,7 +31,7 @@
 									</skills>
 								</qualifications>
 							</position>
-							<position id="15368" expires="2010-03-16">
+							<position id="15368" expires="2010-03-16" link="http://www.example.com/">
 								<title>Entry-level CAD Designer</title>
 								<subject_matter>
 									<keyword>automotive</keyword>
@@ -65,7 +65,7 @@
 					<department>
 						<name>Manufacturing</name>
 						<openings>
-							<position id="15370" expires="2010-04-19">
+							<position id="15370" expires="2010-04-19" link="http://www.example.com/">
 								<title>Quality Control Engineer</title>
 								<subject_matter>
 									<keyword>automotive</keyword>
@@ -85,7 +85,7 @@
 									</skills>
 								</qualifications>
 							</position>
-							<position id="15371" expires="2010-03-25">
+							<position id="15371" expires="2010-03-25" link="http://www.example.com/">
 								<title>Field Technician</title>
 								<subject_matter>
 									<keyword>repair</keyword>
@@ -109,7 +109,7 @@
 					<department>
 						<name>Customer Relations</name>
 						<openings>
-							<position id="15369" expires="2010-03-13" contract="true">
+							<position id="15369" expires="2010-03-13" contract="true" link="http://www.example.com/">
 								<title>Database Maintainer</title>
 								<qualifications>
 									<education>

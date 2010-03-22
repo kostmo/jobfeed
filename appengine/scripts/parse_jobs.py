@@ -27,11 +27,11 @@ SKILL_REQUIRED = "required"
 SKILL_PREFERRED = "preferred"
 SKILL_PREFERENCE_TYPES = [SKILL_REQUIRED, SKILL_PREFERRED]
 
-SKILL_CATEGORY_APIS = "api"
-SKILL_CATEGORY_EQUIPMENT = "equip"
-SKILL_CATEGORY_ACTIVITIES = "activity"
-SKILL_CATEGORY_APPLICATIONS = "app"
-SKILL_CATEGORY_PROGRAMMING_LANGUAGES = "lang"
+SKILL_CATEGORY_APIS = 			"api"
+SKILL_CATEGORY_EQUIPMENT =		"equip"
+SKILL_CATEGORY_ACTIVITIES =		"activity"
+SKILL_CATEGORY_APPLICATIONS =		"app"
+SKILL_CATEGORY_PROGRAMMING_LANGUAGES =	"lang"
 
 SKILL_CATEGORIES = [
     SKILL_CATEGORY_APIS,
@@ -69,7 +69,8 @@ class Job():
     def __init__(self, handler):
         self.job_id = handler.jobid
         self.geo = handler.geo
-        self.title = handler.job_title
+        self.link = handler.link
+        self.title = handler.job_title.strip()
 	if hasattr(handler, "degree_level"):
 	        self.degree_level = handler.degree_level
         	if hasattr(handler, "degree_area"):
@@ -80,9 +81,21 @@ class Job():
         self.sample = handler.sample
 
         self.skills = handler.skills
+        self.keywords = handler.keywords
 
 # =============================================================================
 class DuplicateIdException(Exception):
+    pass
+
+# =============================================================================
+# We give the submitter 20 geocoding freebies. Too many and we risk exceeding
+# the 30 second HTTP request/response timeout.
+GEOCODING_LIMIT = 20
+class ExcessiveGeocodingException(Exception):
+    pass
+
+# =============================================================================
+class MissingLocationException(Exception):
     pass
 
 # =============================================================================
@@ -90,6 +103,7 @@ class JobFeedHandler(ContentHandler):
 
     def __init__ (self):
 	self.geo_lookups = 0
+	self.geo = None
         self.job_ids = []   # For error checking only
         self.joblist = []
         self.sample = False # A feed-wide property
@@ -97,30 +111,46 @@ class JobFeedHandler(ContentHandler):
 	self.in_address = False
         self.resetJob()
 
+    # -------------------------------------------------------------------------
     def resetJob(self):
         self.in_position = False
         self.in_title = False
         self.job_title = ""
+        self.last_keyword = ""
         self.skills = {}
+	self.in_keyword = False
+	self.keywords = []
         self.skill_preference_type = None
         self.contract = False
+        self.link = None
 
+    # -------------------------------------------------------------------------
     def addJob(self):
-        if not hasattr(self, "geo"):
+        if not (hasattr(self, "geo") and self.geo):
             if self.site_address:
+
+                if self.geo_lookups >= GEOCODING_LIMIT:
+                    raise ExcessiveGeocodingException("Too many geo lookups required. Please geocode your addresses before submitting feed.")
                 from geocode import getGeo
                 geocoding = getGeo(self.site_address)
                 self.geo = [geocoding[key] for key in GEO_ATTRIBUTES]
                 self.geo_lookups += 1
 
+#		print "Forced geo lookups:", self.geo_lookups
+
+            else:
+                raise MissingLocationException("Location must be specified preceeding job " + str(self.job_id))
+
         self.joblist.append(Job(self))
         self.resetJob()
 
+    # -------------------------------------------------------------------------
     def startElement(self, name, attrs):
 
         if name == 'position':
             self.in_position = True
             self.jobid = int(attrs.get('id'))
+            self.link = attrs.get('link')
             if self.jobid in self.job_ids:
                 raise DuplicateIdException("Job id " + str(self.jobid) + " was already used")
             else:
@@ -155,13 +185,17 @@ class JobFeedHandler(ContentHandler):
         elif name == 'title':
             self.in_title = True
             self.job_title = ""
-            
+
+        elif name == 'keyword':
+            self.last_keyword = ""
+            self.in_keyword = True
+	
         elif name == 'jobfeed':
             self.sample = attrs.get('sample') == "true"
-            self.vocab_version  = attrs.get('vocab')
+            self.vocab_version  = attrs.get('vocabulary')
             # TODO: Do something based on the vocabulary version
 
-
+    # -------------------------------------------------------------------------
     def endElement(self, name):
         if name == 'position':
             self.addJob()
@@ -169,16 +203,29 @@ class JobFeedHandler(ContentHandler):
         elif name == 'title':
             self.in_title = False
 
+        elif name == 'keyword':
+            self.in_keyword = False
+            self.keywords.append( self.last_keyword.strip() )
+
         elif name == 'address':
             self.in_address = False
 
+	# The location is valid only within the context of a <site>;
+	# We clear the location when the closing </site> tag is encountered.
+        elif name == 'site':
+            self.geo = None
+            self.site_address = ""
 
+    # -------------------------------------------------------------------------
     def characters (self, ch):
         if self.in_title:
             self.job_title += ch
 
-        if self.in_address:
+        elif self.in_address:
             self.site_address += ch
+
+        elif self.in_keyword:
+            self.last_keyword += ch
 
 # =============================================================================
 def fetchJobList( filehandle ):
@@ -195,7 +242,6 @@ def fetchJobList( filehandle ):
 # =============================================================================
 def dumpJobs(jobs):
 
-    print len(jobs), "jobs."
     for job in jobs:
 
         print "\t", job.title
@@ -203,9 +249,9 @@ def dumpJobs(jobs):
         print "\t\t", job.expiration
         print "\t\t", job.job_id
         print "\t\t", job.geo
-
         if hasattr(job, "degree_level") and hasattr(job, "degree_area"):
             print "\t\t", job.degree_level, "in", job.degree_area
+	print "\t\t", "Keywords:", job.keywords
         print "\t\t", "Skills:", job.skills
 
 # =============================================================================
@@ -218,4 +264,6 @@ if __name__ == '__main__':
 
 	from urllib import urlopen
 	jobs = fetchJobList( urlopen(base_url) )
+	print len(jobs), "jobs."
 	dumpJobs(jobs)
+
