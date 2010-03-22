@@ -67,6 +67,7 @@ function generateSkillsTable(readable_skills, parent) {
   var table = document.createElement("table");
   table.style.borderSpacing = "10px 0px";
   table.style.borderCollapse = "separate";
+  table.setAttribute("class", "skills_table");
   var row = document.createElement("tr");
   table.appendChild(row);
   var header1 = document.createElement("th");
@@ -89,10 +90,12 @@ function generateSkillsTable(readable_skills, parent) {
     table_header.appendChild(document.createTextNode(category));
     
     var category_dict = readable_skills[category];
-    for (var skillpair_key in category_dict) {
-      var pair = category_dict[skillpair_key];
+    
+    for (var i=0; i<category_dict.length; i++) {
+      var pair = category_dict[i];
      
       var table_row2 = document.createElement("tr");
+      table_row2.setAttribute("class", i % 2 ? "even" : "odd");
       table.appendChild(table_row2);
       var table_data1 = document.createElement("td");
       table_row2.appendChild(table_data1);

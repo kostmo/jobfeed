@@ -39,7 +39,7 @@ def _merge_dicts(*args):
 
 
 class SearchService(webapp.RequestHandler):
-    """Handler for public school search requests."""
+    """Handler for job search requests."""
     def get(self):
         def _simple_error(message, code=400):
             self.error(code)
@@ -95,6 +95,10 @@ class SearchService(webapp.RequestHandler):
 
             base_query = JobOpening.all()
             
+            # We might only be interested in the "sample" jobs.
+            base_query.filter('sample =', self.request.get('sample_search') == "true")
+
+            # Main criteria
             if experience_keylist:
                 base_query.filter('required IN', map(db.Key, experience_keylist))
             

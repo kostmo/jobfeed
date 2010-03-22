@@ -29,6 +29,12 @@ EXPERIENCE_YEARS_BUCKETS = [0, 1, 2, 4, 7, 10]
 # =============================================================================
 class Organization(db.Model):
     name = db.StringProperty()
+
+# =============================================================================
+class Subject(db.Model):
+    # use the "key_name" kwarg for the canonical (lowercase) name,
+    # just like NamedSkill.
+    name = db.StringProperty()
     
 # =============================================================================
 class JobSite(db.Model):
@@ -82,19 +88,19 @@ class SkillExperience(db.Model):
 # =============================================================================
 class JobFeedUrl(db.Model):
     link = db.LinkProperty(required=True)
-    contact =  db.EmailProperty()
+    contact =  db.EmailProperty(indexed=False)
     since = db.DateTimeProperty(required=True, auto_now_add=True)
     lastcrawl = db.DateTimeProperty(required=True, auto_now=True)
-    interval = db.IntegerProperty() # in days
-    crawlcount = db.IntegerProperty(default=0)
+    interval = db.IntegerProperty(indexed=False) # in days
+    crawlcount = db.IntegerProperty(default=0, indexed=False)
 
 # =============================================================================
 class SavedSearch(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
-    title = db.StringProperty()
-    address = db.StringProperty()
-    geo = db.GeoPtProperty()
-    qualifications = db.ListProperty(db.Key)  # SkillExperience
+    title = db.StringProperty(indexed=False)
+    address = db.StringProperty(indexed=False)
+    geo = db.GeoPtProperty(indexed=False)
+    qualifications = db.ListProperty(db.Key, indexed=False)  # SkillExperience
     saved = db.DateTimeProperty(required=True, auto_now=True)
 
 # =============================================================================
@@ -107,26 +113,33 @@ class JobOpening(GeoModel):
     """A location-aware model for Job postings."""
 
     job_id = db.IntegerProperty()
-    title = db.StringProperty()
+    title = db.StringProperty(indexed=False)
     contract = db.BooleanProperty(default=False) # vs. permanent employment
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
-    feed = db.ReferenceProperty(JobFeedUrl)
+    feed = db.ReferenceProperty(JobFeedUrl, indexed=False)
     
-    fullpost = db.LinkProperty()   # Optionally link back to the full description on employer's website
+    link = db.LinkProperty(indexed=False)   # Optionally link back to the full description on employer's website
     required = db.ListProperty(db.Key)  # SkillExperience
-    preferred = db.ListProperty(db.Key)  # SkillExperience
+    preferred = db.ListProperty(db.Key, indexed=False)  # SkillExperience
+    # XXX Beware of exploding indexes caused by multiple ListProperty's;
+    # it may be better to augment the "SkillExperience" model with a boolean,
+    # and duplicate each instance with the True and False version
+
+    # TODO: Allow this property to be indexed, but ensure that it does not occur in the same index
+    # as the "required" ListProperty (exploding indexes).
+    keywords = db.ListProperty(db.Key, indexed=False)	# Subject
     
     sample = db.BooleanProperty(default=False)  # For debugging/test deployments
     
 #    since = db.DateTimeProperty(required=True, auto_now_add=True)   # Redundant with the feed
-    updated = db.DateTimeProperty(required=True, auto_now=True)
+    updated = db.DateTimeProperty(required=True, auto_now=True, indexed=False)
 
     @staticmethod
     def public_attributes():
         """Returns a set of simple attributes on job opening entities."""
         return [
-          'job_id', 'title'
+          'job_id', 'title', 'link'
         ]
 
     def _get_latitude(self):

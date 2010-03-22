@@ -66,7 +66,7 @@ def make_static_xml_handler(template_file):
 
 # =============================================================================
 # As per http://code.google.com/appengine/docs/python/datastore/keysandentitygroups.html#Kinds_Names_and_IDs
-def langToKey(original):
+def normalizeAndSanitizeKey(original):
     unsanitized_name = original.lower()
     disallowed_prefix_suffix = "__" # two underscores
     if unsanitized_name.endswith(disallowed_prefix_suffix) and disallowed_prefix_suffix.startswith(disallowed_prefix_suffix):
@@ -129,7 +129,7 @@ def getBucketsAtOrAbove(skill_experience_entities, years):
         if bucket.years >= min_bin:
             qualifying_buckets.append(bucket)
 
-    logging.info("Qualifying buckets: " + str(qualifying_buckets))
+#    logging.info("Qualifying buckets: " + str(qualifying_buckets))
 
     return qualifying_buckets
 
@@ -146,6 +146,9 @@ class UrlSubmission(webapp.RequestHandler):
         x.update_location()
 
         x.contract = job.contract
+        if job.link:
+            x.link = db.Link(job.link)
+
         x.job_id = job.job_id
         x.title = job.title
         x.expiration = job.expiration
@@ -160,7 +163,7 @@ class UrlSubmission(webapp.RequestHandler):
         contact_email = self.request.get('contact_email')
         crawl_interval_days = 7*max(1, int(self.request.get('crawl_interval_weeks')))
 
-        validate_only = self.request.get('validate_only')   # XXX Not used
+        validate_only = self.request.get('validate_only')   # TODO Not used
 
         from urlparse import urlsplit
         parsed_url = urlsplit(link_url)
@@ -206,7 +209,7 @@ class UrlSubmission(webapp.RequestHandler):
                             skill_buckets_unique_by_name = used_skill_names_by_category.setdefault(skill_category, {})
                             
                             for raw_skill in skill_list:
-                                normalized_skillname = langToKey(raw_skill.name)
+                                normalized_skillname = normalizeAndSanitizeKey(raw_skill.name)
                                 skill_experience_entities = None
                                 if normalized_skillname in skill_buckets_unique_by_name:
                                     skill_experience_entities = skill_buckets_unique_by_name[normalized_skillname]
@@ -237,6 +240,23 @@ class UrlSubmission(webapp.RequestHandler):
                     # We can put() the buckets all in one batch, since they use a supertype shared by each skill category and are homogeneous
                     # Here, since we've also specified the key_name and parent, duplicates will also be overwritten.
                     db.put( experience_bucketed_skills_entities )
+
+
+
+                    # Consolidate the "keywords" as new entities.
+                    unified_keyword_dict = {}
+                    for raw_job in joblist:
+                        raw_job.unified_keywords = []
+                        for keyword in raw_job.keywords:
+                            normalized_keyword = normalizeAndSanitizeKey(keyword)
+                            keyword_entity = unified_keyword_dict.setdefault(normalized_keyword, models.Subject(key_name=normalized_keyword, name=keyword))
+                            raw_job.unified_keywords.append( keyword_entity )
+
+                    db.put( unified_keyword_dict.values() )
+
+                    for raw_job in joblist:
+                        raw_job.converted_job_entity.keywords = [u.key() for u in set(raw_job.unified_keywords)]
+
 
                     # The final thing to do before put()-ing the jobs into the datastore is adding the skill buckets to the correct list.
                     for raw_job in joblist:
@@ -576,6 +596,17 @@ class MainHandler(webapp.RequestHandler):
         ))
 
 # =============================================================================
+class RandomizedFeedHandler(webapp.RequestHandler):
+    
+    def get(self):
+        
+	from testfeed import generateFeed
+	doc = generateFeed()
+
+	self.response.headers['Content-Type'] = "application/xml"
+	doc.writexml( self.response.out, addindent="\t", newl="\n" )
+
+# =============================================================================
 def main():
     application = webapp.WSGIApplication([
             ('/', MainHandler),
@@ -583,12 +614,14 @@ def main():
             ('/register', make_static_handler('../templates/registration.html')),
             ('/urlsubmission', UrlSubmission),
             ('/feeds', FeedList),
+            ('/domains', FeedList),	# TODO
             ('/skillslist', SkillsListHandler),
             ('/skillstest', SkillsTestHandler),
             ('/profile', SearchProfileHandler),
             ('/profiledata', ProfileDataHandler),
             ('/jobdata', JobDataHandler),
             ('/save', SaveSearchHandler),
+            ('/randomized_feed.xml', RandomizedFeedHandler),
         ],
         debug=('Development' in os.environ['SERVER_SOFTWARE']))
     wsgiref.handlers.CGIHandler().run(application)

@@ -12,7 +12,7 @@
 					<department>
 						<name>Mobile Development</name>
 						<openings>
-							<position id="15370" expires="2010-04-30">
+							<position id="15370" expires="2010-04-30" link="http://www.example.com/">
 								<title>iPhone Developer</title>
 								<subject_matter>
 									<keyword>games</keyword>
@@ -31,7 +31,7 @@
 									</skills>
 								</qualifications>
 							</position>
-							<position id="15371" expires="2010-03-25">
+							<position id="15371" expires="2010-03-25" link="http://www.example.com/">
 								<title>Android Developer</title>
 								<subject_matter>
 									<keyword>games</keyword>

@@ -75,14 +75,15 @@
     
     
     
-    <div id="user_qualifications_container" style="float:right;">
-      <a href="/profile">Search Profiles</a> <select name="load_key" id="saved_searches_dropdown" onchange="pickNewProfile(this)">
+    <div id="user_qualifications_container" style="float:right">
+      <a href="/static/help.html">Help</a> | <a href="/profile">Search Profiles</a> <select name="load_key" id="saved_searches_dropdown" onchange="pickNewProfile(this)">
         {% for saved_search in saved_searches %}
         <option value="{{saved_search.key}}">{{saved_search.title}}</option>
         {% endfor %}
       </select><br />
       <span id="status_bar"></span>
       <span id="experience_table_holder"></span>
+Jobs that require <strong>any</strong> of the<br/>listed skills will be matched.
     </div>
     
 
@@ -90,23 +91,21 @@
     
     
     <div id="container">
-      <div id="header" class="clearfix">
-        <div id="logo">
-          <div id="slogan">
-            Job finder service
-          </div>
-        </div>
+      <div>
+        <table><tr><td><img src="/static/images/logo.png"/></td><td>
         
-        <form action="" onsubmit="doGeocodeAndSearch(); return false;">
+        <form style="margin-left: 20px" action="" onsubmit="doGeocodeAndSearch(); return false;">
           <div id="search-container">
             <p><label for="search-query">Search for job openings near:</label></p>
-            <input id="search-query" type="search" />
+            <input id="search-query" type="search" value="Houston, TX" />
 
             <input type="submit" value="Search"/><br/>
                   <input name="enable_skill_filter" type="checkbox" id="checkbox_skill_filter"/><label for="checkbox_skill_filter"> Filter by required experience</label><br/>
+                  <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs"/><label for="checkbox_sample_jobs"> Search in sample jobs</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
           </div>
         </form>
+        </td></tr></table>
       </div>
       
       <div id="view-toggle">
@@ -116,8 +115,7 @@
       <div id="content" class="clearfix">
         <div id="list-view-container">
           <p id="list-view-status">
-            Enter a search location to
-            search for nearby public schools.
+            Enter a search location to search for nearby jobs.
           </p>
           <ul id="list-view">
           </ul>

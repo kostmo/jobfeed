@@ -1,6 +1,17 @@
-<h3><img src="<%= result.icon %>"/> <%= result.title %></h3>
+<span style="float:right;" id="<%= "skills_list_item_" + result.job_key %>" />
+<%= loadJobExperience2(result.job_key) %>
+
+<h3><img src="<%= result.icon %>"/>
+<% if (result.link) { %>
+  <a href="<%= result.link %>"><%= result.title %></a>
+<% } else { %>
+<%= result.title %>
+<% } %>
+</h3>
+
+
 <b>Job ID:</b> <%= result.job_id %><br/>
-<b>Expires on:</b> <%= (new Date(result.expiration)).format("m/dd/yyyy") %>
+<b>Expires:</b> <%= (new Date(result.expiration)).format("m/dd/yyyy") %>
 
 <% if (result.distance) { %>
   <p class="distance"><%= formatDistance(result.distance) %></p>
@@ -8,5 +19,3 @@
 
 
 
-<span id="<%= "skills_list_item_" + result.job_key %>" />
-<%= loadJobExperience2(result.job_key) %>
