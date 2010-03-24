@@ -20,6 +20,8 @@
   * Limit 1000 jobs per domain?
   * Enforce limit of 5 skills and 3 keywords
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
+  * *perform in-memory ranking of results by number of skills matched*
+  * match by keyword
 
 Employment term/duration options:
   * part time
