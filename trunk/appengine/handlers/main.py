@@ -29,16 +29,36 @@ from google.appengine.ext.webapp import template
 import logging
 from datetime import datetime
 
-import parse_jobs
+import feedparser
 import models
 
 
+# =============================================================================
 
 template.register_template_library(
     'django.contrib.humanize.templatetags.humanize')
 template.register_template_library('templatelib')
 
 
+# =============================================================================
+SKILL_CATEGORY_ENTITY_MAPPING = {
+    feedparser.SKILL_CATEGORY_APIS: models.Api,
+    feedparser.SKILL_CATEGORY_EQUIPMENT: models.Equip,
+    feedparser.SKILL_CATEGORY_DUTIES: models.Duty,
+    feedparser.SKILL_CATEGORY_APPLICATIONS: models.App,
+    feedparser.SKILL_CATEGORY_PROGRAMMING_LANGUAGES: models.Lang
+}
+
+SKILL_CATEGORY_MODEL_NAME_MAPPING = {}
+for category, model in SKILL_CATEGORY_ENTITY_MAPPING.items():
+    SKILL_CATEGORY_MODEL_NAME_MAPPING[model.__name__] = category
+
+SKILL_CATEGORY_SHORT_TO_FULL_NAME = {}
+for i, shortname in enumerate(feedparser.SKILL_CATEGORIES):
+    SKILL_CATEGORY_SHORT_TO_FULL_NAME[shortname] = feedparser.SKILL_CATEGORY_NAMES[i]
+
+
+# =============================================================================
 def make_static_handler(template_file):
     """Creates a webapp.RequestHandler type that renders the given template
     to the response stream."""
@@ -50,6 +70,7 @@ def make_static_handler(template_file):
 
     return StaticHandler
 
+# =============================================================================
 def make_static_xml_handler(template_file):
     """Creates a webapp.RequestHandler type that renders the given template
     to the response stream."""
@@ -72,23 +93,6 @@ def normalizeAndSanitizeKey(original):
     if unsanitized_name.endswith(disallowed_prefix_suffix) and disallowed_prefix_suffix.startswith(disallowed_prefix_suffix):
         return "x" + unsanitized_name
     return unsanitized_name
-
-
-SKILL_CATEGORY_ENTITY_MAPPING = {
-    parse_jobs.SKILL_CATEGORY_APIS: models.ApiSkill,
-    parse_jobs.SKILL_CATEGORY_EQUIPMENT: models.EquipmentSkill,
-    parse_jobs.SKILL_CATEGORY_ACTIVITIES: models.ActivitySkill,
-    parse_jobs.SKILL_CATEGORY_APPLICATIONS: models.ApplicationSkill,
-    parse_jobs.SKILL_CATEGORY_PROGRAMMING_LANGUAGES: models.ProgrammingLanguageSkill
-}
-
-SKILL_CATEGORY_MODEL_NAME_MAPPING = {}
-for category, model in SKILL_CATEGORY_ENTITY_MAPPING.items():
-    SKILL_CATEGORY_MODEL_NAME_MAPPING[model.__name__] = category
-
-SKILL_CATEGORY_SHORT_TO_FULL_NAME = {}
-for i, shortname in enumerate(parse_jobs.SKILL_CATEGORIES):
-    SKILL_CATEGORY_SHORT_TO_FULL_NAME[shortname] = parse_jobs.SKILL_CATEGORY_NAMES[i]
 
 # =============================================================================
 class SkillConversionHelper:
@@ -142,7 +146,7 @@ class UrlSubmission(webapp.RequestHandler):
     and committed to the datstore first.'''
 
     def convert_job(self, job):
-        x = models.JobOpening(location=db.GeoPt(job.geo[0], job.geo[1]))
+        x = models.Job(location=db.GeoPt(job.geo[0], job.geo[1]))
         x.update_location()
 
         x.contract = job.contract
@@ -176,7 +180,7 @@ class UrlSubmission(webapp.RequestHandler):
         joblist = []
         if link_hostname:
 
-            q = models.JobFeedUrl.all()
+            q = models.Feed.all()
             q.filter("link =", link_url)
             if q.get():
                 submission_result = "Duplicate URL"
@@ -184,9 +188,9 @@ class UrlSubmission(webapp.RequestHandler):
                 try:
 
 		    from urllib import urlopen
-                    joblist = parse_jobs.fetchJobList( urlopen(link_url) )
+                    joblist = feedparser.fetchJobList( urlopen(link_url) )
 
-                    feed_url_object = models.JobFeedUrl(link=db.Link(link_url))
+                    feed_url_object = models.Feed(link=db.Link(link_url))
                     feed_url_object.interval = crawl_interval_days
                     if contact_email:
                         feed_url_object.contact = db.Email(contact_email)
@@ -216,13 +220,13 @@ class UrlSubmission(webapp.RequestHandler):
                                 else:
                                     # This is the first time this skill name was encountered. Create and assign the model entity instance.
 
-                                    basic_skill_entity = SKILL_CATEGORY_ENTITY_MAPPING[skill_category](key_name=normalized_skillname, name=raw_skill.name)
+                                    basic_skill_entity = SKILL_CATEGORY_ENTITY_MAPPING[skill_category](key_name=normalized_skillname, name=raw_skill.name, lower=raw_skill.name.lower())
                                     
                                     # queue to be "put()"
                                     basic_skills_entities_by_category.setdefault(skill_category, []).append( basic_skill_entity )
                                     
-#                                    skill_experience_entities = [models.SkillExperience(skill=basic_skill_entity, years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
-                                    skill_experience_entities = [models.SkillExperience(parent=basic_skill_entity, key_name=str(years), years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
+#                                    skill_experience_entities = [models.Exp(skill=basic_skill_entity, years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
+                                    skill_experience_entities = [models.Exp(parent=basic_skill_entity, key_name=str(years), years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
                                     experience_bucketed_skills_entities.extend( skill_experience_entities )  # queue to be "put()"
                                     
                                     skill_buckets_unique_by_name[normalized_skillname] = skill_experience_entities
@@ -249,7 +253,7 @@ class UrlSubmission(webapp.RequestHandler):
                         raw_job.unified_keywords = []
                         for keyword in raw_job.keywords:
                             normalized_keyword = normalizeAndSanitizeKey(keyword)
-                            keyword_entity = unified_keyword_dict.setdefault(normalized_keyword, models.Subject(key_name=normalized_keyword, name=keyword))
+                            keyword_entity = unified_keyword_dict.setdefault(normalized_keyword, models.Sub(key_name=normalized_keyword, name=keyword, lower=keyword.lower()))
                             raw_job.unified_keywords.append( keyword_entity )
 
                     db.put( unified_keyword_dict.values() )
@@ -344,7 +348,7 @@ class FeedList(webapp.RequestHandler):
 
     def get(self):
 
-        q = models.JobFeedUrl.all()
+        q = models.Feed.all()
         q.order("since")
         feed_list = q.fetch(20) # TODO - paginate results
 
@@ -377,7 +381,7 @@ class SkillsTestHandler(webapp.RequestHandler):
 
     def get(self):
 
-        categories = [SkillCategoryObject(parse_jobs.SKILL_CATEGORIES[i], parse_jobs.SKILL_CATEGORY_NAMES[i]) for i in range(len(parse_jobs.SKILL_CATEGORY_NAMES))]
+        categories = [SkillCategoryObject(feedparser.SKILL_CATEGORIES[i], feedparser.SKILL_CATEGORY_NAMES[i]) for i in range(len(feedparser.SKILL_CATEGORY_NAMES))]
 
         template_file = '../templates/skillstest.html'
         self.response.out.write(template.render(
@@ -395,6 +399,11 @@ class SkillsList:
         self.skills_list = skills_list
         self.category = category
         self.label = label
+
+# =============================================================================
+def recoverExperienceEntity(parent_keystring, years_int):
+        parent_key_object = db.Key(parent_keystring)
+        return db.Key.from_path(parent_key_object.kind(), parent_key_object.name(), 'Exp', str(years_int))
 
 # =============================================================================
 class SaveSearchHandler(webapp.RequestHandler):
@@ -417,8 +426,7 @@ class SaveSearchHandler(webapp.RequestHandler):
                 parent_keystring, years = binned_skill_lump.split(":")
                 appropriate_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, int(years))
                 
-                parent_key_object = db.Key(parent_keystring)
-                k = db.Key.from_path(parent_key_object.kind(), parent_key_object.name(), 'SkillExperience', str(appropriate_bin))
+                k = recoverExperienceEntity(parent_keystring, appropriate_bin)
                 skill_keys_list.append(k)
 
             entity = models.SavedSearch(title=saved_name, qualifications=skill_keys_list)
@@ -430,7 +438,6 @@ class SaveSearchHandler(webapp.RequestHandler):
 # =============================================================================
 def quoteString(val):
     return "\"" + str(val) + "\""
-
 
 # =============================================================================
 def getSkillsDictFromKeys(experience_keys):
@@ -474,14 +481,14 @@ def renderProfilePage(self):
     saved_searches = q.fetch(50)
     
     skills_lists = []
-    for i, category in enumerate(parse_jobs.SKILL_CATEGORIES):
+    for i, category in enumerate(feedparser.SKILL_CATEGORIES):
         model = SKILL_CATEGORY_ENTITY_MAPPING[category]
         q = model.all()
         q.order("name")
-        skills_lists.append( SkillsList( q.fetch(1000), category, parse_jobs.SKILL_CATEGORY_NAMES[i] ) )
+        skills_lists.append( SkillsList( q.fetch(1000), category, feedparser.SKILL_CATEGORY_NAMES[i] ) )
     
     self.response.out.write(template.render(
-        os.path.join(os.path.dirname(__file__), '../templates/searchprofile.html'),
+        os.path.join(os.path.dirname(__file__), '../templates/profile.html'),
         {
             'current_user': users.get_current_user(),
             'skills_lists': skills_lists,
@@ -501,7 +508,6 @@ def buildAjaxExperienceDict(loaded_skills_dict):
     readable = {}
     for entity in named_skill_entities:
         categorized_skill_list = readable.setdefault(SKILL_CATEGORY_SHORT_TO_FULL_NAME[SKILL_CATEGORY_MODEL_NAME_MAPPING[entity.key().kind()]], [])
-#       categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
         categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
     
     loaded_skills["readable_skills"] = readable
@@ -532,7 +538,7 @@ class JobDataHandler(webapp.RequestHandler):
         if job_posting_key:
             
             # TODO: Also do "preferred"!!
-            qualifications_keys = models.JobOpening.get(job_posting_key).required
+            qualifications_keys = models.Job.get(job_posting_key).required
             
             # For display, we're only interested in minium required experience.
             qualifications_keys = extractMinimumBuckets(qualifications_keys)
@@ -586,14 +592,61 @@ class MainHandler(webapp.RequestHandler):
         q.filter("user =", users.get_current_user())
         q.order("-saved")
         saved_searches = q.fetch(50)
+
+
+        class SkillType:
+            pass
+
+        skills_types = []
+        for i, category in enumerate(feedparser.SKILL_CATEGORIES):
+            t = SkillType()
+            t.key = category
+            t.label = feedparser.SKILL_CATEGORY_NAMES[i]
+            skills_types.append(t)
         
         self.response.out.write(template.render(
             os.path.join(os.path.dirname(__file__), '../templates/index.html'),
             {
                 'current_user': users.get_current_user(),
-                'saved_searches': saved_searches
+                'saved_searches': saved_searches,
+            	'years_bins': models.EXPERIENCE_YEARS_BUCKETS,
+                'skill_types': skills_types,
+                'skill_type_summaries': feedparser.SKILL_CATEGORY_SUMMARIES
             }
         ))
+
+# =============================================================================
+class SkillsAutoCompleteHandler(webapp.RequestHandler):
+    
+    def get(self):
+
+        prefix = self.request.get('query')
+	query_string = prefix.lower()
+
+	category = self.request.get('type')
+	model = SKILL_CATEGORY_ENTITY_MAPPING[category]
+
+	q = model.all()
+	q.filter("lower >=", query_string)
+	q.filter("lower <", query_string + u"\ufffd")
+        
+	for result in q.fetch(20):
+		self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
+
+# =============================================================================
+class KeywordAutoCompleteHandler(webapp.RequestHandler):
+    
+    def get(self):
+
+        prefix = self.request.get('query')
+	query_string = prefix.lower()
+
+	q = models.Sub.all()
+	q.filter("lower >=", query_string)
+	q.filter("lower <", query_string + u"\ufffd")
+        
+	for result in q.fetch(20):
+		self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
 
 # =============================================================================
 class RandomizedFeedHandler(webapp.RequestHandler):
@@ -622,6 +675,9 @@ def main():
             ('/jobdata', JobDataHandler),
             ('/save', SaveSearchHandler),
             ('/randomized_feed.xml', RandomizedFeedHandler),
+
+            ('/skills_autocomplete', SkillsAutoCompleteHandler),
+            ('/keyword_autocomplete', KeywordAutoCompleteHandler),
         ],
         debug=('Development' in os.environ['SERVER_SOFTWARE']))
     wsgiref.handlers.CGIHandler().run(application)

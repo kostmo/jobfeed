@@ -65,44 +65,46 @@
 																</element>
 															</optional>
 															<element name="qualifications">
-																<optional>
-																	<element name="education">
-																		<zeroOrMore>
-																			<element name="degree">
-																				<attribute name="level" />
-																				<attribute name="area" />
-																				<optional>
-																					<attribute name="or_related">
-																						<data type="boolean" />
-																					</attribute>
-																				</optional>
-																			</element>
-																		</zeroOrMore>
-																		<optional>
+																<interleave>
+																	<optional>
+																		<element name="education">
+																			<zeroOrMore>
+																				<element name="degree">
+																					<attribute name="level" />
+																					<optional>
+																						<attribute name="area" />
+																					</optional>
+																					<optional>
+																						<attribute name="or_related">
+																							<data type="boolean" />
+																						</attribute>
+																					</optional>
+																				</element>
+																			</zeroOrMore>
 																			<zeroOrMore>
 																				<element name="certification">
 																					<attribute name="type" />
 																				</element>
 																			</zeroOrMore>
-																		</optional>
-																	</element>
-																</optional>
-																<optional>
-																	<element name="skills">
-																		<interleave>
-																			<optional>
-																				<element name="required">
-																					<ref name="skillset" />
-																				</element>
-																			</optional>
-																			<optional>
-																				<element name="preferred">
-																					<ref name="skillset" />
-																				</element>
-																			</optional>
-																		</interleave>
-																	</element>
-																</optional>
+																		</element>
+																	</optional>
+																	<optional>
+																		<element name="skills">
+																			<interleave>
+																				<optional>
+																					<element name="required">
+																						<ref name="skillset" />
+																					</element>
+																				</optional>
+																				<optional>
+																					<element name="preferred">
+																						<ref name="skillset" />
+																					</element>
+																				</optional>
+																			</interleave>
+																		</element>
+																	</optional>
+																</interleave>
 															</element>
 														</interleave>
 													</element>
@@ -121,7 +123,7 @@
 	<define name="skillset">
         <zeroOrMore>
             <choice>
-                <element name="activity">
+                <element name="duty">
                     <ref name="skillprops"/>
                 </element>
                 <element name="equip">

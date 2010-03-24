@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import feedparser
+
 # Source: http://en.wikipedia.org/wiki/List_of_United_States_cities_by_population
 most_populous_cities = [('New York', 'New York'), ('Los Angeles', 'California'), ('Chicago', 'Illinois'), ('Houston', 'Texas'), ('Phoenix', 'Arizona'), ('Philadelphia', 'Pennsylvania'), ('San Antonio', 'Texas'), ('Dallas', 'Texas'), ('San Diego', 'California'), ('San Jose', 'California'), ('Detroit', 'Michigan'), ('San Francisco', 'California'), ('Jacksonville', 'Florida'), ('Indianapolis', 'Indiana'), ('Austin', 'Texas'), ('Columbus', 'Ohio'), ('Fort Worth', 'Texas'), ('Charlotte', 'North Carolina'), ('Memphis', 'Tennessee'), ('Baltimore', 'Maryland'), ('Boston', 'Massachusetts'), ('El Paso', 'Texas'), ('Milwaukee', 'Wisconsin'), ('Denver', 'Colorado'), ('Seattle', 'Washington'), ('Nashville', 'Tennessee'), ('Washington', 'District of Columbia'), ('Las Vegas', 'Nevada'), ('Portland', 'Oregon'), ('Louisville', 'Kentucky'), ('Oklahoma City', 'Oklahoma'), ('Tucson', 'Arizona'), ('Atlanta', 'Georgia'), ('Albuquerque', 'New Mexico'), ('Kansas City', 'Missouri'), ('Fresno', 'California'), ('Sacramento', 'California'), ('Long Beach', 'California'), ('Mesa', 'Arizona'), ('Omaha', 'Nebraska'), ('Cleveland', 'Ohio'), ('Virginia Beach', 'Virginia'), ('Miami', 'Florida'), ('Oakland', 'California'), ('Raleigh', 'North Carolina'), ('Tulsa', 'Oklahoma'), ('Minneapolis', 'Minnesota'), ('Colorado Springs', 'Colorado'), ('Honolulu', 'Hawaii'), ('Arlington', 'Texas')]
 
@@ -8,19 +10,31 @@ city_geo_coords = [[40.714269100000003, -74.005972900000003], [34.05223420000000
 ENABLE_GEO_LOOKUP = False
 
 
+
+apis = ['MFC', 'Google App Engine', 'OpenGL', 'DirectX']
+equipment = ['multimeter', 'cash register']
+activities = ['system administration', 'PCB layout']
+applications = ['Visual Studio', 'Blender', 'Eclipse', 'AutoCAD', 'git', 'subversion', 'CVS']
 # Source: http://www.langpop.com/
 # Also see: http://en.wikipedia.org/wiki/List_of_programming_languages_by_category
 languages = ['Java', 'C', 'C++', 'PHP', 'JavaScript', 'Python', 'SQL', 'C#', 'Perl', 'Ruby', 'Shell', 'Visual Basic', 'Assembly', 'Actionscript', 'Delphi', 'Objective C', 'Lisp', 'Pascal', 'Fortran', 'ColdFusion', 'Scheme', 'Lua', 'Haskell', 'D', 'Tcl', 'Ada', 'Cobol', 'Erlang', 'Smalltalk', 'Scala', 'OCaml', 'Forth', 'Rexx']
 
-apis = ['MFC', 'OpenGL', 'DirectX']
-software = ['Visual Studio', 'Blender', 'Eclipse']
+SKILL_CATEGORY_EXAMPLES = {
+    feedparser.SKILL_CATEGORY_APIS: apis,
+    feedparser.SKILL_CATEGORY_EQUIPMENT: equipment,
+    feedparser.SKILL_CATEGORY_DUTIES: activities,
+    feedparser.SKILL_CATEGORY_APPLICATIONS: applications,
+    feedparser.SKILL_CATEGORY_PROGRAMMING_LANGUAGES: languages
+}
 
+
+degreee_levels = ["Associates", "Bachelors", "Masters", "Doctorate"]
 
 subjects = ["automotive", "control systems", "biomedical", "bioinformatics", "genomics", "aerospace"]
 
 
 def generateFeed():
-	from random import randint, sample
+	from random import randint, sample, choice, shuffle
 
 	from xml.dom.minidom import Document
 	doc = Document()
@@ -41,7 +55,7 @@ def generateFeed():
 	organization.appendChild(sites)
 
 	jobcounter = 0
-	for i, city_tuple in enumerate(most_populous_cities[:randint(20, 30)]):
+	for i, city_tuple in enumerate(most_populous_cities[:randint(10, 20)]):
 
 		site = doc.createElement("site")
 		sites.appendChild(site)
@@ -62,7 +76,7 @@ def generateFeed():
 				for key, val in getGeo( cityname ).items():
 					geo.setAttribute(key, "%.4f" % (val))
 			else:
-				from parse_jobs import GEO_ATTRIBUTES
+				from feedparser import GEO_ATTRIBUTES
 				for idx, key in enumerate(GEO_ATTRIBUTES):
 					geo.setAttribute(key, "%.4f" % (city_geo_coords[i][idx]))
 
@@ -117,21 +131,36 @@ def generateFeed():
 				qualifications = doc.createElement("qualifications")
 				position.appendChild(qualifications)
 
+
+				if randint(0, 1):
+					education = doc.createElement("education")
+					qualifications.appendChild(education)
+					degree = doc.createElement("degree")
+					degree.setAttribute("level", choice(degreee_levels))
+					education.appendChild(degree)
+
+
 				skills = doc.createElement("skills")
 				qualifications.appendChild(skills)
 
 				for skill_classification in ["required", "preferred"]:
-
 					skillbatch = doc.createElement( skill_classification )
 					skills.appendChild( skillbatch )
 
-					for language in sample(languages, randint(1, min(5, len(languages)))):
+					skill_elements = []
 
-						lang = doc.createElement("lang")
-						lang.setAttribute("name", language)
-						lang.setAttribute("years", str(randint(0, 10)))
-						skillbatch.appendChild(lang)
-#		break
+					for key, value in SKILL_CATEGORY_EXAMPLES.items():
+						for skillname in sample(value, randint(0, min(2, len(value)))):
+
+							lang = doc.createElement(key)
+							lang.setAttribute("name", skillname)
+							lang.setAttribute("years", str(randint(0, 10)))
+							skill_elements.append(lang)
+
+					shuffle(skill_elements)
+					for skill_element in skill_elements:
+						skillbatch.appendChild(skill_element)
+
 	return doc
 
 # =============================================================================
@@ -175,7 +204,7 @@ if __name__ == '__main__':
 	print "Parsing feed..."
 
 	jobfeed_filehandle.seek(0)
-	from parse_jobs import fetchJobList, dumpJobs
+	from feedparser import fetchJobList, dumpJobs
 	jobs = fetchJobList( jobfeed_filehandle )
 	print len(jobs), "jobs."
 	dumpJobs(jobs)

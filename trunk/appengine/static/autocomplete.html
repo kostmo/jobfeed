@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<!---
+  Copyright 2010 Karl Ostmo
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>jobfeed</title>
+    
+    <link rel="SHORTCUT ICON" href="/static/images/shortlogo16.png"/>
+
+
+
+<!--CSS file (default YUI Sam Skin) -->
+<link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.8.0r4/build/autocomplete/assets/skins/sam/autocomplete.css">
+ 
+<!-- Dependencies -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script src="http://yui.yahooapis.com/2.8.0r4/build/datasource/datasource-min.js"></script>
+ 
+<!-- OPTIONAL: Connection (required only if using XHRDataSource) -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/connection/connection-min.js"></script>
+ 
+<!-- OPTIONAL: Animation (required only if enabling animation) -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/animation/animation-min.js"></script>
+
+ 
+<!-- Source file -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/autocomplete/autocomplete-min.js"></script>
+
+
+  </head>
+  <body class="yui-skin-sam">
+
+    
+    <label for="myInput">Language:</label>
+<div id="myAutoComplete">
+	<input id="myInput" type="text">
+	<div id="myContainer"></div>
+</div>
+
+    <script type="text/javascript">
+YAHOO.example.BasicRemote = function() {
+    // Use an XHRDataSource
+    var oDS = new YAHOO.util.XHRDataSource("/skills_autocomplete");
+    // Set the responseType
+    oDS.responseType = YAHOO.util.XHRDataSource.TYPE_TEXT;
+    // Define the schema of the delimited results
+    oDS.responseSchema = {
+        recordDelim: "\n",
+        fieldDelim: "\t"
+    };
+    // Enable caching
+    oDS.maxCacheEntries = 5;
+
+    // Instantiate the AutoComplete
+    var oAC = new YAHOO.widget.AutoComplete("myInput", "myContainer", oDS);
+    
+    return {
+        oDS: oDS,
+        oAC: oAC
+    };
+}();
+
+
+    </script>
+    
+
+
+</body>
+</html>
+
+
+  <style type="text/css">
+	#myAutoComplete { 
+	    width:25em; /* set width here or else widget will expand to fit its container */ 
+	    padding-bottom:2em; 
+	} 
+</style>
+

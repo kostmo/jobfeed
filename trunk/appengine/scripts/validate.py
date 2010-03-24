@@ -54,3 +54,4 @@ if __name__ == '__main__':
 
     from urllib import urlopen
     doValidation( urlopen( document_url ), schema_url )
+

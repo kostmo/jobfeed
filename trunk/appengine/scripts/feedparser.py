@@ -29,14 +29,14 @@ SKILL_PREFERENCE_TYPES = [SKILL_REQUIRED, SKILL_PREFERRED]
 
 SKILL_CATEGORY_APIS = 			"api"
 SKILL_CATEGORY_EQUIPMENT =		"equip"
-SKILL_CATEGORY_ACTIVITIES =		"activity"
+SKILL_CATEGORY_DUTIES =			"duty"
 SKILL_CATEGORY_APPLICATIONS =		"app"
 SKILL_CATEGORY_PROGRAMMING_LANGUAGES =	"lang"
 
 SKILL_CATEGORIES = [
     SKILL_CATEGORY_APIS,
     SKILL_CATEGORY_EQUIPMENT,
-    SKILL_CATEGORY_ACTIVITIES,
+    SKILL_CATEGORY_DUTIES,
     SKILL_CATEGORY_APPLICATIONS,
     SKILL_CATEGORY_PROGRAMMING_LANGUAGES
 ]
@@ -44,9 +44,17 @@ SKILL_CATEGORIES = [
 SKILL_CATEGORY_NAMES = [
     "API",
     "Equipment",
-    "Activity",
-    "Software application",
-    "Programming language"
+    "Duty",
+    "Application",
+    "Language"
+]
+
+SKILL_CATEGORY_SUMMARIES = [
+	"library, API, or environment",
+	"physical equipment or tool",
+	"process, task, duty, responsibility or other common activity",
+	"software application",
+	"programming language"
 ]
 
 # =============================================================================
@@ -65,7 +73,7 @@ class SkillExperience():
         return "SkillExperience" + str(self)
 
 # =============================================================================
-class Job():
+class ParsedJob():
     def __init__(self, handler):
         self.job_id = handler.jobid
         self.geo = handler.geo
@@ -141,7 +149,7 @@ class JobFeedHandler(ContentHandler):
             else:
                 raise MissingLocationException("Location must be specified preceeding job " + str(self.job_id))
 
-        self.joblist.append(Job(self))
+        self.joblist.append(ParsedJob(self))
         self.resetJob()
 
     # -------------------------------------------------------------------------

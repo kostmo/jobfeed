@@ -28,8 +28,6 @@
   <script type="text/javascript">
   var loaded_skills = {{loaded_skills}};
   var years_bins = {{years_bins}};
-  
-
   </script>
   
   <script type="text/javascript" src="/static/js/skills.js"></script>
@@ -48,7 +46,7 @@
     </div>
 
 <p>Only qualifications that have been used in an actual job posting are listed.</p>
-<p>Years of experience are rounded down to the next highest bin: {{years_bins}}. -1 represents "unspecified".</p>
+<p>Years of experience are rounded down to the next highest bin: {{years_bins}}.</p>
 <p><b>Used count:</b> <span id="checkbox_counter">0</span></p>
 
   <form action="/save" method="post" onsubmit="return saveSearch(this)" name="save_form">

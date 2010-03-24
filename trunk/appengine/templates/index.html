@@ -39,7 +39,19 @@
       google.setOnLoadCallback(init);
     </script>
     
-    
+      <script type="text/javascript">
+  var years_bins = {{years_bins}};
+  var skill_type_summaries = {{skill_type_summaries}}
+
+  var active_skill_objects = [];
+  var last_selected_skill_object = null;
+
+  function skillObject(label, key) {
+    this.label = label;
+    this.key = key;
+  }
+
+  </script>
     
     <script type="text/javascript">
       function loadSearchProfile() {
@@ -47,14 +59,85 @@
         pickNewProfile(dropdown);
       }
       
+
+function skillTypeChange(dropdown) {
+        var blurb = document.getElementById("type_summary");
+        blurb.innerHTML = skill_type_summaries[dropdown.selectedIndex];
+}
+
+
+function addActiveSkillObject() {
+
+  if (last_selected_skill_object) {
+    active_skill_objects.push( last_selected_skill_object )
+  }
+
+  alert( active_skill_objects );
+}
+
     </script>
     
     <style type="text/css">
     th {font-weight: bold}
     </style>
     
+
+
+
+
+
+
+
+
+<!--CSS file (default YUI Sam Skin) -->
+<link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.8.0r4/build/autocomplete/assets/skins/sam/autocomplete.css">
+ 
+<!-- Dependencies -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script src="http://yui.yahooapis.com/2.8.0r4/build/datasource/datasource-min.js"></script>
+ 
+<!-- OPTIONAL: Connection (required only if using XHRDataSource) -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/connection/connection-min.js"></script>
+ 
+<!-- OPTIONAL: Animation (required only if enabling animation) -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/animation/animation-min.js"></script>
+
+ 
+<!-- Source file -->
+<script src="http://yui.yahooapis.com/2.8.0r4/build/autocomplete/autocomplete-min.js"></script>
+
+
+
+
+
+
+
+
+  <style type="text/css">
+	#skillAutoComplete { 
+	    width:25em; /* set width here or else widget will expand to fit its container */ 
+	    padding-bottom:2em; 
+	}
+
+	#keywordAutoComplete { 
+	    width:25em; /* set width here or else widget will expand to fit its container */ 
+	    padding-bottom:2em; 
+	}
+
+</style>
+
+
+
+
+
+
+
+
+
+
+
   </head>
-  <body onunload="GUnload()" onload="loadSearchProfile()">
+  <body class="yui-skin-sam" onunload="GUnload()" onload="loadSearchProfile()">
     <div id="login-bar">
       {% if current_user %}
         <strong>{{ current_user.email }}</strong>
@@ -64,12 +147,230 @@
         <a href="{% login_url %}">Sign in</a>
       {% endif %}
     </div>
+
     
     
+<label for="myInput">Add a skill:</label>
+
+<div id="skillAutoComplete">
+ 
+	  <select name="skill_type" id="skill_type_dropdown" onchange="skillTypeChange(this)">
+    {% for type in skill_types %}
+    <option value="{{type.key}}">{{type.label}}</option>
+    {% endfor %}
+  </select> <input id="myInput" type="text" style="width: 10em"> <br />
+<span id="type_summary"></span>
+	<div id="myContainer"></div>
+
+<button type="button" id="skill_adder_button" onclick="addActiveSkillObject()" disabled="true">Add</button>
+<input id="experience_years_textbox" type="text" style="width: 2em" onchange="validateYearsTextbox(this)"><label for="experience_years_textbox"> years of experience</label>
+
+</div>
+
+    <script type="text/javascript">
+YAHOO.example.BasicRemote = function() {
+    // Use an XHRDataSource
+    var oDS = new YAHOO.util.XHRDataSource("/skills_autocomplete?");
+    // Set the responseType
+    oDS.responseType = YAHOO.util.XHRDataSource.TYPE_TEXT;
+    // Define the schema of the delimited results
+    oDS.responseSchema = {
+        recordDelim: "\n",
+        fieldDelim: "\t"
+    };
+    // Enable caching
+    oDS.maxCacheEntries = 5;
+
+    // Instantiate the AutoComplete
+    var oAC = new YAHOO.widget.AutoComplete("myInput", "myContainer", oDS);
     
+	oAC.generateRequest = function(sQuery) {
+	    return "query=" + sQuery + "&type=" + document.getElementById("skill_type_dropdown").value;
+	};
+ 
+    oAC.forceSelection = true;
+
+    oAC.animVert = false;
+    oAC.animHoriz = false;
+    oAC.queryQuestionMark = false;
+
+
+
+//define your itemSelect handler function:
+var itemSelectHandler = function(sType, aArgs) {
+	YAHOO.log(sType); // this is a string representing the event;
+				      // e.g., "itemSelectEvent"
+	var oMyAcInstance = aArgs[0]; // your AutoComplete instance
+	var elListItem = aArgs[1]; // the <li> element selected in the suggestion container
+	var oData = aArgs[2]; // object literal of data for the result
+
+        last_selected_skill_object = new skillObject(oData[0], oData[1]);
+        document.getElementById("skill_adder_button").disabled = false;
+};
+ 
+//subscribe your handler to the event, assuming
+//you have an AutoComplete instance myAC:
+oAC.itemSelectEvent.subscribe(itemSelectHandler);
+
+
+//define your selectionEnforce handler function:
+var selectionEnforceHandler = function(sType, aArgs) {
+	YAHOO.log(sType); // this is a string representing the event;
+				      // e.g., "itemSelectEvent"
+
+	var oSelf = aArgs[0]; // your AutoComplete instance
+	var sClearedValue = aArgs[1]; // The cleared value (including delimiters if applicable).
+
+        last_selected_skill_object = null;
+        document.getElementById("skill_adder_button").disabled = true;
+};
+oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
+
+
+
+
+
+    return {
+        oDS: oDS,
+        oAC: oAC
+    };
+}();
+
+
+    </script>
     
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<label for="myInput">Add a keyword:</label>
+
+<div id="keywordAutoComplete">
+ <input id="keywordInput" type="text" style="width: 10em"> <br />
+	<div id="keywordSuggestionContainer"></div>
+
+<button type="button" id="keyword_adder_button" onclick="addActiveKeywordObject()" disabled="true">Add</button>
+</div>
+
+    <script type="text/javascript">
+YAHOO.example.BasicRemote = function() {
+    // Use an XHRDataSource
+    var oDS = new YAHOO.util.XHRDataSource("/keyword_autocomplete");
+    // Set the responseType
+    oDS.responseType = YAHOO.util.XHRDataSource.TYPE_TEXT;
+    // Define the schema of the delimited results
+    oDS.responseSchema = {
+        recordDelim: "\n",
+        fieldDelim: "\t"
+    };
+    // Enable caching
+    oDS.maxCacheEntries = 5;
+
+    // Instantiate the AutoComplete
+    var oAC = new YAHOO.widget.AutoComplete("keywordInput", "keywordSuggestionContainer", oDS);
+     
+    oAC.forceSelection = true;
+    oAC.animVert = false;
+    oAC.animHoriz = false;
+
+
+
+//define your itemSelect handler function:
+var itemSelectHandler = function(sType, aArgs) {
+	YAHOO.log(sType); // this is a string representing the event;
+				      // e.g., "itemSelectEvent"
+	var oMyAcInstance = aArgs[0]; // your AutoComplete instance
+	var elListItem = aArgs[1]; // the <li> element selected in the suggestion container
+	var oData = aArgs[2]; // object literal of data for the result
+
+        last_selected_skill_object = new skillObject(oData[0], oData[1]);
+        document.getElementById("keyword_adder_button").disabled = false;
+};
+ 
+//subscribe your handler to the event, assuming
+//you have an AutoComplete instance myAC:
+oAC.itemSelectEvent.subscribe(itemSelectHandler);
+
+
+//define your selectionEnforce handler function:
+var selectionEnforceHandler = function(sType, aArgs) {
+	YAHOO.log(sType); // this is a string representing the event;
+				      // e.g., "itemSelectEvent"
+
+	var oSelf = aArgs[0]; // your AutoComplete instance
+	var sClearedValue = aArgs[1]; // The cleared value (including delimiters if applicable).
+
+        last_selected_skill_object = null;
+        document.getElementById("keyword_adder_button").disabled = true;
+};
+oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
+
+
+
+
+
+    return {
+        oDS: oDS,
+        oAC: oAC
+    };
+}();
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     
     
