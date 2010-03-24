@@ -22,6 +22,7 @@
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
   * *perform in-memory ranking of results by number of skills matched*
   * match by keyword
+  * match by required education level
 
 Employment term/duration options:
   * part time
