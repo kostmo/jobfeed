@@ -1,4 +1,5 @@
 #summary Important things to know
+#labels Featured
 
 == feeds ==
   * Job ID numbers must be unique per Feed
