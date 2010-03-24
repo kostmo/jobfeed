@@ -45,10 +45,10 @@ function parseSkills(skill_keys_string, parent) {
   generateSkillsTable(readable_skills, parent);
 }
 
-
   // ==========================================================================
 function parseSkills2(skill_keys_string, parent) {
 
+  if (!skill_keys_string) return;
   var skill_keys = eval( "(" + skill_keys_string + ")" );
 
 //  var searchable_skill_keys = skill_keys["searchable_skill_keys"];
@@ -102,7 +102,7 @@ function generateSkillsTable(readable_skills, parent) {
       table_data1.appendChild(document.createTextNode(pair[0]));
       var table_data2 = document.createElement("td");
       table_row2.appendChild(table_data2);
-      table_data2.appendChild(document.createTextNode(pair[1]));
+      table_data2.appendChild(document.createTextNode(yearRange(pair[1])));
     }
   }
 }
@@ -204,7 +204,7 @@ function ajaxPost( url, params ) {
 
 
   // ==========================================================================
-  // For "searchprofile.html"
+  // For "profile.html"
   // ==========================================================================
   // ==========================================================================
   // ==========================================================================  
@@ -217,6 +217,14 @@ function ajaxPost( url, params ) {
       
       updateUsedCount();
     }
+  }
+
+  // ==========================================================================  
+  function yearRange(years) {
+
+    var idx = years_bins.indexOf(years);
+    var suffix = idx < years_bins.length - 1 ? "-" + years_bins[idx+1] : "+";
+    return years + suffix;
   }
 
   // ==========================================================================  
@@ -307,6 +315,11 @@ function ajaxPost( url, params ) {
     }
     return last_bucket;
   }
+
+  // ==========================================================================
+  function validateYearsTextbox(x) {
+x.value = (x.value.length > 0 ? getHighestBucketWithAtMost(parseInt(x.value)) : -1); return false;
+  }
   
   // ==========================================================================
   function markUsed(category, dropdown, selected_option, keystring, populated_years) {
@@ -337,7 +350,7 @@ function ajaxPost( url, params ) {
       years_textbox.size = "1";
       years_textbox.maxLength = "2";
       years_textbox.value = populated_years ? populated_years : "1";
-      years_textbox.onchange = function(){years_textbox.value = (years_textbox.value.length > 0 ? getHighestBucketWithAtMost(parseInt(years_textbox.value)) : -1); return false;};  // register input validator
+      years_textbox.onchange = function(){validateYearsTextbox(this);};  // register input validator
       
       data.appendChild(years_textbox);
       var label2 = formLabelFor("label_years_" + dropdown.value, years_textbox, " year(s)");

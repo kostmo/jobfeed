@@ -29,7 +29,7 @@ from google.appengine.ext import webapp
 
 from geo import geotypes
 
-from models import JobOpening
+import models
 import logging
 
 
@@ -93,7 +93,7 @@ class SearchService(webapp.RequestHandler):
         try:
             # Can't provide an ordering here in case inequality filters are used.
 
-            base_query = JobOpening.all()
+            base_query = models.Job.all()
             
             # We might only be interested in the "sample" jobs.
             base_query.filter('sample =', self.request.get('sample_search') == "true")
@@ -105,15 +105,15 @@ class SearchService(webapp.RequestHandler):
 
             # Perform proximity or bounds fetch.
             if query_type == 'proximity':
-                results = JobOpening.proximity_fetch(
+                results = models.Job.proximity_fetch(
                     base_query,
                     center, max_results=max_results, max_distance=max_distance)
             elif query_type == 'bounds':
-                results = JobOpening.bounding_box_fetch(
+                results = models.Job.bounding_box_fetch(
                     base_query,
                     bounds, max_results=max_results)
 
-            public_attrs = JobOpening.public_attributes()
+            public_attrs = models.Job.public_attributes()
 
             import json
             from datetime import datetime, time
@@ -127,10 +127,6 @@ class SearchService(webapp.RequestHandler):
                     # so we must convert it manually.
                   'job_key': str(result.key()),
                   'expiration': datetime.combine(result.expiration, time()).ctime()
-      #            'lowest_grade_taught':
-      #              min(result.grades_taught) if result.grades_taught else None,
-      #            'highest_grade_taught':
-      #              max(result.grades_taught) if result.grades_taught else None,
                   },
                   dict([(attr, getattr(result, attr))
                         for attr in public_attrs]))

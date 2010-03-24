@@ -24,26 +24,34 @@ from geo.geomodel import GeoModel
 
 # If "-1" is given for the experience, this may be interpreted as "unspecified".
 # All of the buckets will then be added to the job record.
-EXPERIENCE_YEARS_BUCKETS = [0, 1, 2, 4, 7, 10]
+EXPERIENCE_YEARS_BUCKETS = [0, 2, 4, 7, 10]
+
+
+# XXX The most commonly used model names are kept short to save storage space in App Engine
 
 # =============================================================================
-class Organization(db.Model):
+class SimpleCounter(db.Model):
+    count = db.IntegerProperty(default=0)
+
+# =============================================================================
+class Org(db.Model):	# An Organization or Company
     name = db.StringProperty()
 
 # =============================================================================
-class Subject(db.Model):
+class Sub(db.Model):	# Subject matter keyword
     # use the "key_name" kwarg for the canonical (lowercase) name,
-    # just like NamedSkill.
+    # just like Skill.
     name = db.StringProperty()
-    
+    lower = db.StringProperty()    # Lowercase version
+
 # =============================================================================
-class JobSite(db.Model):
+class Site(db.Model):	# A physical job site
     name = db.StringProperty()
     geo = db.GeoPtProperty()
-    org = db.ReferenceProperty(Organization, required=True)
+    org = db.ReferenceProperty(Org, required=True)
 
 # =============================================================================
-class DegreeArea(db.Model):
+class DegreeArea(db.Model):	# Area of concentration
     name = db.StringProperty()
 
 # =============================================================================
@@ -51,42 +59,38 @@ class DegreeLevel(db.Model):
     name = db.StringProperty()
 
 # =============================================================================
-class SimpleCounter(db.Model):
-    count = db.IntegerProperty(default=0)
+class Skill(db.Model):	# A named skill.
+    name = db.StringProperty(required=True)
+    # We need this property for prefix matching, even though it is identical to the "key_name" kwarg:
+    lower = db.StringProperty(required=True)    # Lowercase version
 
 # =============================================================================
-class NamedSkill(db.Model):
-    name = db.StringProperty()
-    # XXX Instead of an additional property, we'll use the "key_name" kwarg.
-#    canonical = db.StringProperty()    # Lowercase version
-
-# =============================================================================
-class ApiSkill(NamedSkill):
+class Api(Skill):	# "Api Skill": A piece of equipment or physical tool
     pass
 
 # =============================================================================
-class EquipmentSkill(NamedSkill):
+class Equip(Skill):	# "Equipment Skill": A piece of equipment or physical tool
     pass
 
 # =============================================================================
-class ActivitySkill(NamedSkill):
+class Duty(Skill):	# procedure/task/duty/responsibility, or other common activity
     pass
 
 # =============================================================================
-class ApplicationSkill(NamedSkill):
+class App(Skill):	# software application skill
     pass
 
 # =============================================================================
-class ProgrammingLanguageSkill(NamedSkill):
+class Lang(Skill):	# Programming Language Skill
     pass
 
 # =============================================================================
-class SkillExperience(db.Model):
-#    skill = db.ReferenceProperty(NamedSkill, required=True)    # We can set the parent instead
+class Exp(db.Model):	# Skill Experience
+#    skill = db.ReferenceProperty(Skill, required=True)    # We can set the parent instead
     years = db.IntegerProperty(required=True, default=-1)   # XXX Duplicates "key_name"
     
 # =============================================================================
-class JobFeedUrl(db.Model):
+class Feed(db.Model):	# Job Feed URL
     link = db.LinkProperty(required=True)
     contact =  db.EmailProperty(indexed=False)
     since = db.DateTimeProperty(required=True, auto_now_add=True)
@@ -100,16 +104,16 @@ class SavedSearch(db.Model):
     title = db.StringProperty(indexed=False)
     address = db.StringProperty(indexed=False)
     geo = db.GeoPtProperty(indexed=False)
-    qualifications = db.ListProperty(db.Key, indexed=False)  # SkillExperience
+    qualifications = db.ListProperty(db.Key, indexed=False)  # Exp
     saved = db.DateTimeProperty(required=True, auto_now=True)
 
 # =============================================================================
 class JobFeedSpamReport(db.Model):
     reporter = db.UserProperty(auto_current_user_add=True)
-    feed = db.ReferenceProperty(JobFeedUrl, required=True)
+    feed = db.ReferenceProperty(Feed, required=True)
 
 # =============================================================================
-class JobOpening(GeoModel):
+class Job(GeoModel):	# Job Opening
     """A location-aware model for Job postings."""
 
     job_id = db.IntegerProperty()
@@ -117,17 +121,17 @@ class JobOpening(GeoModel):
     contract = db.BooleanProperty(default=False) # vs. permanent employment
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
-    feed = db.ReferenceProperty(JobFeedUrl, indexed=False)
+    feed = db.ReferenceProperty(Feed, indexed=False)
     
     link = db.LinkProperty(indexed=False)   # Optionally link back to the full description on employer's website
-    required = db.ListProperty(db.Key)  # SkillExperience
-    preferred = db.ListProperty(db.Key, indexed=False)  # SkillExperience
+    required = db.ListProperty(db.Key)  # Exp
+    preferred = db.ListProperty(db.Key, indexed=False)  # Exp
     # XXX Beware of exploding indexes caused by multiple ListProperty's;
-    # it may be better to augment the "SkillExperience" model with a boolean,
+    # it may be better to augment the "Exp" model with a boolean,
     # and duplicate each instance with the True and False version
 
     # TODO: Allow this property to be indexed, but ensure that it does not occur in the same index
-    # as the "required" ListProperty (exploding indexes).
+    # as the "required" ListProperty, or if it does, limit the number of items (exploding indexes).
     keywords = db.ListProperty(db.Key, indexed=False)	# Subject
     
     sample = db.BooleanProperty(default=False)  # For debugging/test deployments

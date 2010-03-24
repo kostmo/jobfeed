@@ -28,6 +28,10 @@ limitations under the License.
   margin-bottom: 2px;
 }
 
+.skills_table th {
+  font-variant: small-caps;
+}
+
 
 .skills_table tr.even {
   background-color: #DDF;
