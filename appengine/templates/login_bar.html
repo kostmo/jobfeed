@@ -1,0 +1,10 @@
+
+    <div id="login-bar">
+      {% if current_user %}
+        <strong>{{ current_user.email }}</strong>
+        &nbsp;|&nbsp;
+        <a href="{% logout_url %}">Sign out</a>
+      {% else %}
+        <a href="{% login_url %}">Sign in</a>
+      {% endif %}
+    </div>
