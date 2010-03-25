@@ -200,12 +200,28 @@ function ajaxPost( url, params ) {
 }
 
 
+// ============================================================================
+  function beautifyTable(table) {
+    var rows = table.getElementsByTagName("tr")
+    var index = 0;
+    for (var i=0; i<rows.length; i++) {
 
-  function makeSkillListItem(skill_object, skills_table) {
+      element = rows[i];
+      if (element.getElementsByTagName("th").length) {
+        index = 0;
+        continue;
+      }
 
+      element.setAttribute("class", index % 2 ? "odd" : "even");
+      index++;
+    }
+  }
+
+// ============================================================================
+  function makeSkillListItem(skill_object, skills_table, index) {
 
       var row = document.createElement('tr');
-//      row.id = "item_" + keyword_object.key;
+      row.setAttribute("class", index % 2 ? "odd" : "even");
       var data = document.createElement('td');
       row.appendChild(data);
 
@@ -217,6 +233,7 @@ function ajaxPost( url, params ) {
 	var populated_years = document.getElementById("experience_years_textbox").value;
 
       var years_textbox = document.createElement('input');
+      skill_object.years_textbox = years_textbox;
       years_textbox.id = "years_textbox_" + skill_object.key;
       years_textbox.onkeypress = function(event){return disableEnterKey(event);};
       years_textbox.type = "text";
@@ -235,7 +252,7 @@ function ajaxPost( url, params ) {
       var delete_icon = document.createElement('img');
       delete_icon.style.verticalAlign = "middle"; // This works!
       delete_icon.setAttribute("src", "/static/images/delete_x.gif");
-      delete_icon.onclick = function() {skills_table.removeChild(row); active_skill_objects.splice(active_skill_objects.indexOf(skill_object), 1);};
+      delete_icon.onclick = function() {skills_table.removeChild(row); active_skill_objects.splice(active_skill_objects.indexOf(skill_object), 1); beautifyTable(skills_table);};
 
       var data3 = document.createElement('td');
       row.appendChild(data3);
@@ -245,10 +262,11 @@ function ajaxPost( url, params ) {
   }
 
 
-  function makeKeywordListItem(keyword_object, keywords_table) {
+// ============================================================================
+  function makeKeywordListItem(keyword_object, keywords_table, index) {
 
       var row = document.createElement('tr');
-//      row.id = "item_" + keyword_object.key;
+      row.setAttribute("class", index % 2 ? "odd" : "even");
       var data = document.createElement('td');
       row.appendChild(data);
 //      data.style.verticalAlign = "middle"; // doesn't work?
@@ -258,7 +276,7 @@ function ajaxPost( url, params ) {
       var delete_icon = document.createElement('img');
       delete_icon.style.verticalAlign = "middle"; // This works!
       delete_icon.setAttribute("src", "/static/images/delete_x.gif");
-      delete_icon.onclick = function() {keywords_table.removeChild(row); active_keyword_objects.splice(active_keyword_objects.indexOf(keyword_object), 1);};
+      delete_icon.onclick = function() {keywords_table.removeChild(row); active_keyword_objects.splice(active_keyword_objects.indexOf(keyword_object), 1); beautifyTable(keywords_table);};
 
 
       var data2 = document.createElement('td');
@@ -272,276 +290,4 @@ function ajaxPost( url, params ) {
   }
 
 
-  // ==========================================================================
-  // For "profile.html"
-  // ==========================================================================
-  // ==========================================================================
-  // ==========================================================================  
-  function clickAddSkill(category) {
-    var dropdown = document.getElementById(SKILL_DROPDOWN_PREFIX + category);
-
-    if (dropdown.selectedIndex >= 0) {
-      var selected_option = dropdown.options[dropdown.selectedIndex];
-      markUsed(category, dropdown, selected_option, dropdown.value);
-      
-      updateUsedCount();
-    }
-  }
-
-  // ==========================================================================  
-  function yearRange(years) {
-
-    var idx = years_bins.indexOf(years);
-    var suffix = idx < years_bins.length - 1 ? "-" + years_bins[idx+1] : "+";
-    return years + suffix;
-  }
-
-  // ==========================================================================  
-  function removeChildren(cell) {
-    while(cell.hasChildNodes()) cell.removeChild(cell.firstChild);
-  }
-  
-  // ==========================================================================  
-  function updateUsedCount() {
-     var checkboxes = []
-     var inputs = document.getElementsByTagName("input");
-     for (var key in inputs) {
-      if (inputs[key].type == "checkbox") checkboxes.push(inputs[key]);
-     }
-     
-     document.getElementById("checkbox_counter").innerHTML = "" + checkboxes.length;
-  }
-  
-  // ==========================================================================  
-  function removeCheckedSkills(category) {
-    var dropdown = document.getElementById(SKILL_DROPDOWN_PREFIX + category);
-    var table = document.getElementById("table_" + category);
-
-    var children = table.getElementsByTagName("input");
-    var removable = []
-    for (var child_key in children) {
-      var child = children[child_key];
-
-      if (child && child.type == "checkbox") {
-        if (child.checked) {
-
-          var label = document.getElementById("label_checkbox_" + child.value);
-
-          var option = document.createElement('option');
-          option.text = label.firstChild.nodeValue;
-          option.value = child.value;
-          dropdown.appendChild( option )
-          
-          var row = document.getElementById("row_" + child.value);
-          removable.push(row)
-        }
-      }
-    }
-    
-    for (var key in removable) table.removeChild(removable[key]);
-    
-    updateUsedCount();
-  }
-
-  // ==========================================================================  
-  function findDropdownOptionIndexForLabel(dropdown, value) {
-    return findDropdownOptionIndexFor(dropdown, value, "text");
-  }
-
-  // ==========================================================================  
-  function findDropdownOptionIndexForValue(dropdown, value) {
-    return findDropdownOptionIndexFor(dropdown, value, "value");
-  }
-  
-  // ==========================================================================  
-  function findDropdownOptionIndexFor(dropdown, value, attribute) {
-    for (var i=0; i<dropdown.options.length; i++) {
-      var option = dropdown.options[i];
-      if (option[attribute] == value) return i;
-    }
-    return -1;
-  }
-  
-  // ==========================================================================
-  function formLabelFor(label_id, for_element, text) {
-      var label = document.createElement('label');
-      label.id = label_id;
-      label.setAttribute("for", for_element.id);
-      
-      label.appendChild( document.createTextNode( text ) );
-      return label;
-  }
-  
-  // ==========================================================================
-  function getHighestBucketWithAtMost(years) {
-    
-    last_bucket = years_bins[0];
-    for (var i=0; i<years_bins.length; i++) {
-        if (years_bins[i] > years) {
-            return last_bucket;
-        }
-        last_bucket = years_bins[i];
-    }
-    return last_bucket;
-  }
-
-  // ==========================================================================
-  function validateYearsTextbox(x) {
-    x.value = (x.value.length > 0 ? getHighestBucketWithAtMost(parseInt(x.value)) : -1); return false;
-  }
-  
-  // ==========================================================================
-  function markUsed(category, dropdown, selected_option, keystring, populated_years) {
-    
-      var table = document.getElementById("table_" + category);
-      var row = document.createElement('tr');
-      row.id = "row_" + keystring;
-      table.appendChild(row);
-      var data = document.createElement('td');
-      data.style.verticalAlign="middle"; // doesn't work?
-      row.appendChild(data);
-      var checkbox = document.createElement('input');
-      checkbox.type = "checkbox";
-      checkbox.value = keystring;
-      checkbox.id = "checkbox_skill_" + keystring;
-     
-      data.appendChild(checkbox);
-
-      var label = formLabelFor("label_checkbox_" + dropdown.value, checkbox, selected_option.text);
-      data.appendChild(label)
-      
-      data.appendChild(document.createTextNode( " " ))  // spacer
-      
-      var years_textbox = document.createElement('input');
-      years_textbox.id = "years_textbox_" + dropdown.value;
-      years_textbox.onkeypress = function(event){return disableEnterKey(event);};
-      years_textbox.type = "text";
-      years_textbox.size = "1";
-      years_textbox.maxLength = "2";
-      years_textbox.value = populated_years ? populated_years : "1";
-      years_textbox.onchange = function(){validateYearsTextbox(this);};  // register input validator
-      
-      data.appendChild(years_textbox);
-      var label2 = formLabelFor("label_years_" + dropdown.value, years_textbox, " year(s)");
-      data.appendChild(label2)
-      
-      dropdown.removeChild(selected_option);
-  }
-  
-  // ==========================================================================
-  function findUsed(keystring, years) {
-    
-    var dropdowns = document.forms["save_form"].getElementsByTagName("select");
-    for (var key in dropdowns) {
-      var dropdown = dropdowns[key];
-      if (dropdown.id && dropdown.id.startsWith(SKILL_DROPDOWN_PREFIX)) {
-        var category = dropdown.id.substr(SKILL_DROPDOWN_PREFIX.length);
-        var found_index = findDropdownOptionIndexForValue(dropdown, keystring);
-        if (found_index >= 0) {
-          var option = dropdown.options[found_index];
-          markUsed(category, dropdown, option, keystring, years);
-        }
-      }
-    }
-  }
-  
-  // ==========================================================================
-  function loadSearch() {
-    for (var key in loaded_skills) {
-      findUsed(key, "" + loaded_skills[key]);
-    }
-  }
-
-  // ==========================================================================
-  function getUsedKeys(form) {
-        var children = form.getElementsByTagName("input");
-    
-    var filtered = {};
-    for (var key in children) {
-      if (children[key].type == "checkbox" && children[key].id.startsWith("checkbox_skill_")) {
-        
-        var years_textbox = document.getElementById("years_textbox_" + children[key].value);
-        var years = parseInt(years_textbox.value);
-        
-        filtered[ children[key].value ] = years;
-      }
-    }
-    
-    return filtered;
-  }
-
-  // ==========================================================================
-  function stringifyDict(dict) {
-    var joined_keyvals = [];
-    for (var key in dict) {
-      joined_keyvals.push( key + ":" + dict[key]);
-    }
-    return joined_keyvals.join(";");
-  }
-  
-  // ==========================================================================
-  function saveSearch(form) {
-    // Populate form values before submitting
-    var used_keys_dict = getUsedKeys(form);
-//    form["skill_keys"].value = used_keys_dict.join(",");
-    form["skill_keys"].value = stringifyDict(used_keys_dict);
-    
-    var dropdown = document.forms["load_form"]["load_key"];
-    var name = form["saved_name"].value;
-    if (findDropdownOptionIndexForLabel(dropdown, name) >= 0) {
-      return confirm("Name \"" + name + "\" is taken. Continue anyway?");
-    }
-
-    return true;
-  }
-  
-  // ==========================================================================
-  function deleteSaved() {
-    
-    var form = document.forms["load_form"];
-    
-    var dropdown = form["load_key"];
-    if (dropdown.selectedIndex >= 0) {
-      var selected_option = dropdown.options[dropdown.selectedIndex]
-      var key = selected_option.value;
-      var name = selected_option.text;
-      if (confirm("Delete \"" + name + "\"?")) {
-        form["deleting"].value = "true";
-        form.submit();
-      }
-    }
-  }
-
-  // ==========================================================================
-  function clearForm() {
-    var form = document.forms["load_form"];
-    form["load_key"].selectedIndex = -1;
-    form.submit();
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  // ==========================================================================
-  
-  function disableEnterKey(e)
-{
-     var key;
-
-     if(window.event)
-          key = window.event.keyCode;     //IE
-     else
-          key = e.which;     //firefox
-
-     if(key == 13)
-          return false;
-     else
-          return true;
-}
   

@@ -51,11 +51,14 @@ SKILL_CATEGORY_NAMES = [
 
 SKILL_CATEGORY_SUMMARIES = [
 	"library, API, or environment",
-	"physical equipment or tool",
+	"physical tool or equipment",
 	"process, task, duty, responsibility or other common activity",
 	"software application",
 	"programming language"
 ]
+
+
+degreee_levels = ["None", "Associates", "Bachelors", "Masters", "Doctorate"]
 
 # =============================================================================
 class SkillExperience():

@@ -1,5 +1,11 @@
 
     <div id="login-bar">
+
+<span style="text-align: left">
+<a href="/register">Register feed</a> | <a href="http://jobfeed.googlecode.com">About</a> | <a href="/static/help.html">Help</a>
+</span>
+
+<span style="float: right; text-align: right;">
       {% if current_user %}
         <strong>{{ current_user.email }}</strong>
         &nbsp;|&nbsp;
@@ -7,4 +13,5 @@
       {% else %}
         <a href="{% login_url %}">Sign in</a>
       {% endif %}
+</span>
     </div>

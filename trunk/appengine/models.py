@@ -1,6 +1,6 @@
 #!/usr/bin/python2.5
 #
-# Copyright 2009 Roman Nurik
+# Copyright 2010 Karl Ostmo
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,21 +19,20 @@
 __author__ = 'kostmo@gmail.com (Karl Ostmo)'
 
 from google.appengine.ext import db
-
 from geo.geomodel import GeoModel
 
-# If "-1" is given for the experience, this may be interpreted as "unspecified".
-# All of the buckets will then be added to the job record.
+# If "-1" is given for the experience, this could be interpreted as "unspecified",
+# and all of the buckets will then be added to the job record.
 EXPERIENCE_YEARS_BUCKETS = [0, 2, 4, 7, 10]
 
 
 # XXX The most commonly used model names are kept short to save storage space in App Engine
-
 # =============================================================================
-class SimpleCounter(db.Model):
+class SimpleCounter(db.Model):	# TODO Not used
     count = db.IntegerProperty(default=0)
 
 # =============================================================================
+# TODO Not used
 class Org(db.Model):	# An Organization or Company
     name = db.StringProperty()
 
@@ -45,16 +44,19 @@ class Sub(db.Model):	# Subject matter keyword
     lower = db.StringProperty()    # Lowercase version
 
 # =============================================================================
+# TODO Not used
 class Site(db.Model):	# A physical job site
     name = db.StringProperty()
     geo = db.GeoPtProperty()
     org = db.ReferenceProperty(Org, required=True)
 
 # =============================================================================
+# TODO Not used
 class DegreeArea(db.Model):	# Area of concentration
     name = db.StringProperty()
 
 # =============================================================================
+# TODO Not used
 class DegreeLevel(db.Model):
     name = db.StringProperty()
 
@@ -99,18 +101,19 @@ class Feed(db.Model):	# Job Feed URL
     crawlcount = db.IntegerProperty(default=0, indexed=False)
 
 # =============================================================================
+class JobFeedSpamReport(db.Model):
+    reporter = db.UserProperty(auto_current_user_add=True)
+    feed = db.ReferenceProperty(Feed, required=True)
+
+# =============================================================================
 class SavedSearch(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
     title = db.StringProperty(indexed=False)
     address = db.StringProperty(indexed=False)
     geo = db.GeoPtProperty(indexed=False)
     qualifications = db.ListProperty(db.Key, indexed=False)  # Exp
+    keywords = db.ListProperty(db.Key, indexed=False)  # Sub
     saved = db.DateTimeProperty(required=True, auto_now=True)
-
-# =============================================================================
-class JobFeedSpamReport(db.Model):
-    reporter = db.UserProperty(auto_current_user_add=True)
-    feed = db.ReferenceProperty(Feed, required=True)
 
 # =============================================================================
 class Job(GeoModel):	# Job Opening
