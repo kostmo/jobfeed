@@ -11,7 +11,7 @@ ENABLE_GEO_LOOKUP = False
 
 
 
-apis = ['MFC', 'Google App Engine', 'OpenGL', 'DirectX']
+apis = ['MFC', 'Google App Engine', 'OpenGL', 'DirectX', 'YUI']
 equipment = ['multimeter', 'cash register']
 activities = ['system administration', 'PCB layout']
 applications = ['Visual Studio', 'Blender', 'Eclipse', 'AutoCAD', 'git', 'subversion', 'CVS']
@@ -28,7 +28,6 @@ SKILL_CATEGORY_EXAMPLES = {
 }
 
 
-degreee_levels = ["Associates", "Bachelors", "Masters", "Doctorate"]
 
 subjects = ["automotive", "control systems", "biomedical", "bioinformatics", "genomics", "aerospace"]
 
@@ -136,7 +135,7 @@ def generateFeed():
 					education = doc.createElement("education")
 					qualifications.appendChild(education)
 					degree = doc.createElement("degree")
-					degree.setAttribute("level", choice(degreee_levels))
+					degree.setAttribute("level", choice(feedparser.degreee_levels))
 					education.appendChild(degree)
 
 
