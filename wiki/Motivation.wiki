@@ -1,7 +1,7 @@
 #summary Why create this project?
 #labels Featured
 
-This project arose from a dissatisfaction with the status quo of technology job search sites. I wanted to be able to pick a location, quickly find jobs that matched my programming skills, and look up information about the employers.  Instead I found myself struggling with poorly designed user-interfaces and hampered by recruiting companies that obscure their clients' identity.
+This project arose from a dissatisfaction with the status quo of technology job search sites. I wanted to be able to pick a location, quickly find jobs that matched my programming skills, and look up information about the employers.  Instead I found myself struggling with obfuscated user-interfaces and hampered by recruiting companies that mask their clients' identity.
 
 I have these objectives for the project:
   * fine-grained skill-based search
