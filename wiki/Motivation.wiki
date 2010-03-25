@@ -12,11 +12,12 @@ I have these objectives for the project:
 The greatest challenge is that direct cooperation is required from employers in annotating their existing prose descriptions for searchability.  The advantages should be apparent to the hiring manager, however: it helps you find the right talent more quickly.  Hopefully it is recognized as a zero-risk, minimal-effort improvement upon the status quo.
 
 == advantages ==
-
+  * formats and code is non-proprietary
+    * should encourage adoption
   * project is not profit-motivated
     * accomplished on no-cost infrastructure (until possibly a point in the distant future)
        * minimal storage and bandwidth used
          * prose job descriptions stored on original host, fetched client-side on demand
-    * coded in a few days (cost of effort negligible)
+    * coded in a couple weeks (low cost of effort)
   * free in every respect for job searchers and employers
   * need not replace existing systems; can merely augment them
