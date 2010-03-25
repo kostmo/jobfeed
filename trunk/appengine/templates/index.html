@@ -46,33 +46,93 @@
   var active_skill_objects = [];
   var last_selected_skill_object = null;
 
-  function skillObject(label, key) {
+  var active_keyword_objects = [];
+  var last_selected_keyword_object = null;
+
+  function SkillObject(label, key) {
     this.label = label;
     this.key = key;
   }
 
+  function KeywordObject(label, key) {
+    this.label = label;
+    this.key = key;
+  }
+
+
+
   </script>
     
     <script type="text/javascript">
+
+
       function loadSearchProfile() {
         var dropdown = document.getElementById("saved_searches_dropdown");
         pickNewProfile(dropdown);
       }
       
+      function init() {
+        loadSearchProfile();
+document.getElementById("skillInput").value = "";
+document.getElementById("keywordInput").value = "";
+
+      }
+
+
+
 
 function skillTypeChange(dropdown) {
-        var blurb = document.getElementById("type_summary");
+        var blurb = document.getElementById("type_summary_foo");
         blurb.innerHTML = skill_type_summaries[dropdown.selectedIndex];
 }
 
 
-function addActiveSkillObject() {
+function addActiveSkillObject(button) {
 
   if (last_selected_skill_object) {
     active_skill_objects.push( last_selected_skill_object )
+  } else {
+    return;
   }
 
-  alert( active_skill_objects );
+
+
+  var skills_table = document.getElementById("pending_skills_list");
+
+
+  removeChildren( skills_table );
+
+  for (var i=0; i<active_skill_objects.length; i++) {
+    makeSkillListItem( active_skill_objects[i], skills_table );
+  }
+  button.disabled = true;
+
+
+document.getElementById("skillInput").value = "";
+}
+
+
+
+
+function addActiveKeywordObject(button) {
+
+  if (last_selected_keyword_object) {
+    active_keyword_objects.push( last_selected_keyword_object )
+  } else {
+    return;
+  }
+
+  var keywords_table = document.getElementById("pending_keywords_list");
+  removeChildren( keywords_table );
+  for (var i=0; i<active_keyword_objects.length; i++) {
+    makeKeywordListItem( active_keyword_objects[i], keywords_table );
+  }
+
+
+  button.disabled = true;
+
+
+document.getElementById("keywordInput").value = "";
 }
 
     </script>
@@ -98,17 +158,9 @@ function addActiveSkillObject() {
  
 <!-- OPTIONAL: Connection (required only if using XHRDataSource) -->
 <script src="http://yui.yahooapis.com/2.8.0r4/build/connection/connection-min.js"></script>
- 
-<!-- OPTIONAL: Animation (required only if enabling animation) -->
-<script src="http://yui.yahooapis.com/2.8.0r4/build/animation/animation-min.js"></script>
-
- 
-<!-- Source file -->
 <script src="http://yui.yahooapis.com/2.8.0r4/build/autocomplete/autocomplete-min.js"></script>
 
-
-
-
+<script src="http://yui.yahooapis.com/2.8.0r4/build/animation/animation-min.js"></script>
 
 
 
@@ -123,49 +175,45 @@ function addActiveSkillObject() {
 	    width:25em; /* set width here or else widget will expand to fit its container */ 
 	    padding-bottom:2em; 
 	}
-
 </style>
 
 
 
 
-
-
-
-
-
-
-
   </head>
-  <body class="yui-skin-sam" onunload="GUnload()" onload="loadSearchProfile()">
-    <div id="login-bar">
-      {% if current_user %}
-        <strong>{{ current_user.email }}</strong>
-        &nbsp;|&nbsp;
-        <a href="{% logout_url %}">Sign out</a>
-      {% else %}
-        <a href="{% login_url %}">Sign in</a>
-      {% endif %}
-    </div>
+  <body class="yui-skin-sam" onunload="GUnload()" onload="init()">
 
+        {% include "login_bar.html" %}
     
-    
-<label for="myInput">Add a skill:</label>
 
+
+
+
+
+
+
+
+
+
+
+
+
+<label for="skillInput">Add a skill:</label>
+<span id="type_summary_foo"></span>
 <div id="skillAutoComplete">
  
 	  <select name="skill_type" id="skill_type_dropdown" onchange="skillTypeChange(this)">
     {% for type in skill_types %}
     <option value="{{type.key}}">{{type.label}}</option>
     {% endfor %}
-  </select> <input id="myInput" type="text" style="width: 10em"> <br />
-<span id="type_summary"></span>
-	<div id="myContainer"></div>
+  </select> <input id="skillInput" type="text" style="width: 10em"> <br />
+<div id="skillsContainer"></div>
 
-<button type="button" id="skill_adder_button" onclick="addActiveSkillObject()" disabled="true">Add</button>
+<button type="button" id="skill_adder_button" onclick="addActiveSkillObject(this)" disabled="true">Add</button>
 <input id="experience_years_textbox" type="text" style="width: 2em" onchange="validateYearsTextbox(this)"><label for="experience_years_textbox"> years of experience</label>
 
 </div>
+
 
     <script type="text/javascript">
 YAHOO.example.BasicRemote = function() {
@@ -182,7 +230,7 @@ YAHOO.example.BasicRemote = function() {
     oDS.maxCacheEntries = 5;
 
     // Instantiate the AutoComplete
-    var oAC = new YAHOO.widget.AutoComplete("myInput", "myContainer", oDS);
+    var oAC = new YAHOO.widget.AutoComplete("skillInput", "skillsContainer", oDS);
     
 	oAC.generateRequest = function(sQuery) {
 	    return "query=" + sQuery + "&type=" + document.getElementById("skill_type_dropdown").value;
@@ -196,38 +244,47 @@ YAHOO.example.BasicRemote = function() {
 
 
 
-//define your itemSelect handler function:
-var itemSelectHandler = function(sType, aArgs) {
-	YAHOO.log(sType); // this is a string representing the event;
-				      // e.g., "itemSelectEvent"
-	var oMyAcInstance = aArgs[0]; // your AutoComplete instance
-	var elListItem = aArgs[1]; // the <li> element selected in the suggestion container
-	var oData = aArgs[2]; // object literal of data for the result
+	//define your itemSelect handler function:
+	var itemSelectHandler = function(sType, aArgs) {
+		YAHOO.log(sType); // this is a string representing the event;
+					      // e.g., "itemSelectEvent"
+		var oMyAcInstance = aArgs[0]; // your AutoComplete instance
+		var elListItem = aArgs[1]; // the <li> element selected in the suggestion container
+		var oData = aArgs[2]; // object literal of data for the result
 
-        last_selected_skill_object = new skillObject(oData[0], oData[1]);
-        document.getElementById("skill_adder_button").disabled = false;
-};
+		last_selected_skill_object = new SkillObject(oData[0], oData[1]);
+		document.getElementById("skill_adder_button").disabled = false;
+
+
+
+
+                var has_key = false;
+                for (var i=0; i<active_skill_objects.length; i++) {
+                  if (last_selected_skill_object.key == active_skill_objects[i].key) {
+                    has_key = true;
+                    break;
+                  }
+                }
+		document.getElementById("skill_adder_button").disabled = has_key;
+	};
  
-//subscribe your handler to the event, assuming
-//you have an AutoComplete instance myAC:
-oAC.itemSelectEvent.subscribe(itemSelectHandler);
+	//subscribe your handler to the event, assuming
+	//you have an AutoComplete instance myAC:
+	oAC.itemSelectEvent.subscribe(itemSelectHandler);
 
 
-//define your selectionEnforce handler function:
-var selectionEnforceHandler = function(sType, aArgs) {
-	YAHOO.log(sType); // this is a string representing the event;
-				      // e.g., "itemSelectEvent"
+	//define your selectionEnforce handler function:
+	var selectionEnforceHandler = function(sType, aArgs) {
+		YAHOO.log(sType); // this is a string representing the event;
+					      // e.g., "itemSelectEvent"
 
-	var oSelf = aArgs[0]; // your AutoComplete instance
-	var sClearedValue = aArgs[1]; // The cleared value (including delimiters if applicable).
+		var oSelf = aArgs[0]; // your AutoComplete instance
+		var sClearedValue = aArgs[1]; // The cleared value (including delimiters if applicable).
 
-        last_selected_skill_object = null;
-        document.getElementById("skill_adder_button").disabled = true;
-};
-oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
-
-
-
+		last_selected_skill_object = null;
+		document.getElementById("skill_adder_button").disabled = true;
+	};
+	oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
 
 
     return {
@@ -240,6 +297,7 @@ oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
     </script>
     
 
+<table id="pending_skills_list" ></table>
 
 
 
@@ -264,23 +322,18 @@ oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
 
 
 
+<br clear="all" />
 
-
-
-
-
-
-
-
-
-<label for="myInput">Add a keyword:</label>
+<label for="keywordInput">Add a keyword:</label>
 
 <div id="keywordAutoComplete">
- <input id="keywordInput" type="text" style="width: 10em"> <br />
+ <input id="keywordInput" type="text" style="width: 10em">
 	<div id="keywordSuggestionContainer"></div>
 
-<button type="button" id="keyword_adder_button" onclick="addActiveKeywordObject()" disabled="true">Add</button>
+<br />
+<button type="button" id="keyword_adder_button" onclick="addActiveKeywordObject(this)" disabled="true">Add</button>
 </div>
+
 
     <script type="text/javascript">
 YAHOO.example.BasicRemote = function() {
@@ -305,35 +358,44 @@ YAHOO.example.BasicRemote = function() {
 
 
 
-//define your itemSelect handler function:
-var itemSelectHandler = function(sType, aArgs) {
-	YAHOO.log(sType); // this is a string representing the event;
-				      // e.g., "itemSelectEvent"
-	var oMyAcInstance = aArgs[0]; // your AutoComplete instance
-	var elListItem = aArgs[1]; // the <li> element selected in the suggestion container
-	var oData = aArgs[2]; // object literal of data for the result
+	//define your itemSelect handler function:
+	var itemSelectHandler = function(sType, aArgs) {
+		YAHOO.log(sType); // this is a string representing the event;
+					      // e.g., "itemSelectEvent"
+		var oMyAcInstance = aArgs[0]; // your AutoComplete instance
+		var elListItem = aArgs[1]; // the <li> element selected in the suggestion container
+		var oData = aArgs[2]; // object literal of data for the result
 
-        last_selected_skill_object = new skillObject(oData[0], oData[1]);
-        document.getElementById("keyword_adder_button").disabled = false;
-};
- 
-//subscribe your handler to the event, assuming
-//you have an AutoComplete instance myAC:
-oAC.itemSelectEvent.subscribe(itemSelectHandler);
+		last_selected_keyword_object = new KeywordObject(oData[0], oData[1]);
 
 
-//define your selectionEnforce handler function:
-var selectionEnforceHandler = function(sType, aArgs) {
-	YAHOO.log(sType); // this is a string representing the event;
-				      // e.g., "itemSelectEvent"
+                var has_key = false;
+                for (var i=0; i<active_keyword_objects.length; i++) {
+                  if (last_selected_keyword_object.key == active_keyword_objects[i].key) {
+                    has_key = true;
+                    break;
+                  }
+                }
+		document.getElementById("keyword_adder_button").disabled = has_key;
+	};
+	 
+	//subscribe your handler to the event, assuming
+	//you have an AutoComplete instance myAC:
+	oAC.itemSelectEvent.subscribe(itemSelectHandler);
 
-	var oSelf = aArgs[0]; // your AutoComplete instance
-	var sClearedValue = aArgs[1]; // The cleared value (including delimiters if applicable).
 
-        last_selected_skill_object = null;
-        document.getElementById("keyword_adder_button").disabled = true;
-};
-oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
+	//define your selectionEnforce handler function:
+	var selectionEnforceHandler = function(sType, aArgs) {
+		YAHOO.log(sType); // this is a string representing the event;
+					      // e.g., "itemSelectEvent"
+
+		var oSelf = aArgs[0]; // your AutoComplete instance
+		var sClearedValue = aArgs[1]; // The cleared value (including delimiters if applicable).
+
+		last_selected_keyword_object = null;
+		document.getElementById("keyword_adder_button").disabled = true;
+	};
+	oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
 
 
 
@@ -350,10 +412,7 @@ oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
 
 
 
-
-
-
-
+<table id="pending_keywords_list"></table>
 
 
 
@@ -386,11 +445,7 @@ oAC.selectionEnforceEvent.subscribe(selectionEnforceHandler);
       <span id="experience_table_holder"></span>
 Jobs that require <strong>any</strong> of the<br/>listed skills will be matched.
     </div>
-    
 
-    
-    
-    
     <div id="container">
       <div>
         <table><tr><td><img src="/static/images/logo.png"/></td><td>
@@ -401,7 +456,7 @@ Jobs that require <strong>any</strong> of the<br/>listed skills will be matched.
             <input id="search-query" type="search" value="Houston, TX" />
 
             <input type="submit" value="Search"/><br/>
-                  <input name="enable_skill_filter" type="checkbox" id="checkbox_skill_filter"/><label for="checkbox_skill_filter"> Filter by required experience</label><br/>
+                  <input name="enable_skill_filter" type="checkbox" id="checkbox_skill_filter"/><label for="checkbox_skill_filter"> Filter by required experience</label> <input name="enable_keyword_filter" type="checkbox" id="checkbox_keyword_filter"/><label for="checkbox_keyword_filter"> Filter by keywords</label><br/>
                   <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs"/><label for="checkbox_sample_jobs"> Search in sample jobs</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
           </div>

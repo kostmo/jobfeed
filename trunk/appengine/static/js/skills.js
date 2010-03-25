@@ -201,6 +201,75 @@ function ajaxPost( url, params ) {
 
 
 
+  function makeSkillListItem(skill_object, skills_table) {
+
+
+      var row = document.createElement('tr');
+//      row.id = "item_" + keyword_object.key;
+      var data = document.createElement('td');
+      row.appendChild(data);
+
+//      data.style.verticalAlign = "middle"; // doesn't work?
+
+      data.appendChild( document.createTextNode( skill_object.label ) );
+      
+
+	var populated_years = document.getElementById("experience_years_textbox").value;
+
+      var years_textbox = document.createElement('input');
+      years_textbox.id = "years_textbox_" + skill_object.key;
+      years_textbox.onkeypress = function(event){return disableEnterKey(event);};
+      years_textbox.type = "text";
+      years_textbox.size = "1";
+      years_textbox.maxLength = "2";
+      years_textbox.value = populated_years ? populated_years : "1";
+      years_textbox.onchange = function(){validateYearsTextbox(this);};  // register input validator
+      years_textbox.style.verticalAlign = "middle"; // This works!
+      
+      var data2 = document.createElement('td');
+      row.appendChild(data2);
+      data2.appendChild(years_textbox);
+
+
+
+      var delete_icon = document.createElement('img');
+      delete_icon.style.verticalAlign = "middle"; // This works!
+      delete_icon.setAttribute("src", "/static/images/delete_x.gif");
+      delete_icon.onclick = function() {skills_table.removeChild(row); active_skill_objects.splice(active_skill_objects.indexOf(skill_object), 1);};
+
+      var data3 = document.createElement('td');
+      row.appendChild(data3);
+      data3.appendChild( delete_icon );
+
+      skills_table.appendChild( row );
+  }
+
+
+  function makeKeywordListItem(keyword_object, keywords_table) {
+
+      var row = document.createElement('tr');
+//      row.id = "item_" + keyword_object.key;
+      var data = document.createElement('td');
+      row.appendChild(data);
+//      data.style.verticalAlign = "middle"; // doesn't work?
+      data.appendChild(document.createTextNode( keyword_object.label ));
+
+
+      var delete_icon = document.createElement('img');
+      delete_icon.style.verticalAlign = "middle"; // This works!
+      delete_icon.setAttribute("src", "/static/images/delete_x.gif");
+      delete_icon.onclick = function() {keywords_table.removeChild(row); active_keyword_objects.splice(active_keyword_objects.indexOf(keyword_object), 1);};
+
+
+      var data2 = document.createElement('td');
+      row.appendChild(data2);
+//      data.style.verticalAlign = "middle"; // doesn't work?
+      data2.appendChild(delete_icon);
+
+
+
+      keywords_table.appendChild( row );
+  }
 
 
   // ==========================================================================
@@ -318,7 +387,7 @@ function ajaxPost( url, params ) {
 
   // ==========================================================================
   function validateYearsTextbox(x) {
-x.value = (x.value.length > 0 ? getHighestBucketWithAtMost(parseInt(x.value)) : -1); return false;
+    x.value = (x.value.length > 0 ? getHighestBucketWithAtMost(parseInt(x.value)) : -1); return false;
   }
   
   // ==========================================================================
@@ -329,7 +398,7 @@ x.value = (x.value.length > 0 ? getHighestBucketWithAtMost(parseInt(x.value)) : 
       row.id = "row_" + keystring;
       table.appendChild(row);
       var data = document.createElement('td');
-//      data.style.verticalAalign="middle"; // doesn't work?
+      data.style.verticalAlign="middle"; // doesn't work?
       row.appendChild(data);
       var checkbox = document.createElement('input');
       checkbox.type = "checkbox";
