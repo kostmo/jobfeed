@@ -85,10 +85,19 @@ class SearchService(webapp.RequestHandler):
             max_distance = float(self.request.get('maxdistance'))
 
 
-        experience_keylist = []
-        if self.request.get('experience_keylist'):
-            experience_keylist = self.request.get('experience_keylist').split(",")
-            logging.info("experience_keylist: " + str(experience_keylist))
+        # DEPRECATED APPROACH
+#        experience_keylist = []
+#        if self.request.get('experience_keylist'):
+#            experience_keylist = self.request.get('experience_keylist').split(",")
+#            logging.info("experience_keylist: " + str(experience_keylist))
+
+        from auxilliary import parseStringifiedExperienceDict
+        experience_keylist = parseStringifiedExperienceDict( self.request.get('experience_dictionary') )
+
+        keyword_keylist = []
+        if self.request.get('keyword_keylist'):
+            keyword_keylist = self.request.get('keyword_keylist').split(",")
+            logging.info("keyword_keylist: " + str(keyword_keylist))
 
         try:
             # Can't provide an ordering here in case inequality filters are used.
@@ -99,8 +108,11 @@ class SearchService(webapp.RequestHandler):
             base_query.filter('sample =', self.request.get('sample_search') == "true")
 
             # Main criteria
+            if keyword_keylist:
+                base_query.filter('kw IN', map(db.Key, keyword_keylist))
+
             if experience_keylist:
-                base_query.filter('required IN', map(db.Key, experience_keylist))
+                base_query.filter('required IN', experience_keylist)
             
 
             # Perform proximity or bounds fetch.

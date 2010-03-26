@@ -34,21 +34,21 @@ limitations under the License.
   // ==========================================================================
 
 
-var saved_skill_keys = {};
+var saved_searchable_experience_keys = [];
 
 
 function parseSkills(skill_keys_string, parent) {
 
   var skill_keys = eval( "(" + skill_keys_string + ")" );
 
-  var readable_skills = skill_keys["readable_skills"];
-  generateSkillsTable(readable_skills, parent);
+  var categorized_skills = skill_keys["categorized_skills"];
+  generateSkillsTable(categorized_skills, parent);
 
 
   var keyword_list = skill_keys["keyword_list"];
 
 
-  // Crawl up the DOM tree until our parent is a <table>
+  // FIXME Crawl up the DOM tree until our parent is a <table>
 /*
   var realparent = parent;
   while (realparent && realparent.nodeName != "table") {
@@ -66,22 +66,72 @@ function parseSkills(skill_keys_string, parent) {
   }
 }
 
-  // ==========================================================================
+// =============================================================================
 function parseSkills2(skill_keys_string, parent) {
 
   if (!skill_keys_string) return;
   var skill_keys = eval( "(" + skill_keys_string + ")" );
 
 //  var searchable_skill_keys = skill_keys["searchable_skill_keys"];
-  var searchable_skill_keys = skill_keys["raw_search_keys"];
-  saved_skill_keys = searchable_skill_keys;  // Make a global copy for later use
+  var searchable_skill_keys = skill_keys["experience_keys"];
+  saved_searchable_experience_keys = searchable_skill_keys;  // Make a global copy for later use
 
-  var readable_skills = skill_keys["readable_skills"];
-  generateSkillsTable(readable_skills, parent);
+  var categorized_skills = skill_keys["categorized_skills"];
+  generateSkillsTable(categorized_skills, parent);
 }
 
-  // ==========================================================================
-function generateSkillsTable(readable_skills, parent) {
+// =============================================================================
+function populateProfile(skill_keys_string) {
+
+	if (!skill_keys_string) return;
+	var skill_keys = eval( "(" + skill_keys_string + ")" );
+
+	//  var searchable_skill_keys = skill_keys["searchable_skill_keys"];
+	var searchable_skill_keys = skill_keys["experience_keys"];
+	saved_searchable_experience_keys = searchable_skill_keys;  // Make a global copy for later use
+
+
+	// Clear the array
+//	active_skill_objects = [];	// XXX This way is BAD; we must not destroy our old references!
+//	while (active_skill_objects.length) active_skill_objects.pop();	// XXX This way is inefficient!
+	active_skill_objects.length = 0;
+
+	var categorized_skills = skill_keys["categorized_skills"];
+	for (var category in categorized_skills) {
+		var category_dict = categorized_skills[category];
+		for (var i=0; i<category_dict.length; i++) {
+			var triple = category_dict[i];
+			var label = triple[0];
+			var years = triple[1];
+			var key = triple[2];
+
+			var skill_object = new SkillObject(label, key);
+			skill_object.years = years;
+			active_skill_objects.push( skill_object );
+		}
+	}
+
+	var skills_table = document.getElementById("pending_skills_list");
+	regenerateExperienceTable(active_skill_objects, skills_table);
+
+
+
+
+	// Clear the array without creating a new reference
+	active_keyword_objects.length = 0;
+	
+	var keyword_list = skill_keys["keyword_list"];
+	for (var i=0; i<keyword_list.length; i++) {
+		var tuple = keyword_list[i];
+		active_keyword_objects.push( new KeywordObject(tuple[0], tuple[1]) );
+	}
+
+	var keywords_table = document.getElementById("pending_keywords_list");
+	regenerateKeywordsTable(active_keyword_objects, keywords_table);
+}
+
+// =============================================================================
+function generateSkillsTable(categorized_skills, parent) {
 
   removeChildren(parent);
   
@@ -94,14 +144,14 @@ function generateSkillsTable(readable_skills, parent) {
   var header1 = document.createElement("th");
   header1.setAttribute("class", "underlined");
   row.appendChild(header1);
-  header1.appendChild(document.createTextNode("Skill"));
+  header1.appendChild(document.createTextNode("Experience"));
   var header2 = document.createElement("th");
   header2.setAttribute("class", "underlined");
   row.appendChild(header2);
   header2.appendChild(document.createTextNode("Years"));
   
   parent.appendChild(table);
-  for (var category in readable_skills) {
+  for (var category in categorized_skills) {
 
     var table_row = document.createElement("tr");
     table.appendChild(table_row);
@@ -110,7 +160,7 @@ function generateSkillsTable(readable_skills, parent) {
     table_row.appendChild(table_header);
     table_header.appendChild(document.createTextNode(category));
     
-    var category_dict = readable_skills[category];
+    var category_dict = categorized_skills[category];
     
     for (var i=0; i<category_dict.length; i++) {
       var pair = category_dict[i];
@@ -141,6 +191,11 @@ function loadJobExperience(job_key) {
 // ============================================================================
 function pickNewProfile(select_form_element) {
    ajaxGet( "/profiledata?load_key=" + select_form_element.value, "", function(x) {parseSkills2(x, document.getElementById("experience_table_holder"))} );
+}
+
+// ============================================================================
+function pickNewProfileAdvanced(select_form_element) {
+   ajaxGet( "/profiledata?load_key=" + select_form_element.value, "", populateProfile );
 }
 
 // AJAX Stuff
@@ -257,7 +312,8 @@ function ajaxPost( url, params ) {
       data.appendChild( document.createTextNode( skill_object.label ) );
       
 
-	var populated_years = document.getElementById("experience_years_textbox").value;
+	
+	var populated_years = skill_object.years != null ? skill_object.years : document.getElementById("experience_years_textbox").value;
 
       var years_textbox = document.createElement('input');
       skill_object.years_textbox = years_textbox;

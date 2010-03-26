@@ -25,20 +25,20 @@ import wsgiref.handlers
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
+from google.appengine.ext import db
 
 import logging
 from datetime import datetime
 
 import feedparser
 import models
-
+from auxilliary import getHighestBinWithAtMost, getHighestBucketWithAtMost, getBucketsAtOrAbove, recoverExperienceEntity
 
 # =============================================================================
 
 template.register_template_library(
     'django.contrib.humanize.templatetags.humanize')
 template.register_template_library('templatelib')
-
 
 # =============================================================================
 SKILL_CATEGORY_ENTITY_MAPPING = {
@@ -99,47 +99,8 @@ class SkillConversionHelper:
     def __init__(self):
         pass
 
-
 # =============================================================================
-# skill_experience_entities is guaranteed to have at least one item
-def getHighestBinWithAtMost(bins, years):
-    
-    last_bucket = bins[0]
-    for bin in bins:
-        if bin > years:
-            return last_bucket
-        last_bucket = bin
-    return last_bucket
 
-# =============================================================================
-# skill_experience_entities is guaranteed to have at least one item
-def getHighestBucketWithAtMost(skill_experience_entities, years):
-    
-    last_bucket = skill_experience_entities[0]
-    for bucket in skill_experience_entities:
-        if bucket.years > years:
-            return last_bucket
-        last_bucket = bucket
-    return last_bucket
-
-# =============================================================================
-# skill_experience_entities is guaranteed to have at least one item
-def getBucketsAtOrAbove(skill_experience_entities, years):
-    
-    min_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, years)
-    
-    qualifying_buckets = []
-    for bucket in skill_experience_entities:
-        if bucket.years >= min_bin:
-            qualifying_buckets.append(bucket)
-
-#    logging.info("Qualifying buckets: " + str(qualifying_buckets))
-
-    return qualifying_buckets
-
-
-# =============================================================================
-from google.appengine.ext import db
 class UrlSubmission(webapp.RequestHandler):
     '''This routine extracts job entities from the XML feed. There are entities
     that the job makes reference to; these are extracted into separate lists
@@ -401,11 +362,6 @@ class SkillsList:
         self.label = label
 
 # =============================================================================
-def recoverExperienceEntity(parent_keystring, years_int):
-        parent_key_object = db.Key(parent_keystring)
-        return db.Key.from_path(parent_key_object.kind(), parent_key_object.name(), 'Exp', str(years_int))
-
-# =============================================================================
 class SaveProfileHandler(webapp.RequestHandler):
     
     def post(self):
@@ -421,7 +377,6 @@ class SaveProfileHandler(webapp.RequestHandler):
         else:
 
             formval = self.request.get('skill_keys')
-
             joined_keyword_keys = self.request.get('keyword_keys')
             if formval or joined_keyword_keys:
                 logging.info("skill keys: " + formval)
@@ -436,23 +391,15 @@ class SaveProfileHandler(webapp.RequestHandler):
                 if not entity:
                     entity = models.SavedSearch()
 
-
                 keywords_keys_list = joined_keyword_keys.split(",")
                 logging.info("keywords keys list: " + str(keywords_keys_list))
 
-                skill_keys_list = []
-                if formval:
-                    stringified_skill_keys_list = formval.split(";")
-                    for binned_skill_lump in stringified_skill_keys_list:
-                
-                        parent_keystring, years = binned_skill_lump.split(":")
-                        appropriate_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, int(years))
-                
-                        k = recoverExperienceEntity(parent_keystring, appropriate_bin)
-                        skill_keys_list.append(k)
-
+ 
+                from auxilliary import parseStringifiedExperienceDict
+                experience_keys_list = parseStringifiedExperienceDict(formval)
+ 
                 entity.title = saved_name
-                entity.qualifications = skill_keys_list
+                entity.qualifications = experience_keys_list
                 entity.kw = map(db.Key, filter(bool, keywords_keys_list))
                 entity.put()
 
@@ -567,9 +514,9 @@ def buildAjaxExperienceDict(loaded_skills_dict):
     readable = {}
     for entity in named_skill_entities:
         categorized_skill_list = readable.setdefault(SKILL_CATEGORY_SHORT_TO_FULL_NAME[SKILL_CATEGORY_MODEL_NAME_MAPPING[entity.key().kind()]], [])
-        categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())]] )
+        categorized_skill_list.append( [entity.name, loaded_skills_dict[str(entity.key())], str(entity.key())] )
     
-    loaded_skills["readable_skills"] = readable
+    loaded_skills["categorized_skills"] = readable
 
 
     return loaded_skills
@@ -627,7 +574,10 @@ class ProfileDataHandler(webapp.RequestHandler):
         load_key = self.request.get('load_key')
         
         if load_key:
-            qualifications_keys = models.SavedSearch.get(load_key).qualifications
+
+            search_entity = models.SavedSearch.get(load_key)
+
+            qualifications_keys = search_entity.qualifications
             loaded_skills_dict = getSkillsDictFromKeys(qualifications_keys)
         
             
@@ -635,7 +585,12 @@ class ProfileDataHandler(webapp.RequestHandler):
             loaded_skills = buildAjaxExperienceDict(loaded_skills_dict)
             
             
-            loaded_skills["raw_search_keys"] = map(str, qualifications_keys)
+            loaded_skills["experience_keys"] = map(str, qualifications_keys)
+
+
+            keyword_entities = db.get(search_entity.kw)
+            loaded_skills["keyword_list"] = [[x.name, str(x.key())] for x in keyword_entities]
+
             
             import json
             self.response.out.write(json.dumps(loaded_skills))

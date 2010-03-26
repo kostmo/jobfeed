@@ -125,6 +125,8 @@ class Job(GeoModel):	# Job Opening
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
     feed = db.ReferenceProperty(Feed, indexed=False)
+
+    description = db.TextProperty()	# NOTE: This property is not indexed.	# TODO
     
     link = db.LinkProperty(indexed=False)   # Optionally link back to the full description on employer's website
     required = db.ListProperty(db.Key)  # Exp

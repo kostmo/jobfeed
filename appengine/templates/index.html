@@ -52,6 +52,7 @@
 function SkillObject(label, key) {
     this.label = label;
     this.key = key;
+    this.years = null;
   }
 
   function KeywordObject(label, key) {
@@ -61,13 +62,15 @@ function SkillObject(label, key) {
 
 // =============================================================================
 function loadSearchProfile() {
+
         var dropdown = document.getElementById("saved_searches_dropdown");
-        pickNewProfile(dropdown);
-      }
+	if (dropdown)
+	        pickNewProfileAdvanced(dropdown);
+}
       
 // =============================================================================
 function init() {
-//        loadSearchProfile();
+        loadSearchProfile();
 
         var dropdown = document.getElementById("saved_searches_dropdown");
 	if (dropdown && !dropdown.options.length) document.getElementById("profile_dependent_actions").style.display = "none";
@@ -89,33 +92,44 @@ function init() {
 }
 
 // =============================================================================
-function saveSearchProfile(form) {
+function extractKeywordKeys(keyword_objects) {
+	var keyword_keys_list = [];
+	for (var i=0; i<keyword_objects.length; i++) {
+		var object = keyword_objects[i];
+		keyword_keys_list.push( object.key );
+	}
 
-	// Populate form values before submitting
+	return keyword_keys_list;
+}
+
+// =============================================================================
+function compileExperienceDictionary(active_skill_objects) {
 	var used_keys_dict = {};
-
 	for (var i=0; i<active_skill_objects.length; i++) {
 		var object = active_skill_objects[i];
 		used_keys_dict[object.key] = parseInt(object.years_textbox.value);
 	}
+
+	return used_keys_dict;
+}
+
+// =============================================================================
+function saveSearchProfile(form) {
+
+	// Populate form values before submitting
+	var used_keys_dict = compileExperienceDictionary(active_skill_objects);
 	form["skill_keys"].value = stringifyDict(used_keys_dict);	// Hidden input element
 
-	var keyword_keys_list = [];
-	for (var i=0; i<active_keyword_objects.length; i++) {
-		var object = active_keyword_objects[i];
-		keyword_keys_list.push( object.key );
-	}
+	var keyword_keys_list = extractKeywordKeys(active_keyword_objects);
 	form["keyword_keys"].value = keyword_keys_list.join(",");	// Hidden input element
 
 	var dropdown = form["load_key"];
-
-
 	var current_dropdown_text = dropdown.selectedIndex >= 0 ? dropdown.options[dropdown.selectedIndex].text : "";
 	var target_name = prompt("Enter name to save profile as:", current_dropdown_text );
 	if (target_name) {
 		form["saved_name"].value = target_name;
 		if (findDropdownOptionIndexForLabel(dropdown, target_name) >= 0) {
-			return confirm("Name \"" + target_name + "\" is taken. Overwrite?");
+			return confirm("The name \"" + target_name + "\" is taken. Overwrite?");
 		}
 		return true;
 	}
@@ -139,29 +153,44 @@ function skillTypeChange(dropdown) {
 }
 
 // =============================================================================
+function regenerateKeywordsTable(active_keyword_objects, keywords_table) {
+
+	// Recreate table from scratch
+	removeChildren( keywords_table );
+
+	for (var i=0; i<active_keyword_objects.length; i++) {
+		makeKeywordListItem( active_keyword_objects[i], keywords_table, i );
+	}
+}
+// =============================================================================
+function regenerateExperienceTable(active_skill_objects, skills_table) {
+
+	// Recreate table from scratch
+	removeChildren( skills_table );
+
+
+	var row = document.createElement('tr');
+	skills_table.appendChild( row );
+	var header1 = document.createElement('th');
+	row.appendChild(header1);
+	header1.appendChild( document.createTextNode( "Experience" ) );
+
+	var header2 = document.createElement('th');
+	row.appendChild(header2);
+	header2.appendChild( document.createTextNode( "Years" ) );
+
+	for (var i=0; i<active_skill_objects.length; i++) {
+		makeSkillListItem( active_skill_objects[i], skills_table, i );
+	}
+}
+
+// =============================================================================
 function addActiveSkillObject(last_selected_skill_object) {
 
-    active_skill_objects.push( last_selected_skill_object );
+	active_skill_objects.push( last_selected_skill_object );
 
-  var skills_table = document.getElementById("pending_skills_list");
-
-  // Recreate table from scratch
-  removeChildren( skills_table );
-
-
-      var row = document.createElement('tr');
-	skills_table.appendChild( row );
-      var header1 = document.createElement('th');
-      row.appendChild(header1);
-      header1.appendChild( document.createTextNode( "Skill" ) );
-
-      var header2 = document.createElement('th');
-      row.appendChild(header2);
-      header2.appendChild( document.createTextNode( "Years" ) );
-
-  for (var i=0; i<active_skill_objects.length; i++) {
-    makeSkillListItem( active_skill_objects[i], skills_table, i );
-  }
+	var skills_table = document.getElementById("pending_skills_list");
+	regenerateExperienceTable(active_skill_objects, skills_table);
 
 
 	document.getElementById("skillInput").value = "";
@@ -325,23 +354,23 @@ function criteriaListVisibility(checkbox, element_id) {
 
 <span id="profile_dependent_actions">
 <label for="saved_searches_dropdown">Profile:</label>
-<select name="load_key" id="saved_searches_dropdown" onchange="pickNewProfile(this)">
+<select name="load_key" id="saved_searches_dropdown" onchange="pickNewProfileAdvanced(this)">
 {% for saved_search in saved_searches %}
 <option value="{{saved_search.key}}">{{saved_search.title}}</option>
 {% endfor %}
 </select>
+<button type="button" onclick="loadSearchProfile()">Reload</button>
 <button type="button" onclick="deleteSaved()">Discard</button>
 </span>
 <button type="button" onclick="validateSave()">Save</button>
 
-
-<span id="status_bar"></span>
-<span id="experience_table_holder"></span>
 </form>
 {% endif %}
 
 
+<span id="status_bar"></span>
 
+<! ================================ SKILLS ====================================>
 
 <span style="display: block">
 <input name="enable_skill_filter" checked="true" type="checkbox" id="checkbox_skill_filter" onchange="criteriaListVisibility(this, 'searchable_skills_list')" /><label for="checkbox_skill_filter"> Filter by required experience</label>
@@ -381,6 +410,9 @@ BasicRemote = function() {
 <table id="pending_skills_list" class="skills_table" style="margin-top: 5px" width="100%"></table>
 </div>
 
+
+<! ============================= KEYWORDS =====================================>
+
 <span style="display: block">
 <input name="enable_keyword_filter" checked="true" type="checkbox" id="checkbox_keyword_filter" onchange="criteriaListVisibility(this, 'searchable_keywords_list')" /><label for="checkbox_keyword_filter"> Filter by keywords</label><br/>
 </span>
@@ -408,10 +440,13 @@ BasicRemote2 = function() {
 </div>
 
 <p style="margin-top: 5px">
-Jobs that require <strong>any</strong> of the chosen skills/keywords will be matched.<br />
+Jobs that list <strong>any</strong> of the chosen skills/keywords will be matched.
 </p>
-
 </div>
+
+
+
+<! ============================= EDUCATION =====================================>
 
 
 <! ============================= BEGIN MAIN ===================================>
