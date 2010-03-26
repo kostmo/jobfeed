@@ -24,6 +24,7 @@
   * match by keyword
   * match by required education level
   * filter (or at least grey-out) expired jobs
+  * implement synomyms for keywords (use key parents?)
 
 Employment term/duration options:
   * part time
