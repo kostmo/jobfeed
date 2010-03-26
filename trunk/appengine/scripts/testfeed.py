@@ -29,7 +29,7 @@ SKILL_CATEGORY_EXAMPLES = {
 
 
 
-subjects = ["automotive", "control systems", "biomedical", "bioinformatics", "genomics", "aerospace", "quality assurance"]
+subjects = ["aerospace", "automotive", "control systems", "biomedical", "bioinformatics", "genomics", "quality assurance", "embedded systems", "computer vision"]
 
 
 def generateFeed():

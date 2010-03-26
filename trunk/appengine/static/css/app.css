@@ -26,7 +26,7 @@ limitations under the License.
 
 .skills_table {
   text-align: left;
-  background-color: #EEE;
+  background-color: #DDD;
 }
 
 .skills_table td {
@@ -41,11 +41,11 @@ limitations under the License.
 
 
 .skills_table tr.even {
-  background-color: #DDF;
+  background-color: #EEF;
 }
 
 .skills_table tr.odd {
-  background-color: #DFD;
+  background-color: #EFE;
 }
 
 

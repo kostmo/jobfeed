@@ -254,8 +254,24 @@ function doGeocodeAndSearch() {
       
       
       // XXX New stuff:
-      if (document.getElementById("checkbox_skill_filter").checked && saved_skill_keys.length)
-        commonOptions.experience_keylist = saved_skill_keys.join();
+
+	// XXX The user may have changed the options since last saving the profile.  Therefore,
+	// the "saved_searchable_experience_keys" may be out of date.  To get around this, we
+	// will just send the raw label-years pairs as if we were saving the profile.
+//      if (document.getElementById("checkbox_skill_filter").checked && saved_searchable_experience_keys.length)
+//        commonOptions.experience_keylist = saved_searchable_experience_keys.join();
+
+	if (document.getElementById("checkbox_skill_filter").checked && active_skill_objects.length) {
+		var used_keys_dict = compileExperienceDictionary(active_skill_objects);
+		commonOptions.experience_dictionary = stringifyDict(used_keys_dict);
+	}
+
+	if (document.getElementById("checkbox_keyword_filter").checked && active_keyword_objects.length) {
+		var keyword_keys_list = extractKeywordKeys(active_keyword_objects);
+		commonOptions.keyword_keylist = keyword_keys_list.join(",");
+	}
+
+
       
 	// XXX also new:
 	commonOptions.sample_search = document.getElementById("checkbox_sample_jobs").checked;
@@ -373,9 +389,22 @@ function doSearch(options) {
   }
   
   // Add in advanced options.
+/*
   if (options.experience_keylist) {
     searchParameters.experience_keylist = options.experience_keylist;
   }
+*/
+
+  if (options.experience_dictionary) {
+    searchParameters.experience_dictionary = options.experience_dictionary;
+  }
+
+  if (options.keyword_keylist) {
+    searchParameters.keyword_keylist = options.keyword_keylist;
+  }
+
+
+
 
   if (options.sample_search) {
     searchParameters.sample_search = options.sample_search;
