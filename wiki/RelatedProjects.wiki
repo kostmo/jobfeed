@@ -30,7 +30,7 @@ Wikipedia's [http://en.wikipedia.org/wiki/User_box userboxes] identify discrete,
     * [http://en.wikipedia.org/wiki/Wikipedia:Userboxes/Education#Specialized_degrees Educational degrees]
     * [http://en.wikipedia.org/wiki/Wikipedia:Userboxes/Programming Programming skills]
 Excerpt:
- Placing one of these `[`programming language userboxes`]`; on your userpage automatically lists you in Wikipedia's category system under the corresponding category so that other users may find you based on your skills.
+ Placing one of these `[`programming language userboxes`]` on your userpage automatically lists you in Wikipedia's category system under the corresponding category so that other users may find you based on your skills.
 
 [http://www.rentacoder.com/ RentACoder]
 
