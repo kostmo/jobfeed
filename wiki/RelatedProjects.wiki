@@ -26,6 +26,12 @@ Here are just a couple I found in a Google search, along with some aspects to co
 
 == skill search ==
 
+Wikipedia's [http://en.wikipedia.org/wiki/User_box userboxes] identify discrete, quantifiable skills.
+    * [http://en.wikipedia.org/wiki/Wikipedia:Userboxes/Education#Specialized_degrees Educational degrees]
+    * [http://en.wikipedia.org/wiki/Wikipedia:Userboxes/Programming Programming skills]
+Excerpt:
+ Placing one of these &#091;programming language userboxes&#093; on your userpage automatically lists you in Wikipedia's category system under the corresponding category so that other users may find you based on your skills.
+
 [http://www.rentacoder.com/ RentACoder]
 
   * Allows detailed specification of requirements to solicit bids for a single project, including programming languages
