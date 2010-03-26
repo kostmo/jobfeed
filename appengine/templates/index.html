@@ -70,7 +70,7 @@ function init() {
 //        loadSearchProfile();
 
         var dropdown = document.getElementById("saved_searches_dropdown");
-	if (!dropdown.options.length) document.getElementById("profile_dependent_actions").style.display = "none";
+	if (dropdown && !dropdown.options.length) document.getElementById("profile_dependent_actions").style.display = "none";
 
 
 	var autocomplete_input_box_ids = ["skillInput", "keywordInput"];
@@ -312,8 +312,8 @@ function criteriaListVisibility(checkbox, element_id) {
     
     
     
-    
-    <div id="sidebar">
+<! ============================= BEGIN SIDEBAR ================================>
+<div id="sidebar">
 
 
 {% if current_user %}
@@ -411,53 +411,13 @@ BasicRemote2 = function() {
 Jobs that require <strong>any</strong> of the chosen skills/keywords will be matched.<br />
 </p>
 
+</div>
 
 
-
-
-
-
-
-
-
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<! ============================= BEGIN MAIN ===================================>
 
     <div id="container">
-      <div>
+
         <table><tr><td><img src="/static/images/logo.png"/></td><td>
         
         <form style="margin-left: 20px" action="" onsubmit="doGeocodeAndSearch(); return false;">
@@ -471,7 +431,7 @@ Jobs that require <strong>any</strong> of the chosen skills/keywords will be mat
           </div>
         </form>
         </td></tr></table>
-      </div>
+
       
       <div id="view-toggle">
         <a href="#">List view &raquo;</a>
