@@ -43,6 +43,27 @@ function parseSkills(skill_keys_string, parent) {
 
   var readable_skills = skill_keys["readable_skills"];
   generateSkillsTable(readable_skills, parent);
+
+
+  var keyword_list = skill_keys["keyword_list"];
+
+
+  // Crawl up the DOM tree until our parent is a <table>
+/*
+  var realparent = parent;
+  while (realparent && realparent.nodeName != "table") {
+    realparent = realparent.parentNode;
+  }
+*/
+  var realparent = parent.parentNode.parentNode.parentNode;	// must go up through a <td>, a <tr>, and a <table>
+
+  var spans = realparent.getElementsByTagName("span");
+  for (var i=0; i<spans.length; i++) {
+    var target_span = spans[i];
+    if (target_span.getAttribute("class") == "keyword_container") {
+      target_span.innerHTML = keyword_list.join(", ");
+    }
+  }
 }
 
   // ==========================================================================

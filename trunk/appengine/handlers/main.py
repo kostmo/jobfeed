@@ -259,7 +259,7 @@ class UrlSubmission(webapp.RequestHandler):
                     db.put( unified_keyword_dict.values() )
 
                     for raw_job in joblist:
-                        raw_job.converted_job_entity.keywords = [u.key() for u in set(raw_job.unified_keywords)]
+                        raw_job.converted_job_entity.kw = [u.key() for u in set(raw_job.unified_keywords)]
 
 
                     # The final thing to do before put()-ing the jobs into the datastore is adding the skill buckets to the correct list.
@@ -453,7 +453,7 @@ class SaveProfileHandler(webapp.RequestHandler):
 
                 entity.title = saved_name
                 entity.qualifications = skill_keys_list
-                entity.keywords = map(db.Key, filter(bool, keywords_keys_list))
+                entity.kw = map(db.Key, filter(bool, keywords_keys_list))
                 entity.put()
 
                 message = "Saved."
@@ -571,6 +571,7 @@ def buildAjaxExperienceDict(loaded_skills_dict):
     
     loaded_skills["readable_skills"] = readable
 
+
     return loaded_skills
 
 # =============================================================================
@@ -596,7 +597,8 @@ class JobDataHandler(webapp.RequestHandler):
         if job_posting_key:
             
             # TODO: Also do "preferred"!!
-            qualifications_keys = models.Job.get(job_posting_key).required
+            job_entity = models.Job.get(job_posting_key)
+            qualifications_keys = job_entity.required
             
             # For display, we're only interested in minium required experience.
             qualifications_keys = extractMinimumBuckets(qualifications_keys)
@@ -606,6 +608,9 @@ class JobDataHandler(webapp.RequestHandler):
 
             loaded_skills = buildAjaxExperienceDict(loaded_skills_dict)
         
+
+            keyword_entities = db.get(job_entity.kw)
+            loaded_skills["keyword_list"] = [x.name for x in keyword_entities]
 
         
         import json

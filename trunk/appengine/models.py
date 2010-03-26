@@ -112,7 +112,7 @@ class SavedSearch(db.Model):
     address = db.StringProperty(indexed=False)
     geo = db.GeoPtProperty(indexed=False)
     qualifications = db.ListProperty(db.Key, indexed=False)  # Exp
-    keywords = db.ListProperty(db.Key, indexed=False)  # Sub
+    kw = db.ListProperty(db.Key, indexed=False)  # Keys of "Sub" (subject) type representing "keywords"
     saved = db.DateTimeProperty(required=True, auto_now=True)
 
 # =============================================================================
@@ -135,7 +135,7 @@ class Job(GeoModel):	# Job Opening
 
     # TODO: Allow this property to be indexed, but ensure that it does not occur in the same index
     # as the "required" ListProperty, or if it does, limit the number of items (exploding indexes).
-    keywords = db.ListProperty(db.Key, indexed=False)	# Subject
+    kw = db.ListProperty(db.Key, indexed=True)	# Keys of "Sub" (subject) type representing "keywords"
     
     sample = db.BooleanProperty(default=False)  # For debugging/test deployments
     

@@ -1,6 +1,4 @@
-<span style="float:right;" id="<%= "skills_list_item_" + result.job_key %>" />
-<%= loadJobExperience2(result.job_key) %>
-
+<table width="100%"><tr><td style="vertical-align: top">
 <h3><img src="<%= result.icon %>"/>
 <% if (result.link) { %>
   <a href="<%= result.link %>"><%= result.title %></a>
@@ -9,13 +7,19 @@
 <% } %>
 </h3>
 
-
-<b>Job ID:</b> <%= result.job_id %><br/>
-<b>Expires:</b> <%= (new Date(result.expiration)).format("m/dd/yyyy") %>
+<table class="job_list_item_info">
+<tr><th>Job ID:</th><td><%= result.job_id %></td></tr>
+<tr><th>Expires:</th><td><%= (new Date(result.expiration)).format("m/dd/yyyy") %></td></tr>
+<tr><th>Keywords:</th><td><span class="keyword_container"></span></td></tr>
+</table>
 
 <% if (result.distance) { %>
   <p class="distance"><%= formatDistance(result.distance) %></p>
 <% } %>
+</td><td width="200px" style="vertical-align: top">
+<span id="<%= "skills_list_item_" + result.job_key %>" />
+</td>
+</tr>
+</table>
 
-
-
+<%= loadJobExperience2(result.job_key) %>

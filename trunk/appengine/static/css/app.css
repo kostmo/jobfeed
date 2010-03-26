@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 
-
+/* tooltips */
 .tooltip > span.tooltip_body {display:none; padding:2px 3px; margin-left:8px; width:130px;}
 .tooltip:hover > span.tooltip_body {display:inline; position:absolute; top: 2em; z-index: 2; border:1px solid #cccccc; background:#ffe; color:#6c6c6c;}
 
@@ -133,7 +133,11 @@ a:active {
 
 
 
-
+table.job_list_item_info th {
+  font-weight: bold;
+  padding-right: 0.5em;
+  vertical-align: top;
+}
 
 
 
@@ -141,11 +145,6 @@ a:active {
 
 #search-container {
   padding-top: 15px;
-}
-
-#search-container p,
-#search-container input {
-  font-size: 1.3em;
 }
 
 #search-query {
@@ -238,12 +237,6 @@ a:active {
   color: #888;
 }
 
-.result-info-window h2 img {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
 .result-info-window li {
   position: relative;
   padding-left: 8em;
@@ -260,7 +253,6 @@ a:active {
 /* list view items */
 
 #list-view li.result {
-  clear: right;
   border-top: 1px solid #ccc;
   padding-bottom: 1em;
   margin-bottom: 1em;
