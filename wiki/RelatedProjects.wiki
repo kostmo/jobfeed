@@ -1,6 +1,11 @@
 #summary Similar/related projects and websites
 #labels Featured
 
+== ping servers ==
+Crawler implementation would use a [http://en.wikipedia.org/wiki/Ping_%28blogging%29 ping server] like those in blogging.  Inspiration is drawn from [http://search.slashdot.org/story/10/03/04/1518249/Google-Indexing-In-Near-Realtime?art_pos=153 this "push" concept recently discussed by Google].
+
+I envision the feeds to serve a role similar to Google's [http://en.wikipedia.org/wiki/Sitemaps Sitemaps format]. Maybe they could be called "Jobmaps: crawler friendly job listings".
+
 == feed solicitation ==
 
 This is not the first effort to solicit XML job feeds from companies.
