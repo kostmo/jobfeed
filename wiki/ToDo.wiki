@@ -1,35 +1,38 @@
 #summary Project TODO list
 #labels Featured
 
-  * Login and save profile
-    * Import existing DOAC XMLfile as search profile
-    * Export as DOAC format
-  * Project-months as a metric of language proficiency
-  * implement periodic feed checks
-  * Use contact email to notify upon failed feed parse
-  * Add (optional) salary field
-  * Add job count to main page
-  * make "department" and "site" tags optional
-    * allow `<location>` element to occur as child of `<organization>` or `<position>`
-  * geocode address if geo coords not provided
-  * limit number of jobs, keywords, and skills per domain
-  * UI preferences filter to exclude "sample" jobs
-  * List jobs by domain (may span multiple "feeds")
-  * List feeds by domain
+== bugs ==
+  * restore "search-error" element in index.html (find out where it was from the original project .zip)
+
+== potential optimizations ==
   * Limit 250 jobs per feed
   * Limit 1000 jobs per domain?
   * *Enforce limit of 5 searchable skills and 3 keywords*
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
+
+
+== features ==
+  * implement periodic feed checks
+  * Use contact email to notify upon failed feed parse
+  * Add (optional and non-indexed) salary field
+  * Add job count to main page
+  * make "department" and "site" tags optional
+    * allow `<location>` element to occur as child of `<organization>` or `<position>`
+  * limit number of jobs, keywords, and skills per domain
+  * List jobs by domain (may span multiple "feeds")
+  * List feeds by domain
   * *perform in-memory ranking of results by number of skills matched*
-  * match by keyword
   * match by required education level
   * filter (or at least grey-out) expired jobs
   * implement synomyms for keywords (use key parents?)
+  * profiles
+    * Import existing DOAC XMLfile as search profile
+    * Export as DOAC format
+    * Project-months as a metric of language proficiency
 
 Employment term/duration options:
   * part time
   * intern
-
 
 nominal experience levels
   * entry-level
