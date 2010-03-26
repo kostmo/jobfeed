@@ -36,3 +36,6 @@ nominal experience levels
   * junior
   * senior
   * executive
+
+==Spam Countermeasures==
+Feed submission keeps track of domain name.  Users with a Google Account can mark a particular job listing as Spam.  The domain hosting the feed for that job listing gets a vote against it, also recording the user who submitted the vote.  Domains with too many negative votes are blacklisted.  Blacklistings can be appealed manually, and if so, all votes by that Google Account holder are nullified.
