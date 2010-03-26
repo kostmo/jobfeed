@@ -406,6 +406,67 @@ def recoverExperienceEntity(parent_keystring, years_int):
         return db.Key.from_path(parent_key_object.kind(), parent_key_object.name(), 'Exp', str(years_int))
 
 # =============================================================================
+class SaveProfileHandler(webapp.RequestHandler):
+    
+    def post(self):
+
+        message = ""
+        load_key = self.request.get('load_key')
+        if load_key and self.request.get('deleting') == "true":
+
+            # Verify that the user has permission to delete this entity.
+            if db.get(load_key).user == users.get_current_user():
+                db.delete(load_key);
+                message = "Deleted."
+        else:
+
+            formval = self.request.get('skill_keys')
+
+            joined_keyword_keys = self.request.get('keyword_keys')
+            if formval or joined_keyword_keys:
+                logging.info("skill keys: " + formval)
+                saved_name = self.request.get('saved_name')
+                logging.info("saved name: " + saved_name)
+
+                # Check whether we are overwriting an existing name
+                q = models.SavedSearch.all()
+                q.filter("title =", saved_name)
+
+                entity = q.get()
+                if not entity:
+                    entity = models.SavedSearch()
+
+
+                keywords_keys_list = joined_keyword_keys.split(",")
+                logging.info("keywords keys list: " + str(keywords_keys_list))
+
+                skill_keys_list = []
+                if formval:
+                    stringified_skill_keys_list = formval.split(";")
+                    for binned_skill_lump in stringified_skill_keys_list:
+                
+                        parent_keystring, years = binned_skill_lump.split(":")
+                        appropriate_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, int(years))
+                
+                        k = recoverExperienceEntity(parent_keystring, appropriate_bin)
+                        skill_keys_list.append(k)
+
+                entity.title = saved_name
+                entity.qualifications = skill_keys_list
+                entity.keywords = map(db.Key, filter(bool, keywords_keys_list))
+                entity.put()
+
+                message = "Saved."
+
+
+        self.response.out.write(template.render(
+		os.path.join(os.path.dirname(__file__), '../templates/redirect.html'),
+		{
+		    'message': message,
+		}))
+
+# =============================================================================
+# XXX DEPRECATED
 class SaveSearchHandler(webapp.RequestHandler):
     
     def post(self):
@@ -415,9 +476,6 @@ class SaveSearchHandler(webapp.RequestHandler):
             logging.info("skill keys: " + formval)
             saved_name = self.request.get('saved_name')
             logging.info("saved name: " + saved_name)
-#            skill_keys_list = formval.split(",")
-#            logging.info("skill keys list: " + str(skill_keys_list))
-#            skill_keys_list = map(db.Key, skill_keys_list)
 
             stringified_skill_keys_list = formval.split(";")
             skill_keys_list = []
@@ -434,6 +492,7 @@ class SaveSearchHandler(webapp.RequestHandler):
 
 
         renderProfilePage(self)
+
 
 # =============================================================================
 def quoteString(val):
@@ -526,7 +585,6 @@ def extractMinimumBuckets(qualifications_keys):
         mins.append( min(value, key=lambda x: int(x.name())) )
         
     return mins
-    
 
 # =============================================================================
 class JobDataHandler(webapp.RequestHandler):
@@ -675,6 +733,8 @@ def main():
             ('/jobdata', JobDataHandler),
             ('/save', SaveSearchHandler),
             ('/randomized_feed.xml', RandomizedFeedHandler),
+
+            ('/save_profile', SaveProfileHandler),
 
             ('/skills_autocomplete', SkillsAutoCompleteHandler),
             ('/keyword_autocomplete', KeywordAutoCompleteHandler),

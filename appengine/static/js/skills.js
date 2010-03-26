@@ -199,9 +199,15 @@ function ajaxPost( url, params ) {
 	http.send(params);
 }
 
-
 // ============================================================================
   function beautifyTable(table) {
+
+    // If there are no <td> elements, clear the table (that means remove the headers, also).
+    if (!table.getElementsByTagName("td").length) {
+      removeChildren(table);
+      return;
+    }
+
     var rows = table.getElementsByTagName("tr")
     var index = 0;
     for (var i=0; i<rows.length; i++) {
@@ -239,7 +245,7 @@ function ajaxPost( url, params ) {
       years_textbox.type = "text";
       years_textbox.size = "1";
       years_textbox.maxLength = "2";
-      years_textbox.value = populated_years ? populated_years : "1";
+      years_textbox.value = populated_years ? populated_years : "0";
       years_textbox.onchange = function(){validateYearsTextbox(this);};  // register input validator
       years_textbox.style.verticalAlign = "middle"; // This works!
       

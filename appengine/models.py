@@ -108,7 +108,7 @@ class JobFeedSpamReport(db.Model):
 # =============================================================================
 class SavedSearch(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
-    title = db.StringProperty(indexed=False)
+    title = db.StringProperty()
     address = db.StringProperty(indexed=False)
     geo = db.GeoPtProperty(indexed=False)
     qualifications = db.ListProperty(db.Key, indexed=False)  # Exp

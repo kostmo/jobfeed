@@ -15,6 +15,15 @@ limitations under the License.
 */
 
 
+
+.tooltip > span.tooltip_body {display:none; padding:2px 3px; margin-left:8px; width:130px;}
+.tooltip:hover > span.tooltip_body {display:inline; position:absolute; top: 2em; z-index: 2; border:1px solid #cccccc; background:#ffe; color:#6c6c6c;}
+
+
+
+
+
+
 .skills_table {
   text-align: left;
   background-color: #EEE;
@@ -113,7 +122,13 @@ a:active {
 
 
 
-
+.autocomplete_input {
+ background-color: #FFD;
+ width: 7em !important;
+ margin-left: 0.5em;
+ vertical-align: middle;
+ position: relative;
+}
 
 
 
