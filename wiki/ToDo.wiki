@@ -2,7 +2,7 @@
 #labels Featured
 
 == bugs ==
-  * restore "search-error" element in index.html (find out where it was from the original project .zip)
+  * ?
 
 == potential optimizations ==
   * Limit 250 jobs per feed
