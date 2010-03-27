@@ -54,8 +54,11 @@ for category, model in SKILL_CATEGORY_ENTITY_MAPPING.items():
     SKILL_CATEGORY_MODEL_NAME_MAPPING[model.__name__] = category
 
 SKILL_CATEGORY_SHORT_TO_FULL_NAME = {}
+SKILL_CATEGORY_SUMMARIES_DICT = {}
 for i, shortname in enumerate(feedparser.SKILL_CATEGORIES):
     SKILL_CATEGORY_SHORT_TO_FULL_NAME[shortname] = feedparser.SKILL_CATEGORY_NAMES[i]
+    SKILL_CATEGORY_SUMMARIES_DICT[shortname] = feedparser.SKILL_CATEGORY_SUMMARIES[i]
+    
 
 
 # =============================================================================
@@ -83,7 +86,6 @@ def make_static_xml_handler(template_file):
                 {'current_user': users.get_current_user()}))
 
     return StaticXmlHandler
-
 
 # =============================================================================
 # As per http://code.google.com/appengine/docs/python/datastore/keysandentitygroups.html#Kinds_Names_and_IDs
@@ -116,6 +118,7 @@ class UrlSubmission(webapp.RequestHandler):
 
         x.job_id = job.job_id
         x.title = job.title
+        x.description = job.description
         x.expiration = job.expiration
         x.expired = datetime.now().date() >= job.expiration
         x.sample = job.sample
@@ -168,6 +171,13 @@ class UrlSubmission(webapp.RequestHandler):
                         # Convert simple Job() objects into model entities
                         raw_job.converted_job_entity = self.convert_job(raw_job)
                         
+                        if raw_job.degree_level:
+                            normalized_degree_level_name = raw_job.degree_level.lower()
+                            if normalized_degree_level_name in feedparser.DEGREE_LEVEL_YEARS_DICT:
+                                degree_level_years = feedparser.DEGREE_LEVEL_YEARS_DICT[raw_job.degree_level.lower()]
+                                degree_level_entity = models.DegreeLevel.get_or_insert(normalized_degree_level_name, name=raw_job.degree_level, rank=degree_level_years)
+                                # TODO: Deal with synonyms/alternate spellings
+                                raw_job.converted_job_entity.degree_level = degree_level_entity
                         
                         for skill_category, skill_list in raw_job.skills.items():
                             # Retrieve the skillname dict for this category. This dict is persistent across jobs.
@@ -279,6 +289,8 @@ class FriendlyFeedRepresentation:
         self.link = job_feed_object.link
         self.since = str( job_feed_object.since.date() )
 
+
+MAX_SKILLS_PER_PAGE = 20
 # =============================================================================
 class SkillsListHandler(webapp.RequestHandler):
 
@@ -286,23 +298,57 @@ class SkillsListHandler(webapp.RequestHandler):
 
         skills_list = []
         skill_category_name = self.request.get('skill_category')
-
+        last_in_pagination = self.request.get('last')
+	category_description = None
+        category_fullname = None
+        next_page = ""
         if skill_category_name in SKILL_CATEGORY_ENTITY_MAPPING:
             skill_entity_model = SKILL_CATEGORY_ENTITY_MAPPING[skill_category_name]
         
             q = skill_entity_model.all()
-            q.order("name")
-            skills_list = q.fetch(50) # TODO - paginate results
+            if last_in_pagination:
+                q.filter("lower >", last_in_pagination)
+            q.order("lower")
+            skills_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+
+            if len(skills_list) > MAX_SKILLS_PER_PAGE:
+
+                next_page = "<a href='" + self.request.path + "?" + "skill_category" + "=" + skill_category_name + "&last=" + skills_list[MAX_SKILLS_PER_PAGE].lower + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " >></a>"
+
+            category_fullname = SKILL_CATEGORY_SHORT_TO_FULL_NAME[skill_category_name]
+            category_description = SKILL_CATEGORY_SUMMARIES_DICT[skill_category_name]
 
         template_file = '../templates/skillslist.html'
         self.response.out.write(template.render(
             os.path.join(os.path.dirname(__file__), template_file),
                 {
                     'current_user': users.get_current_user(),
-                    'skills_list': skills_list
+                    'category_description': category_description,
+                    'category_fullname': category_fullname,
+                    'skills_list': skills_list[:MAX_SKILLS_PER_PAGE],
+                    'next_page': next_page
                 }
             )
         )
+
+# =============================================================================
+class PostingExampleHandler(webapp.RequestHandler):
+
+	def get(self):
+
+		q = models.Job.all()
+		q.filter("job_id =", int(self.request.get('id')))
+		q.filter("sample =", True )
+
+		template_file = '../templates/posting.html'
+		self.response.out.write(template.render(
+			os.path.join(os.path.dirname(__file__), template_file),
+				{
+					'job': q.get()
+				}
+			)
+		)
+
 
 # =============================================================================
 class FeedList(webapp.RequestHandler):
@@ -602,38 +648,6 @@ class SearchProfileHandler(webapp.RequestHandler):
         renderProfilePage(self)
 
 # =============================================================================
-class MainHandler(webapp.RequestHandler):
-    
-    def get(self):
-        
-        q = models.SavedSearch.all()
-        q.filter("user =", users.get_current_user())
-        q.order("-saved")
-        saved_searches = q.fetch(50)
-
-
-        class SkillType:
-            pass
-
-        skills_types = []
-        for i, category in enumerate(feedparser.SKILL_CATEGORIES):
-            t = SkillType()
-            t.key = category
-            t.label = feedparser.SKILL_CATEGORY_NAMES[i]
-            skills_types.append(t)
-        
-        self.response.out.write(template.render(
-            os.path.join(os.path.dirname(__file__), '../templates/index.html'),
-            {
-                'current_user': users.get_current_user(),
-                'saved_searches': saved_searches,
-            	'years_bins': models.EXPERIENCE_YEARS_BUCKETS,
-                'skill_types': skills_types,
-                'skill_type_summaries': feedparser.SKILL_CATEGORY_SUMMARIES
-            }
-        ))
-
-# =============================================================================
 class SkillsAutoCompleteHandler(webapp.RequestHandler):
     
     def get(self):
@@ -678,6 +692,43 @@ class RandomizedFeedHandler(webapp.RequestHandler):
 	doc.writexml( self.response.out, addindent="\t", newl="\n" )
 
 # =============================================================================
+class MainHandler(webapp.RequestHandler):
+    
+    def get(self):
+        
+        q = models.SavedSearch.all()
+        q.filter("user =", users.get_current_user())
+        q.order("-saved")
+        saved_searches = q.fetch(50)
+
+
+        q = models.DegreeLevel.all()
+        q.order("rank")
+        degree_levels = q.fetch(10)
+
+        class SkillType:
+            pass
+
+        skills_types = []
+        for i, category in enumerate(feedparser.SKILL_CATEGORIES):
+            t = SkillType()
+            t.key = category
+            t.label = feedparser.SKILL_CATEGORY_NAMES[i]
+            skills_types.append(t)
+        
+        self.response.out.write(template.render(
+            os.path.join(os.path.dirname(__file__), '../templates/index.html'),
+            {
+                'current_user': users.get_current_user(),
+                'saved_searches': saved_searches,
+            	'years_bins': models.EXPERIENCE_YEARS_BUCKETS,
+                'skill_types': skills_types,
+                'skill_type_summaries': feedparser.SKILL_CATEGORY_SUMMARIES,
+		'degree_levels': degree_levels
+            }
+        ))
+
+# =============================================================================
 def main():
     application = webapp.WSGIApplication([
             ('/', MainHandler),
@@ -686,7 +737,7 @@ def main():
             ('/urlsubmission', UrlSubmission),
             ('/feeds', FeedList),
             ('/domains', FeedList),	# TODO
-            ('/skillslist', SkillsListHandler),
+            ('/skills', SkillsListHandler),
             ('/skillstest', SkillsTestHandler),
             ('/profile', SearchProfileHandler),
             ('/profiledata', ProfileDataHandler),
@@ -695,6 +746,9 @@ def main():
             ('/randomized_feed.xml', RandomizedFeedHandler),
 
             ('/save_profile', SaveProfileHandler),
+
+            ('/jobs/posting', PostingExampleHandler),
+
 
             ('/skills_autocomplete', SkillsAutoCompleteHandler),
             ('/keyword_autocomplete', KeywordAutoCompleteHandler),

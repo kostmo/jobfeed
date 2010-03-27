@@ -47,7 +47,6 @@ def getBucketsAtOrAbove(skill_experience_entities, years):
 
     return qualifying_buckets
 
-
 # =============================================================================
 def parseStringifiedExperienceDict(stringified_dict):
 	experience_keys_list = []
@@ -63,7 +62,6 @@ def parseStringifiedExperienceDict(stringified_dict):
 			experience_keys_list.append(k)
 
 	return experience_keys_list
-
 
 # =============================================================================
 if __name__ == '__main__':
