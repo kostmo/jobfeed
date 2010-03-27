@@ -25,8 +25,8 @@ Immediate children of the `<position>` element may be:
 || *tag name* || *meaning* || *example values* ||
 || `<title>` || title of the open position || Test Engineer ||
 || `<description>` || short prose description of the job || Applicant should be familiar with six-sigma and... Responsibilities include... ||
-|| `<subject_matter>` || concise `<keyword>`s that describe the subject matter || `<keyword>biomedical</keyword><keyword>R&D</keyword>` ||
-|| `<qualifications>` || `<education>`, `<preferred>`, and `<required>` || See below ||
+|| `<subject_matter>` || concise `<keyword>`s that describe the subject matter || {{{<keyword>biomedical</keyword><keyword>R&D</keyword>}}} ||
+|| `<qualifications>` || container for `<education>`, `<preferred>`, and `<required>` || See below ||
 
 Within the `<required>` or `<preferred>` tag the following are allowed:
 || *tag name* || *meaning* || *example values* ||
