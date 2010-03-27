@@ -23,12 +23,10 @@ Since there may be many job openings at the same physical site, the XML schema a
 
 Immediate children of the `<position>` element may be:
 || *tag name* || *meaning* || *example values* ||
-|| `<title>` || title of the open position || Java, C++ ||
-|| `<description>` || short prose description of the job || Google App Engine, OpenGL, Boost ||
-|| `<subject_matter>` || concise `<keyword>`s that describe the subject matter || Google App Engine, OpenGL, Boost ||
-|| `<qualifications>` || `<education>`, `<preferred>`, and `<required>` || Google App Engine, OpenGL, Boost ||
-
-
+|| `<title>` || title of the open position || Test Engineer ||
+|| `<description>` || short prose description of the job || Applicant should be familiar with six-sigma and... Responsibilities include... ||
+|| `<subject_matter>` || concise `<keyword>`s that describe the subject matter || `<keyword>biomedical</keyword><keyword>R&D</keyword>` ||
+|| `<qualifications>` || `<education>`, `<preferred>`, and `<required>` || See below ||
 
 Within the `<required>` or `<preferred>` tag the following are allowed:
 || *tag name* || *meaning* || *example values* ||
