@@ -28,7 +28,7 @@ Immediate children of the `<position>` element may be:
 || `<subject_matter>` || concise `<keyword>`s that describe the subject matter || {{{<keyword>biomedical</keyword><keyword>R&D</keyword>}}} ||
 || `<qualifications>` || container for `<education>`, `<preferred>`, and `<required>` || See below ||
 
-Within the `<required>` or `<preferred>` tag the following are allowed:
+Within the `<required>` or `<preferred>` tags the following are allowed:
 || *tag name* || *meaning* || *example values* ||
 || `<lang>` || programming language || Java, C++ ||
 || `<api>` || Library/API/environment || Google App Engine, OpenGL, Boost ||
