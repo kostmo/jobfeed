@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
 import feedparser
+import os
+
+APP_DOMAIN = "jobcrawlr.appspot.com"
+if 'SERVER_SOFTWARE' in os.environ and 'Development' in os.environ['SERVER_SOFTWARE']:
+	APP_DOMAIN = "localhost:8080"
+
 
 # Source: http://en.wikipedia.org/wiki/List_of_United_States_cities_by_population
 most_populous_cities = [('New York', 'New York'), ('Los Angeles', 'California'), ('Chicago', 'Illinois'), ('Houston', 'Texas'), ('Phoenix', 'Arizona'), ('Philadelphia', 'Pennsylvania'), ('San Antonio', 'Texas'), ('Dallas', 'Texas'), ('San Diego', 'California'), ('San Jose', 'California'), ('Detroit', 'Michigan'), ('San Francisco', 'California'), ('Jacksonville', 'Florida'), ('Indianapolis', 'Indiana'), ('Austin', 'Texas'), ('Columbus', 'Ohio'), ('Fort Worth', 'Texas'), ('Charlotte', 'North Carolina'), ('Memphis', 'Tennessee'), ('Baltimore', 'Maryland'), ('Boston', 'Massachusetts'), ('El Paso', 'Texas'), ('Milwaukee', 'Wisconsin'), ('Denver', 'Colorado'), ('Seattle', 'Washington'), ('Nashville', 'Tennessee'), ('Washington', 'District of Columbia'), ('Las Vegas', 'Nevada'), ('Portland', 'Oregon'), ('Louisville', 'Kentucky'), ('Oklahoma City', 'Oklahoma'), ('Tucson', 'Arizona'), ('Atlanta', 'Georgia'), ('Albuquerque', 'New Mexico'), ('Kansas City', 'Missouri'), ('Fresno', 'California'), ('Sacramento', 'California'), ('Long Beach', 'California'), ('Mesa', 'Arizona'), ('Omaha', 'Nebraska'), ('Cleveland', 'Ohio'), ('Virginia Beach', 'Virginia'), ('Miami', 'Florida'), ('Oakland', 'California'), ('Raleigh', 'North Carolina'), ('Tulsa', 'Oklahoma'), ('Minneapolis', 'Minnesota'), ('Colorado Springs', 'Colorado'), ('Honolulu', 'Hawaii'), ('Arlington', 'Texas')]
@@ -14,7 +20,7 @@ ENABLE_GEO_LOOKUP = False
 apis = ['MFC', 'Google App Engine', 'OpenGL', 'DirectX', 'YUI']
 equipment = ['multimeter', 'cash register']
 activities = ['system administration', 'PCB layout']
-applications = ['Visual Studio', 'Blender', 'Eclipse', 'AutoCAD', 'git', 'subversion', 'CVS']
+applications = ['Visual Studio', 'Blender', 'Eclipse', 'AutoCAD', 'git', 'subversion', 'CVS', 'Excel', 'Photoshop', 'SPICE']
 # Source: http://www.langpop.com/
 # Also see: http://en.wikipedia.org/wiki/List_of_programming_languages_by_category
 languages = ['Java', 'C', 'C++', 'PHP', 'JavaScript', 'Python', 'SQL', 'C#', 'Perl', 'Ruby', 'Shell', 'Visual Basic', 'Assembly', 'Actionscript', 'Delphi', 'Objective C', 'Lisp', 'Pascal', 'Fortran', 'ColdFusion', 'Scheme', 'Lua', 'Haskell', 'D', 'Tcl', 'Ada', 'Cobol', 'Erlang', 'Smalltalk', 'Scala', 'OCaml', 'Forth', 'Rexx']
@@ -31,6 +37,10 @@ SKILL_CATEGORY_EXAMPLES = {
 
 subjects = ["aerospace", "automotive", "control systems", "biomedical", "bioinformatics", "genomics", "quality assurance", "embedded systems", "computer vision"]
 
+
+LIPSUM = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+# ==============================================================================
 
 def generateFeed():
 	from random import randint, sample, choice, shuffle
@@ -112,12 +122,15 @@ def generateFeed():
 				position.setAttribute("expires", (datetime.now().date() + timedelta(days=randint(0, 90))).isoformat() )
 
 				if randint(0,2):	# Set the "link" attribute with 2/3 probability
-					position.setAttribute("link", "http://www.example.com/")
+					position.setAttribute("link", "http://" + APP_DOMAIN + "/jobs/posting?id=" + str(jobcounter))
 
 				title = doc.createElement("title")
-				title.appendChild( doc.createTextNode("Position Title") )
+				title.appendChild( doc.createTextNode("Position in " + city_tuple[0]) )
 				position.appendChild(title)
 
+				description = doc.createElement("description")
+				description.appendChild( doc.createTextNode( LIPSUM[:300] ) )
+				position.appendChild(description)
 
 				subject_matter = doc.createElement("subject_matter")
 				position.appendChild(subject_matter)

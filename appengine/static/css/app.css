@@ -112,7 +112,7 @@ a:active {
 }
 
 
-#searchable_skills_list, #searchable_keywords_list {
+div.search_criteria_component {
  margin-bottom: 1em;
  border: 1px solid black;
  padding: 4px;

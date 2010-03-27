@@ -55,6 +55,11 @@
 															<element name="title">
 																<text />
 															</element>
+<optional>
+															<element name="description">
+																<text />
+															</element>
+</optional>
 															<optional>
 																<element name="subject_matter">
 																	<zeroOrMore>

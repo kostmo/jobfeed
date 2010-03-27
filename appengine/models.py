@@ -56,9 +56,9 @@ class DegreeArea(db.Model):	# Area of concentration
     name = db.StringProperty()
 
 # =============================================================================
-# TODO Not used
 class DegreeLevel(db.Model):
     name = db.StringProperty()
+    rank = db.IntegerProperty(default=0)
 
 # =============================================================================
 class Skill(db.Model):	# A named skill.
@@ -125,6 +125,8 @@ class Job(GeoModel):	# Job Opening
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
     feed = db.ReferenceProperty(Feed, indexed=False)
+
+    degree_level = db.ReferenceProperty(DegreeLevel)
 
     description = db.TextProperty()	# NOTE: This property is not indexed.	# TODO
     

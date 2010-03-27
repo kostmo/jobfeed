@@ -8,10 +8,15 @@
   </head>
   <body>
     <h1>Job Postings Skills List</h1>
+<h2>{{category_fullname}}</h2>
+<p>{{category_description}}</p>
+<strong>Names currently used by a job posting:</strong>
   <ul>
     {% for skill in skills_list %}
       <li>{{skill.name}}</li>
     {% endfor %}
   </ul>
+
+{{next_page}}
   </body>
 </html>

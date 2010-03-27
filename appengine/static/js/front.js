@@ -253,14 +253,9 @@ function doGeocodeAndSearch() {
       };
       
       
-      // XXX New stuff:
-
 	// XXX The user may have changed the options since last saving the profile.  Therefore,
 	// the "saved_searchable_experience_keys" may be out of date.  To get around this, we
 	// will just send the raw label-years pairs as if we were saving the profile.
-//      if (document.getElementById("checkbox_skill_filter").checked && saved_searchable_experience_keys.length)
-//        commonOptions.experience_keylist = saved_searchable_experience_keys.join();
-
 	if (document.getElementById("checkbox_skill_filter").checked && active_skill_objects.length) {
 		var used_keys_dict = compileExperienceDictionary(active_skill_objects);
 		commonOptions.experience_dictionary = stringifyDict(used_keys_dict);
@@ -271,7 +266,10 @@ function doGeocodeAndSearch() {
 		commonOptions.keyword_keylist = keyword_keys_list.join(",");
 	}
 
-
+	var education_dropdown = document.getElementById("education_dropdown");
+	if (document.getElementById("checkbox_education_filter").checked && education_dropdown.selectedIndex >= 0) {
+		commonOptions.education_level = education_dropdown.value;
+	}
       
 	// XXX also new:
 	commonOptions.sample_search = document.getElementById("checkbox_sample_jobs").checked;
@@ -389,12 +387,6 @@ function doSearch(options) {
   }
   
   // Add in advanced options.
-/*
-  if (options.experience_keylist) {
-    searchParameters.experience_keylist = options.experience_keylist;
-  }
-*/
-
   if (options.experience_dictionary) {
     searchParameters.experience_dictionary = options.experience_dictionary;
   }
@@ -403,8 +395,9 @@ function doSearch(options) {
     searchParameters.keyword_keylist = options.keyword_keylist;
   }
 
-
-
+  if (options.education_level) {
+    searchParameters.education_level = options.education_level;
+  }
 
   if (options.sample_search) {
     searchParameters.sample_search = options.sample_search;

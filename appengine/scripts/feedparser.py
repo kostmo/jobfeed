@@ -58,7 +58,25 @@ SKILL_CATEGORY_SUMMARIES = [
 ]
 
 
-degreee_levels = ["None", "Associates", "Bachelors", "Masters", "Doctorate"]
+DEGREE_LEVEL_ASSOCIATES = "Associates"
+DEGREE_LEVEL_BACHELORS = "Bachelors"
+DEGREE_LEVEL_MASTERS = "Masters"
+DEGREE_LEVEL_DOCTORATE = "Doctorate"
+
+# TODO Use this somehow
+DEGREE_LEVEL_SYNONYMS = {
+	DEGREE_LEVEL_ASSOCIATES: ["AAS", "AES"],
+	DEGREE_LEVEL_BACHELORS: ["BS"],
+	DEGREE_LEVEL_MASTERS: ["MS"],
+	DEGREE_LEVEL_DOCTORATE: ["PhD"]
+}
+
+degreee_levels = [DEGREE_LEVEL_ASSOCIATES, DEGREE_LEVEL_BACHELORS, DEGREE_LEVEL_MASTERS, DEGREE_LEVEL_DOCTORATE]
+degree_level_years = [2, 4, 5, 7]
+
+DEGREE_LEVEL_YEARS_DICT = {}
+for i, level_name in enumerate(degreee_levels):
+	DEGREE_LEVEL_YEARS_DICT[level_name.lower()] = degree_level_years[i]
 
 # =============================================================================
 class SkillExperience():
@@ -82,6 +100,10 @@ class ParsedJob():
         self.geo = handler.geo
         self.link = handler.link
         self.title = handler.job_title.strip()
+        self.description = handler.job_description.strip()
+
+        self.degree_level = None
+        self.degree_area = None
 	if hasattr(handler, "degree_level"):
 	        self.degree_level = handler.degree_level
         	if hasattr(handler, "degree_area"):
@@ -126,7 +148,9 @@ class JobFeedHandler(ContentHandler):
     def resetJob(self):
         self.in_position = False
         self.in_title = False
+        self.in_description = False
         self.job_title = ""
+        self.job_description = ""
         self.last_keyword = ""
         self.skills = {}
 	self.in_keyword = False
@@ -197,6 +221,10 @@ class JobFeedHandler(ContentHandler):
             self.in_title = True
             self.job_title = ""
 
+        elif name == 'description':
+            self.in_description = True
+            self.job_description = ""
+
         elif name == 'keyword':
             self.last_keyword = ""
             self.in_keyword = True
@@ -213,6 +241,9 @@ class JobFeedHandler(ContentHandler):
 
         elif name == 'title':
             self.in_title = False
+
+        elif name == 'description':
+            self.in_description = False
 
         elif name == 'keyword':
             self.in_keyword = False
@@ -231,6 +262,9 @@ class JobFeedHandler(ContentHandler):
     def characters (self, ch):
         if self.in_title:
             self.job_title += ch
+
+        elif self.in_description:
+            self.job_description += ch
 
         elif self.in_address:
             self.site_address += ch

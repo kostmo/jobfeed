@@ -82,10 +82,9 @@ function init() {
 	}
 
 
-	var visibility_checkbox_ids = ["checkbox_skill_filter", "checkbox_keyword_filter"];
-	var keyword_list_boxes = ["searchable_skills_list", "searchable_keywords_list"];
+	var visibility_checkbox_ids = ["checkbox_skill_filter", "checkbox_keyword_filter", "checkbox_education_filter"];
+	var keyword_list_boxes = ["searchable_skills_list", "searchable_keywords_list", "education_dropdown_component"];
 	for (var i=0; i<visibility_checkbox_ids.length; i++) {
-
 		var checkbox = document.getElementById( visibility_checkbox_ids[i] );
 		criteriaListVisibility(checkbox, keyword_list_boxes[i] );
 	}
@@ -375,7 +374,7 @@ function criteriaListVisibility(checkbox, element_id) {
 <span style="display: block">
 <input name="enable_skill_filter" checked="true" type="checkbox" id="checkbox_skill_filter" onchange="criteriaListVisibility(this, 'searchable_skills_list')" /><label for="checkbox_skill_filter"> Filter by required experience</label>
 </span>
-<div id="searchable_skills_list">
+<div class="search_criteria_component" id="searchable_skills_list">
 
 <label for="skillInput" style="vertical-align: middle;">Add a skill:</label>
 <span id="type_summary_foo"></span>
@@ -384,7 +383,7 @@ function criteriaListVisibility(checkbox, element_id) {
     {% for type in skill_types %}
     <option value="{{type.key}}">{{type.label}}</option>
     {% endfor %}
-  </select> <span class="tooltip"><input id="skillInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing the name of a skill here.</span></input></span> <div id="skillsContainer"></div> <br />
+  </select><a href="javascript:window.location='/skills?skill_category=' + document.getElementById('skill_type_dropdown').value">?</a> <span class="tooltip"><input id="skillInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing the name of a skill here.</span></input></span> <div id="skillsContainer"></div> <br />
 
 
 <label for="experience_years_textbox">with </label><input id="experience_years_textbox" value="2" type="text" style="width: 2em" onchange="validateYearsTextbox(this)"><label for="experience_years_textbox"> years of experience</label>
@@ -416,7 +415,7 @@ BasicRemote = function() {
 <span style="display: block">
 <input name="enable_keyword_filter" checked="true" type="checkbox" id="checkbox_keyword_filter" onchange="criteriaListVisibility(this, 'searchable_keywords_list')" /><label for="checkbox_keyword_filter"> Filter by keywords</label><br/>
 </span>
-<div id="searchable_keywords_list">
+<div class="search_criteria_component" id="searchable_keywords_list">
 <label for="keywordInput" style="vertical-align: middle;">Add a keyword: </label>
  <span class="tooltip"><input id="keywordInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing a keyword here.</span></input></span>
  <div id="keywordSuggestionContainer"></div>
@@ -439,17 +438,30 @@ BasicRemote2 = function() {
 <table id="pending_keywords_list" class="skills_table" style="margin-top: 5px" width="100%"></table>
 </div>
 
-<p style="margin-top: 5px">
+<p style="margin-top: 5px; margin-bottom: 1em;">
 Jobs that list <strong>any</strong> of the chosen skills/keywords will be matched.
 </p>
-</div>
-
-
 
 <! ============================= EDUCATION =====================================>
 
+<span style="display: block">
+<input name="enable_education_filter" checked="true" type="checkbox" id="checkbox_education_filter" onchange="criteriaListVisibility(this, 'education_dropdown_component')" /><label for="checkbox_education_filter"> Filter by education</label>
+</span>
+<div class="search_criteria_component" id="education_dropdown_component">
+
+<label for="education_dropdown">Minimum degree:</label>
+<select name="minimum_degree" id="education_dropdown">
+{% for degree_level in degree_levels %}
+<option value="{{degree_level.key}}">{{degree_level.name}}</option>
+{% endfor %}
+</select>
+
+</div>
 
 <! ============================= BEGIN MAIN ===================================>
+</div>
+
+
 
     <div id="container">
 
