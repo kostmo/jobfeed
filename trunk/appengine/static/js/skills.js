@@ -26,6 +26,23 @@ limitations under the License.
   String.prototype.endsWith = function(str)
 {return (this.match(str+"$")==str)}
   
+  // ==========================================================================
+
+
+
+
+function recenterOnJob(lat, lng) {
+	map.panTo( new google.maps.LatLng(lat, lng), 4 );
+}
+
+
+
+
+
+
+
+
+
 
   // ==========================================================================
   // For "index.html"
@@ -46,6 +63,7 @@ function parseSkills(skill_keys_string, parent) {
 
 
   var keyword_list = skill_keys["keyword_list"];
+  var description = skill_keys["description"];
 
 
   // FIXME Crawl up the DOM tree until our parent is a <table>
@@ -61,7 +79,14 @@ function parseSkills(skill_keys_string, parent) {
   for (var i=0; i<spans.length; i++) {
     var target_span = spans[i];
     if (target_span.getAttribute("class") == "keyword_container") {
-      target_span.innerHTML = keyword_list.join(", ");
+      var highlighted_keyword_list = [];
+      for (var j=0; j<keyword_list.length; j++) {
+        highlighted_keyword_list.push( keywordIsAdded(keyword_list[j]) ? ("<span style='color: red'>" + keyword_list[j] + "</span>") : keyword_list[j]);
+      }
+      target_span.innerHTML = highlighted_keyword_list.join(", ");
+
+    } else if (target_span.getAttribute("class") == "description_container") {
+      target_span.innerHTML = description;
     }
   }
 }

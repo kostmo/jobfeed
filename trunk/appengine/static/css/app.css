@@ -19,9 +19,18 @@ limitations under the License.
 .tooltip > span.tooltip_body {display:none; padding:2px 3px; margin-left:8px; width:130px;}
 .tooltip:hover > span.tooltip_body {display:inline; position:absolute; top: 2em; z-index: 2; border:1px solid #cccccc; background:#ffe; color:#6c6c6c;}
 
+.copyright_notice {
+	margin-top: 1em;
+	text-align:center;
+	margin-left: auto;
+	margin-right: auto
+}
 
 
-
+sup {
+  position: relative;
+  top: -0.5em;
+}
 
 
 .skills_table {
@@ -126,7 +135,6 @@ div.search_criteria_component {
  background-color: #FFD;
  width: 7em !important;
  margin-left: 0.5em;
- vertical-align: middle;
  position: relative;
 }
 

@@ -332,6 +332,35 @@ class SkillsListHandler(webapp.RequestHandler):
         )
 
 # =============================================================================
+class KeywordsListHandler(webapp.RequestHandler):
+
+	def get(self):
+
+		skills_list = []
+		last_in_pagination = self.request.get('last')
+		next_page = ""
+
+		q = models.Sub.all()
+		if last_in_pagination:
+			q.filter("lower >", last_in_pagination)
+		q.order("lower")
+		skills_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+
+		if len(skills_list) > MAX_SKILLS_PER_PAGE:
+			next_page = "<a href='" + self.request.path + "?last=" + skills_list[MAX_SKILLS_PER_PAGE].lower + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " >></a>"
+
+		template_file = '../templates/keywordslist.html'
+		self.response.out.write(template.render(
+			os.path.join(os.path.dirname(__file__), template_file),
+				{
+					'current_user': users.get_current_user(),
+					'skills_list': skills_list[:MAX_SKILLS_PER_PAGE],
+					'next_page': next_page
+				}
+			)
+		)
+
+# =============================================================================
 class PostingExampleHandler(webapp.RequestHandler):
 
 	def get(self):
@@ -581,6 +610,7 @@ def extractMinimumBuckets(qualifications_keys):
     return mins
 
 # =============================================================================
+JOB_DESCRIPTION_CHARACTER_LIMIT = 100
 class JobDataHandler(webapp.RequestHandler):
     
     def get(self):
@@ -605,6 +635,11 @@ class JobDataHandler(webapp.RequestHandler):
             keyword_entities = db.get(job_entity.kw)
             loaded_skills["keyword_list"] = [x.name for x in keyword_entities]
 
+            optional_ellipsis = ""
+            if len(job_entity.description) > JOB_DESCRIPTION_CHARACTER_LIMIT:
+                optional_ellipsis = "&hellip;"
+
+            loaded_skills["description"] = job_entity.description[:JOB_DESCRIPTION_CHARACTER_LIMIT] + optional_ellipsis
         
 
         from django.utils import simplejson
@@ -740,6 +775,7 @@ def main():
             ('/feeds', FeedList),
             ('/domains', FeedList),	# TODO
             ('/skills', SkillsListHandler),
+            ('/keywords', KeywordsListHandler),
             ('/skillstest', SkillsTestHandler),
             ('/profile', SearchProfileHandler),
             ('/profiledata', ProfileDataHandler),
