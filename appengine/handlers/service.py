@@ -122,7 +122,6 @@ class SearchService(webapp.RequestHandler):
 
             public_attrs = models.Job.public_attributes()
 
-            import json
             from datetime import datetime, time
             results_obj = [
                 _merge_dicts({
@@ -139,7 +138,7 @@ class SearchService(webapp.RequestHandler):
                         for attr in public_attrs]))
                 for result in results]
 
-            self.response.out.write(json.dumps({
+            self.response.out.write(simplejson.dumps({
               'status': 'success',
               'results': results_obj
             }))
