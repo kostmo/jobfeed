@@ -15,9 +15,3 @@ indexes:
   - name: user
   - name: saved
     direction: desc
-
-- kind: SavedSearch
-  properties:
-  - name: user=
-  - name: saved
-    direction: desc

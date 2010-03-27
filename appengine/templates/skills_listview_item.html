@@ -1,16 +1,17 @@
 <table width="100%"><tr><td style="vertical-align: top">
-<h3><img src="<%= result.icon %>"/>
+<img src="<%= result.icon %>" onclick="recenterOnJob(<%= result.lat %>, <%= result.lng %>)" style="vertical-align: middle"/><big style="vertical-align: middle; font-weight: bold">
 <% if (result.link) { %>
   <a href="<%= result.link %>"><%= result.title %></a>
 <% } else { %>
 <%= result.title %>
 <% } %>
-</h3>
+</big>
 
 <table class="job_list_item_info">
-<tr><th>Job ID:</th><td><%= result.job_id %></td></tr>
+<!--<tr><th>Job ID:</th><td><%= result.job_id %></td></tr>-->
 <tr><th>Expires:</th><td><%= (new Date(result.expiration)).format("m/dd/yyyy") %></td></tr>
 <tr><th>Keywords:</th><td><span class="keyword_container"></span></td></tr>
+<tr><th>Description:</th><td><span class="description_container"></span></td></tr>
 </table>
 
 <% if (result.distance) { %>

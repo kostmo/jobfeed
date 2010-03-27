@@ -220,11 +220,60 @@ function enableMapAutoScroll(enable) {
   }
 }
 
+
+
+
+
+function assignOptionsFromUI(commonOptions) {
+
+	// XXX The user may have changed the options since last saving the profile.  Therefore,
+	// the "saved_searchable_experience_keys" may be out of date.  To get around this, we
+	// will just send the raw label-years pairs as if we were saving the profile.
+	if (document.getElementById("checkbox_skill_filter").checked && active_skill_objects.length) {
+		var used_keys_dict = compileExperienceDictionary(active_skill_objects);
+		commonOptions.experience_dictionary = stringifyDict(used_keys_dict);
+	}
+
+	if (document.getElementById("checkbox_keyword_filter").checked && active_keyword_objects.length) {
+		var keyword_keys_list = extractKeywordKeys(active_keyword_objects);
+		commonOptions.keyword_keylist = keyword_keys_list.join(",");
+	}
+
+	var education_dropdown = document.getElementById("education_dropdown");
+	if (document.getElementById("checkbox_education_filter").checked && education_dropdown.selectedIndex >= 0) {
+		commonOptions.education_level = education_dropdown.value;
+	}
+      
+	// XXX also new:
+	commonOptions.sample_search = document.getElementById("checkbox_sample_jobs").checked;
+}
+
+
+function locationAgnosticSearch() {
+
+        alert("Searching anywhere!");
+
+      var commonOptions = {
+        clearResultsImmediately: true
+      };
+      
+      
+	assignOptionsFromUI(commonOptions);
+
+
+        doSearch(updateObject(commonOptions, {
+          type: 'anywhere'
+        }));
+}
+
+
+
 /**
  * Geocodes the location text in the search box and performs a spatial search
  * via doSearch.
  */
 function doGeocodeAndSearch() {
+
   $('#loading').css('visibility', 'visible');
   geocoder.getLocations($('#search-query').val(), function(response) {
     if (response.Status.code != 200 || !response.Placemark) {
@@ -253,29 +302,9 @@ function doGeocodeAndSearch() {
       };
       
       
-	// XXX The user may have changed the options since last saving the profile.  Therefore,
-	// the "saved_searchable_experience_keys" may be out of date.  To get around this, we
-	// will just send the raw label-years pairs as if we were saving the profile.
-	if (document.getElementById("checkbox_skill_filter").checked && active_skill_objects.length) {
-		var used_keys_dict = compileExperienceDictionary(active_skill_objects);
-		commonOptions.experience_dictionary = stringifyDict(used_keys_dict);
-	}
-
-	if (document.getElementById("checkbox_keyword_filter").checked && active_keyword_objects.length) {
-		var keyword_keys_list = extractKeywordKeys(active_keyword_objects);
-		commonOptions.keyword_keylist = keyword_keys_list.join(",");
-	}
-
-	var education_dropdown = document.getElementById("education_dropdown");
-	if (document.getElementById("checkbox_education_filter").checked && education_dropdown.selectedIndex >= 0) {
-		commonOptions.education_level = education_dropdown.value;
-	}
-      
-	// XXX also new:
-	commonOptions.sample_search = document.getElementById("checkbox_sample_jobs").checked;
+	assignOptionsFromUI(commonOptions);
 
 
-      
       if (proximitySearch) {
         doSearch(updateObject(commonOptions, {
           type: 'proximity',

@@ -48,6 +48,7 @@
 
   var active_keyword_objects = [];
 
+
 // =============================================================================
 function SkillObject(label, key) {
     this.label = label;
@@ -59,6 +60,18 @@ function SkillObject(label, key) {
     this.label = label;
     this.key = key;
   }
+
+// =============================================================================
+function keywordIsAdded(keyword) {
+  var lowercased = keyword.toLowerCase();
+  for (var i=0; i<active_keyword_objects.length; i++) {
+    if (active_keyword_objects[i].label.toLowerCase() == lowercased) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 // =============================================================================
 function loadSearchProfile() {
@@ -367,7 +380,6 @@ function criteriaListVisibility(checkbox, element_id) {
 {% endif %}
 
 
-<span id="status_bar"></span>
 
 <! ================================ SKILLS ====================================>
 
@@ -376,14 +388,14 @@ function criteriaListVisibility(checkbox, element_id) {
 </span>
 <div class="search_criteria_component" id="searchable_skills_list">
 
-<label for="skillInput" style="vertical-align: middle;">Add a skill:</label>
+<label for="skillInput">Add skill:</label>
 <span id="type_summary_foo"></span>
 
-  <select name="skill_type" id="skill_type_dropdown" onchange="skillTypeChange(this)" style="vertical-align: middle;">
+  <select name="skill_type" id="skill_type_dropdown" onchange="skillTypeChange(this)">
     {% for type in skill_types %}
     <option value="{{type.key}}">{{type.label}}</option>
     {% endfor %}
-  </select><a href="javascript:window.location='/skills?skill_category=' + document.getElementById('skill_type_dropdown').value">?</a> <span class="tooltip"><input id="skillInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing the name of a skill here.</span></input></span> <div id="skillsContainer"></div> <br />
+  </select><sup><a href="javascript:window.location='/skills?skill_category=' + document.getElementById('skill_type_dropdown').value">?</a></sup> <span class="tooltip"><input id="skillInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing the name of a skill here.</span></input></span> <div id="skillsContainer"></div> <br />
 
 
 <label for="experience_years_textbox">with </label><input id="experience_years_textbox" value="2" type="text" style="width: 2em" onchange="validateYearsTextbox(this)"><label for="experience_years_textbox"> years of experience</label>
@@ -416,7 +428,7 @@ BasicRemote = function() {
 <input name="enable_keyword_filter" checked="true" type="checkbox" id="checkbox_keyword_filter" onchange="criteriaListVisibility(this, 'searchable_keywords_list')" /><label for="checkbox_keyword_filter"> Filter by keywords</label><br/>
 </span>
 <div class="search_criteria_component" id="searchable_keywords_list">
-<label for="keywordInput" style="vertical-align: middle;">Add a keyword: </label>
+<label for="keywordInput">Add keyword:</label><sup><a href="javascript:window.location='/keywords'">?</a></sup>
  <span class="tooltip"><input id="keywordInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing a keyword here.</span></input></span>
  <div id="keywordSuggestionContainer"></div>
 
@@ -445,7 +457,7 @@ Jobs that list <strong>any</strong> of the chosen skills/keywords will be matche
 <! ============================= EDUCATION =====================================>
 
 <span style="display: block">
-<input name="enable_education_filter" checked="true" type="checkbox" id="checkbox_education_filter" onchange="criteriaListVisibility(this, 'education_dropdown_component')" /><label for="checkbox_education_filter"> Filter by education</label>
+<input name="enable_education_filter" type="checkbox" id="checkbox_education_filter" onchange="criteriaListVisibility(this, 'education_dropdown_component')" /><label for="checkbox_education_filter"> Filter by education</label>
 </span>
 <div class="search_criteria_component" id="education_dropdown_component">
 
@@ -461,26 +473,27 @@ Jobs that list <strong>any</strong> of the chosen skills/keywords will be matche
 <! ============================= BEGIN MAIN ===================================>
 </div>
 
-
-
     <div id="container">
 
         <table><tr><td><img src="/static/images/logo.png"/></td><td>
         
-        <form style="margin-left: 20px" action="" onsubmit="doGeocodeAndSearch(); return false;">
+        <form style="margin-left: 20px" action="" onsubmit="document.getElementById('checkbox_search_anywhere').checked ? locationAgnosticSearch() : doGeocodeAndSearch(); return false;">
           <div id="search-container">
             <p><label for="search-query">Search for job openings near:</label></p>
             <input id="search-query" type="search" value="Houston, TX" />
 
-            <input type="submit" value="Search"/><br/>
+            <input type="submit" value="Search"/> <input name="enable_search_anywhere" type="checkbox" checked="true" id="checkbox_search_anywhere"/><label for="checkbox_search_anywhere"> Anywhere</label><br/>
                   <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs"/><label for="checkbox_sample_jobs"> Search in "sample" jobs</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
+
+            <div id="search-error">&nbsp;</div>
           </div>
         </form>
         </td></tr></table>
 
       
       <div id="view-toggle">
+	<span id="status_bar"></span>
         <a href="#">List view &raquo;</a>
       </div>
       
@@ -500,7 +513,7 @@ Jobs that list <strong>any</strong> of the chosen skills/keywords will be matche
 
     </div>
           
-      <p style="margin-top: 1em; text-align:center; margin-left: auto; margin-right: auto">Copyright &copy; 2010, Karl Ostmo</p>
+      <p class="copyright_notice">Copyright &copy; 2010, Karl Ostmo</p>
     
     
     
