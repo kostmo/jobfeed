@@ -21,6 +21,15 @@ The following information should be associated with each job record:
 
 Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the company and/or department name.
 
+Immediate children of the `<position>` element may be:
+|| *tag name* || *meaning* || *example values* ||
+|| `<title>` || title of the open position || Java, C++ ||
+|| `<description>` || short prose description of the job || Google App Engine, OpenGL, Boost ||
+|| `<subject_matter>` || concise `<keyword>`s that describe the subject matter || Google App Engine, OpenGL, Boost ||
+|| `<qualifications>` || `<education>`, `<preferred>`, and `<required>` || Google App Engine, OpenGL, Boost ||
+
+
+
 Within the `<required>` or `<preferred>` tag the following are allowed:
 || *tag name* || *meaning* || *example values* ||
 || `<lang>` || programming language || Java, C++ ||
