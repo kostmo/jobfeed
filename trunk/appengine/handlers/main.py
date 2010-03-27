@@ -519,8 +519,8 @@ def getSkillsDict(self):
 # =============================================================================
 def getSkillsJson(self):
 
-    import json
-    return json.dumps(getSkillsDict(self))
+    from django.utils import simplejson
+    return simplejson.dumps(getSkillsDict(self))
     
 # =============================================================================
 def renderProfilePage(self):
@@ -606,8 +606,9 @@ class JobDataHandler(webapp.RequestHandler):
             loaded_skills["keyword_list"] = [x.name for x in keyword_entities]
 
         
-        import json
-        self.response.out.write(json.dumps(loaded_skills))
+
+        from django.utils import simplejson
+        self.response.out.write(simplejson.dumps(loaded_skills))
 
 
 # =============================================================================
@@ -638,8 +639,9 @@ class ProfileDataHandler(webapp.RequestHandler):
             loaded_skills["keyword_list"] = [[x.name, str(x.key())] for x in keyword_entities]
 
             
-            import json
-            self.response.out.write(json.dumps(loaded_skills))
+
+            from django.utils import simplejson
+            self.response.out.write(simplejson.dumps(loaded_skills))
         
 # =============================================================================
 class SearchProfileHandler(webapp.RequestHandler):

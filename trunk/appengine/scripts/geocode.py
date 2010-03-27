@@ -3,7 +3,13 @@
 def getGeo(address):
 	# Geocode the cities
 	# Source: http://code.google.com/apis/maps/documentation/geocoding/index.html
-	import urllib, json
+	import urllib
+
+	try:
+		from django.utils import simplejson as json
+	except ImportError, e:
+		print "using basic json"
+		import json
 
 	url = "http://maps.google.com/maps/api/geocode/json?" + urllib.urlencode( {"address": address, "sensor": "false"} )
 	obj = json.load(urllib.urlopen(url))
