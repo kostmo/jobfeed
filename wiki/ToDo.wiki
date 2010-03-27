@@ -10,8 +10,8 @@
   * *Enforce limit of 5 searchable skills and 3 keywords*
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
 
-
 == features ==
+  * Consolidate "Site" entities on mapview
   * implement periodic feed checks
   * Use contact email to notify upon failed feed parse
   * Add (optional and non-indexed) salary field
