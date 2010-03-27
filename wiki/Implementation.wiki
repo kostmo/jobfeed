@@ -1,0 +1,5 @@
+#summary Implementation details
+#labels Featured
+
+== useful links ==
+  * [http://www.djangoproject.com/documentation/0.96/templates/#built-in-filter-reference Django Built-in filter reference]
