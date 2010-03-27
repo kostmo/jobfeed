@@ -24,7 +24,9 @@
   * *perform in-memory ranking of results by number of skills matched*
   * match by required education level
   * filter (or at least grey-out) expired jobs
-  * implement synomyms for keywords (use key parents?)
+  * implement synomyms for keywords
+    * Approach 1: use key parents; the canonical word is the parent of all synonyms
+    * Approach 2: maintain a ListProperty of all synonyms as a member of the canonical word entity
   * profiles
     * Import existing DOAC XMLfile as search profile
     * Export as DOAC format
