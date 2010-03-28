@@ -93,6 +93,22 @@ class SkillExperience():
     def __repr__(self):
         return "SkillExperience" + str(self)
 
+    
+# =============================================================================
+def isHostnameValid(hostname): 
+    # Process each DNS label individually by excluding invalid characters and ensuring nonzero length
+    disallowed = re.compile("[^a-zA-Z\d\-]")
+    return all(map(lambda x: len(x) and not disallowed.search(x), hostname.split(".")))
+
+# =============================================================================
+class Organization():
+    def __init__(self, name, domain, ein=None):
+        self.name = name
+        if not isHostnameValid(hostname):
+            raise ValueError("Invalid hostname: " + hostname)
+        self.domain = domain	# Do some validation on this
+        self.ein = ein
+
 # =============================================================================
 class ParsedJob():
     def __init__(self, handler):
@@ -133,6 +149,13 @@ class MissingLocationException(Exception):
 
 # =============================================================================
 class JobFeedHandler(ContentHandler):
+    # The data structure returned is a dictionary representing jobs in an
+    # organizational tree.
+    # The layers are:
+    # Organization
+    #    -> Site
+    #        -> Department	# TODO
+    #            -> Job
 
     def __init__ (self):
 	self.geo_lookups = 0
@@ -143,6 +166,8 @@ class JobFeedHandler(ContentHandler):
 	self.site_address = ""
 	self.in_address = False
         self.resetJob()
+
+        self.org_hierarchy = {}
 
     # -------------------------------------------------------------------------
     def resetJob(self):
@@ -181,8 +206,26 @@ class JobFeedHandler(ContentHandler):
 
     # -------------------------------------------------------------------------
     def startElement(self, name, attrs):
+        # These checks are ordered by descending frequency of occurrence within a feed.
 
-        if name == 'position':
+        if name in SKILL_CATEGORIES:
+            sublist = self.skills.setdefault(name, [])
+            sublist.append(
+                SkillExperience(
+                    attrs.get('name'),
+                    attrs.get('years', None),
+                    self.skill_preference_type == SKILL_REQUIRED
+                )
+            )
+
+        elif name == 'keyword':
+            self.last_keyword = ""
+            self.in_keyword = True
+
+        elif name in SKILL_PREFERENCE_TYPES:
+            self.skill_preference_type = name
+
+        elif name == 'position':
             self.in_position = True
             self.jobid = int(attrs.get('id'))
             self.link = attrs.get('link')
@@ -194,19 +237,6 @@ class JobFeedHandler(ContentHandler):
             self.contract = attrs.get('contract')
             self.expiration = attrs.get('expires')
 
-        elif name in SKILL_PREFERENCE_TYPES:
-            self.skill_preference_type = name
-
-        elif name in SKILL_CATEGORIES:
-            sublist = self.skills.setdefault(name, [])
-            sublist.append(
-                SkillExperience(
-                    attrs.get('name'),
-                    attrs.get('years', None),
-                    self.skill_preference_type == SKILL_REQUIRED
-                )
-            )
-            
         elif name == 'geo':
             self.geo = [float(attrs.get(a)) for a in GEO_ATTRIBUTES]
 
@@ -224,11 +254,17 @@ class JobFeedHandler(ContentHandler):
         elif name == 'description':
             self.in_description = True
             self.job_description = ""
-
-        elif name == 'keyword':
-            self.last_keyword = ""
-            self.in_keyword = True
 	
+        elif name == 'organization':
+            organization = Organization(attrs.get('years', None), attrs.get('years', None))
+            ein = attrs.get('ein', None)
+            if not (ein is None):
+                organization.ein = int(ein)
+
+            # Create a list of physical sites for this organization.
+            # Each site, in turn, will contain departments and jobs.
+            self.org_hierarchy[organization] = []
+
         elif name == 'jobfeed':
             self.sample = attrs.get('sample') == "true"
             self.vocab_version  = attrs.get('vocabulary')

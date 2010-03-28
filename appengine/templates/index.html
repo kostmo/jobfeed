@@ -476,13 +476,13 @@ Jobs that list <strong>any</strong> of the chosen skills/keywords will be matche
     <div id="container">
 
         <table><tr><td><img src="/static/images/logo.png"/></td><td>
-        
+
         <form style="margin-left: 20px" action="" onsubmit="document.getElementById('checkbox_search_anywhere').checked ? locationAgnosticSearch() : doGeocodeAndSearch(); return false;">
           <div id="search-container">
             <p><label for="search-query">Search for job openings near:</label></p>
             <input id="search-query" type="search" value="Houston, TX" />
 
-            <input type="submit" value="Search"/> <input name="enable_search_anywhere" type="checkbox" checked="true" id="checkbox_search_anywhere"/><label for="checkbox_search_anywhere"> Anywhere</label><br/>
+            <input type="submit" value="Search"/> <input name="enable_search_anywhere" type="checkbox" id="checkbox_search_anywhere" onchange="document.getElementById('search-query').disabled = this.checked" /><label for="checkbox_search_anywhere"> Anywhere</label><br/>
                   <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs"/><label for="checkbox_sample_jobs"> Search in "sample" jobs</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
 

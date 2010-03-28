@@ -251,19 +251,13 @@ function assignOptionsFromUI(commonOptions) {
 
 function locationAgnosticSearch() {
 
-        alert("Searching anywhere!");
-
-      var commonOptions = {
-        clearResultsImmediately: true
-      };
-      
-      
+	var commonOptions = {
+		clearResultsImmediately: true
+	};
 	assignOptionsFromUI(commonOptions);
-
-
-        doSearch(updateObject(commonOptions, {
-          type: 'anywhere'
-        }));
+	doSearch(updateObject(commonOptions, {
+		type: 'anywhere'
+	}));
 }
 
 

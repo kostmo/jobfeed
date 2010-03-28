@@ -54,9 +54,9 @@ class SearchService(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         query_type = self.request.get('type')
 
-        if not query_type in ['proximity', 'bounds']:
+        if not query_type in ['proximity', 'bounds', 'anywhere']:
             return _simple_error('type parameter must be '
-                                 'one of "proximity", "bounds".',
+                                 'one of "proximity", "bounds", "anywhere".',
                                  code=400)
 
         if query_type == 'proximity':
@@ -75,6 +75,9 @@ class SearchService(webapp.RequestHandler):
             except ValueError:
                 return _simple_error('north, south, east, and west parameters must be '
                                      'valid latitude/longitude values.')
+
+        elif query_type == 'anywhere':
+            pass
 
         max_results = 100
         if self.request.get('maxresults'):
@@ -119,6 +122,8 @@ class SearchService(webapp.RequestHandler):
                 results = models.Job.bounding_box_fetch(
                     base_query,
                     bounds, max_results=max_results)
+            elif query_type == 'anywhere':
+                results = base_query.fetch(max_results)
 
             public_attrs = models.Job.public_attributes()
 

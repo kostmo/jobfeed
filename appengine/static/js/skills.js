@@ -65,9 +65,8 @@ function parseSkills(skill_keys_string, parent) {
   var keyword_list = skill_keys["keyword_list"];
   var description = skill_keys["description"];
 
-
-  // FIXME Crawl up the DOM tree until our parent is a <table>
 /*
+  // FIXME Crawl up the DOM tree until our parent is a <table>
   var realparent = parent;
   while (realparent && realparent.nodeName != "table") {
     realparent = realparent.parentNode;
