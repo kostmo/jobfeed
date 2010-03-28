@@ -3,5 +3,7 @@
 
 == useful links ==
   * [http://www.djangoproject.com/documentation/0.96/templates/#built-in-filter-reference Django Built-in filter reference]
-  * [http://code.google.com/p/python-public-suffix-list/ validating domain names]
-    * As [http://stackoverflow.com/questions/399932/can-i-improve-this-regex-check-for-valid-domain-names/401132#401132 advocated on Stack Overflow]
+  * Validating domain names
+    * [http://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names Restrictions on valid host names]
+    * [http://code.google.com/p/python-public-suffix-list/ validating domain names]
+      * As [http://stackoverflow.com/questions/399932/can-i-improve-this-regex-check-for-valid-domain-names/401132#401132 advocated on Stack Overflow]
