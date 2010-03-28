@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+'''A module for creating dummy data for the jobfeed search engine'''
+
 
 import feedparser
 import os
@@ -55,19 +57,15 @@ def generateFeed():
 
 	organization = doc.createElement("organization")
 	root.appendChild(organization)
+	organization.setAttribute("name", "Organization Name")
+	organization.setAttribute("domain", APP_DOMAIN)
 
-	name = doc.createElement("name")
-	name.appendChild( doc.createTextNode("Organization Name") )
-	organization.appendChild(name)
-
-	sites = doc.createElement("sites")
-	organization.appendChild(sites)
 
 	jobcounter = 0
 	for i, city_tuple in enumerate(most_populous_cities[:randint(10, 20)]):
 
 		site = doc.createElement("site")
-		sites.appendChild(site)
+		organization.appendChild(site)
 
 		name = doc.createElement("name")
 		name.appendChild( doc.createTextNode("Site Name") )

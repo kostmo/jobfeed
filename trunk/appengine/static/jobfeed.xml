@@ -15,10 +15,14 @@
 		    </optional>
 			<zeroOrMore>
 				<element name="organization">
-					<element name="name">
-						<text />
-					</element>
-					<element name="sites">
+					<attribute name="domain" />
+					<attribute name="name" />
+					    <optional>
+						<attribute name="ein">
+						    <data type="nonNegativeInteger" />
+						</attribute>
+					    </optional>
+
 						<zeroOrMore>
 							<element name="site">
 								<element name="name">
@@ -120,7 +124,6 @@
 								</element>
 							</element>
 						</zeroOrMore>
-					</element>
 				</element>
 			</zeroOrMore>
 		</element>

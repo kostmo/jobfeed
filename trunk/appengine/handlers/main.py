@@ -58,8 +58,6 @@ SKILL_CATEGORY_SUMMARIES_DICT = {}
 for i, shortname in enumerate(feedparser.SKILL_CATEGORIES):
     SKILL_CATEGORY_SHORT_TO_FULL_NAME[shortname] = feedparser.SKILL_CATEGORY_NAMES[i]
     SKILL_CATEGORY_SUMMARIES_DICT[shortname] = feedparser.SKILL_CATEGORY_SUMMARIES[i]
-    
-
 
 # =============================================================================
 def make_static_handler(template_file):
@@ -102,8 +100,7 @@ class SkillConversionHelper:
         pass
 
 # =============================================================================
-
-class UrlSubmission(webapp.RequestHandler):
+class FeedUrlSubmission(webapp.RequestHandler):
     '''This routine extracts job entities from the XML feed. There are entities
     that the job makes reference to; these are extracted into separate lists
     and committed to the datstore first.'''
@@ -771,7 +768,7 @@ def main():
             ('/', MainHandler),
             ('/speedtest', make_static_handler('../templates/speedtest.html')),
             ('/register', make_static_handler('../templates/registration.html')),
-            ('/urlsubmission', UrlSubmission),
+            ('/urlsubmission', FeedUrlSubmission),
             ('/feeds', FeedList),
             ('/domains', FeedList),	# TODO
             ('/skills', SkillsListHandler),

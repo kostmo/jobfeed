@@ -32,9 +32,20 @@ class SimpleCounter(db.Model):	# TODO Not used
     count = db.IntegerProperty(default=0)
 
 # =============================================================================
-# TODO Not used
 class Org(db.Model):	# An Organization or Company
     name = db.StringProperty()
+
+    # This property will be used to uniquely define an Organization across multiple Feeds
+    # An aggregated feed containing jobs for this organization will defer to any
+    # feed that originates from this domain.
+    # Job feeds that do not originate from this domain will be considered non-authoritative
+    # for this organization.
+    # Preferrably these are second-level domain names.
+    domain = db.StringProperty()
+
+    # Employer Identification Number: This a possible alternative for to uniquely defining the organization.
+    # Unfortuantely, EINs do not appear to be publically available information.
+    ein = db.IntegerProperty()
 
 # =============================================================================
 class Sub(db.Model):	# Subject matter keyword
@@ -127,6 +138,11 @@ class Job(GeoModel):	# Job Opening
     feed = db.ReferenceProperty(Feed, indexed=False)
 
     degree_level = db.ReferenceProperty(DegreeLevel)
+
+    # The Lat/Lng information is duplicated in the Site entity,
+    # but this duplication is necessary; the Job entity must posess every property
+    # that the user might want to filter on, including the geohash.
+    site = db.ReferenceProperty(Site)
 
     description = db.TextProperty()	# NOTE: This property is not indexed.	# TODO
     
