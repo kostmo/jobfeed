@@ -21,7 +21,7 @@ The following information should be associated with each job record:
 
 Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the company and/or department name.
 
-=== the <position> element ===
+=== the `<position>` element ===
 This represents an open "position" within the organization.
 
 Allowed attributes of the `<position>` element are:
