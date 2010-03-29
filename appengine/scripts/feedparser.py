@@ -79,7 +79,7 @@ for i, level_name in enumerate(degreee_levels):
 	DEGREE_LEVEL_YEARS_DICT[level_name.lower()] = degree_level_years[i]
 
 # =============================================================================
-class SkillExperience():
+class SkillExperience:
     def __init__(self, name, years, required):
         self.name = name
         self.years = years
@@ -93,24 +93,43 @@ class SkillExperience():
     def __repr__(self):
         return "SkillExperience" + str(self)
 
-    
 # =============================================================================
-def isHostnameValid(hostname): 
-    # Process each DNS label individually by excluding invalid characters and ensuring nonzero length
-    disallowed = re.compile("[^a-zA-Z\d\-]")
-    return all(map(lambda x: len(x) and not disallowed.search(x), hostname.split(".")))
+
+def isValidHostname(hostname):
+    # Process each DNS label individually by excluding invalid characters and ensuring proper length
+    if len(hostname) > 255:
+        return False
+    hostname = hostname.rstrip(".")
+    import re
+    disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
+    parts = [(label and len(label) <= 63 and \
+        not label.startswith("-") and not label.endswith("-") and \
+        not disallowed.search(label)) for label in hostname.split(".")]
+#   print parts
+    return all(parts)
 
 # =============================================================================
-class Organization():
+class Department:
+    def __init__(self, name):
+        self.name = name
+
+# =============================================================================
+class JobSite:
+    def __init__(self, name):
+        self.name = name
+        self.geo = None
+
+# =============================================================================
+class Organization:
     def __init__(self, name, domain, ein=None):
         self.name = name
-        if not isHostnameValid(hostname):
-            raise ValueError("Invalid hostname: " + hostname)
-        self.domain = domain	# Do some validation on this
+        if not isValidHostname(domain):
+            raise ValueError("Invalid hostname: " + domain)
+        self.domain = domain
         self.ein = ein
 
 # =============================================================================
-class ParsedJob():
+class ParsedJob:
     def __init__(self, handler):
         self.job_id = handler.jobid
         self.geo = handler.geo
@@ -161,7 +180,7 @@ class JobFeedHandler(ContentHandler):
 	self.geo_lookups = 0
 	self.geo = None
         self.job_ids = []   # For error checking only
-        self.joblist = []
+#        self.joblist = []
         self.sample = False # A feed-wide property
 	self.site_address = ""
 	self.in_address = False
@@ -201,7 +220,8 @@ class JobFeedHandler(ContentHandler):
             else:
                 raise MissingLocationException("Location must be specified preceeding job " + str(self.job_id))
 
-        self.joblist.append(ParsedJob(self))
+        self.org_hierarchy[self.current_organization][self.current_site][self.current_department].append( ParsedJob(self) )
+#        self.joblist.append(ParsedJob(self))
         self.resetJob()
 
     # -------------------------------------------------------------------------
@@ -254,16 +274,27 @@ class JobFeedHandler(ContentHandler):
         elif name == 'description':
             self.in_description = True
             self.job_description = ""
-	
+
+        elif name == 'department':
+            self.current_department = Department(attrs.get('name'))
+            # Initialize a list of jobs for this department.
+            self.org_hierarchy[self.current_organization][self.current_site][self.current_department] = []
+
+        elif name == 'site':
+            self.current_site = JobSite(attrs.get('name'))
+            # Initialize a dictionary of departments for this site.
+            # Each department will conatain a list of jobs.
+            self.org_hierarchy[self.current_organization][self.current_site] = {}
+
         elif name == 'organization':
-            organization = Organization(attrs.get('years', None), attrs.get('years', None))
+            self.current_organization = Organization(attrs.get('name'), attrs.get('domain'))
             ein = attrs.get('ein', None)
             if not (ein is None):
-                organization.ein = int(ein)
+                self.current_organization.ein = int(ein)
 
-            # Create a list of physical sites for this organization.
+            # Initialize a dictionary of physical sites for this organization.
             # Each site, in turn, will contain departments and jobs.
-            self.org_hierarchy[organization] = []
+            self.org_hierarchy[self.current_organization] = {}
 
         elif name == 'jobfeed':
             self.sample = attrs.get('sample') == "true"
@@ -317,12 +348,23 @@ def fetchJobList( filehandle ):
 
     parser.parse( filehandle )
 
-    print "Length before filtering:", len(curHandler.joblist)
-    return curHandler.joblist
+#    print "Length before filtering:", len(curHandler.joblist)
+    return curHandler.org_hierarchy
 
 # =============================================================================
-def dumpJobs(jobs):
+def flattenJobs(org_hierarchy):
+	jobs = []
+	for organization, sites_dict in org_hierarchy.items():
+		for site, departments_dict in sites_dict.items():
+			for department, joblist in departments_dict.items():
+				jobs.extend( joblist )
+				
+	return jobs
 
+# =============================================================================
+def dumpJobs(jobs_dict):
+
+    jobs = flattenJobs(jobs_dict)
     for job in jobs:
 
         print "\t", job.title
@@ -334,6 +376,8 @@ def dumpJobs(jobs):
             print "\t\t", job.degree_level, "in", job.degree_area
 	print "\t\t", "Keywords:", job.keywords
         print "\t\t", "Skills:", job.skills
+		
+	return jobs
 
 # =============================================================================
 if __name__ == '__main__':
@@ -345,6 +389,7 @@ if __name__ == '__main__':
 
 	from urllib import urlopen
 	jobs = fetchJobList( urlopen(base_url) )
-	print len(jobs), "jobs."
-	dumpJobs(jobs)
+	print jobs
+#	print len(jobs), "jobs."
+#	dumpJobs(jobs)
 

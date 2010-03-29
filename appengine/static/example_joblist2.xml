@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jobfeed vocabulary="1.0" sample="true">
 	<organization name="Example Corporation" domain="example.com">
-		<site>
-			<name>Topeka Office</name>
+		<site name="Topeka Office">
 			<location>
 				<geo lat="39.05" lng="-95.61" />
 			</location>
-			<departments>
-				<department>
-					<name>Mobile Development</name>
-					<openings>
+				<department name="Mobile Development">
 						<position id="15370" expires="2010-04-30" link="http://www.example.com/">
 							<title>iPhone Developer</title>
 							<subject_matter>
@@ -49,9 +45,7 @@
 								</skills>
 							</qualifications>
 						</position>
-					</openings>
 				</department>
-			</departments>
 		</site>
 	</organization>
 </jobfeed>
