@@ -105,8 +105,8 @@ class FeedUrlSubmission(webapp.RequestHandler):
     that the job makes reference to; these are extracted into separate lists
     and committed to the datstore first.'''
 
-    def convert_job(self, job):
-        x = models.Job(location=db.GeoPt(job.geo[0], job.geo[1]))
+    def convert_job(self, job, parent_entity):
+        x = models.Job(parent=parent_entity, location=db.GeoPt(job.geo[0], job.geo[1]))
         x.update_location()
 
         x.contract = job.contract
@@ -121,7 +121,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
         x.sample = job.sample
         return x
 
-
+    # --------------------------------------------------------------------------
     def post(self):
 
         link_url = self.request.get('submission_url')
@@ -149,7 +149,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
                 try:
 
 		    from urllib import urlopen
-                    joblist = feedparser.fetchJobList( urlopen(link_url) )
+                    org_hierarchy = feedparser.fetchJobList( urlopen(link_url) )
 
                     feed_url_object = models.Feed(link=db.Link(link_url))
                     feed_url_object.interval = crawl_interval_days
@@ -158,52 +158,80 @@ class FeedUrlSubmission(webapp.RequestHandler):
                     # We hold off on committing the feed url in case there are any problems    
                 
                     
-
+                    # These entities use parent/child key relationships.
+                    organization_entities = []
+                    site_entities = []
+                    department_entities = []
 
                     experience_bucketed_skills_entities = []
                     basic_skills_entities_by_category = {}
                     used_skill_names_by_category = {}
-                    for raw_job in joblist:
-                        
-                        # Convert simple Job() objects into model entities
-                        raw_job.converted_job_entity = self.convert_job(raw_job)
-                        
-                        if raw_job.degree_level:
-                            normalized_degree_level_name = raw_job.degree_level.lower()
-                            if normalized_degree_level_name in feedparser.DEGREE_LEVEL_YEARS_DICT:
-                                degree_level_years = feedparser.DEGREE_LEVEL_YEARS_DICT[raw_job.degree_level.lower()]
-                                degree_level_entity = models.DegreeLevel.get_or_insert(normalized_degree_level_name, name=raw_job.degree_level, rank=degree_level_years)
-                                # TODO: Deal with synonyms/alternate spellings
-                                raw_job.converted_job_entity.degree_level = degree_level_entity
-                        
-                        for skill_category, skill_list in raw_job.skills.items():
-                            # Retrieve the skillname dict for this category. This dict is persistent across jobs.
-                            skill_buckets_unique_by_name = used_skill_names_by_category.setdefault(skill_category, {})
-                            
-                            for raw_skill in skill_list:
-                                normalized_skillname = normalizeAndSanitizeKey(raw_skill.name)
-                                skill_experience_entities = None
-                                if normalized_skillname in skill_buckets_unique_by_name:
-                                    skill_experience_entities = skill_buckets_unique_by_name[normalized_skillname]
-                                else:
-                                    # This is the first time this skill name was encountered. Create and assign the model entity instance.
 
-                                    basic_skill_entity = SKILL_CATEGORY_ENTITY_MAPPING[skill_category](key_name=normalized_skillname, name=raw_skill.name, lower=raw_skill.name.lower())
+                    all_jobs = []
+                    for organization, sites_dict in org_hierarchy.items():
+                        
+                        organization_keyname = normalizeAndSanitizeKey(organization.domain)
+                        organization_entity = models.Org.get_or_insert( organization_keyname )
+                        
+                        for site, departments_dict in sites_dict.items():
+                            
+                            site_keyname = normalizeAndSanitizeKey(site.name)
+                            site_entity_key = db.Key.from_path('Org', organization_keyname, 'Site', site_keyname)
+                            site_entity = models.Site.get(site_entity_key)
+                            if not site_entity:
+                                site_entity = models.Site(parent=organization_entity, key_name=site_keyname)
+                                site_entity.name = site.name
+                            
+                            
+                            for department, joblist in departments_dict.items():
+                                
+                                department_keyname = normalizeAndSanitizeKey(site.name)
+                                department_entity_key = db.Key.from_path('Org', organization_keyname, 'Site', site_keyname, 'Dept', department_keyname)
+                                department_entity = models.Dept.get(department_entity_key)
+                                if not department_entity:
+                                    department_entity = models.Dept(parent=site_entity, key_name=department_keyname)
+                                    department_entity.name = department.name
+                                
+                                for raw_job in joblist:
+                                    all_jobs.append( raw_job )
                                     
-                                    # queue to be "put()"
-                                    basic_skills_entities_by_category.setdefault(skill_category, []).append( basic_skill_entity )
+                                    # Convert simple Job() objects into model entities
+                                    raw_job.converted_job_entity = self.convert_job(raw_job, department_entity)
                                     
-#                                    skill_experience_entities = [models.Exp(skill=basic_skill_entity, years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
-                                    skill_experience_entities = [models.Exp(parent=basic_skill_entity, key_name=str(years), years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
-                                    experience_bucketed_skills_entities.extend( skill_experience_entities )  # queue to be "put()"
+                                    if raw_job.degree_level:
+                                        normalized_degree_level_name = raw_job.degree_level.lower()
+                                        if normalized_degree_level_name in feedparser.DEGREE_LEVEL_YEARS_DICT:
+                                            degree_level_years = feedparser.DEGREE_LEVEL_YEARS_DICT[raw_job.degree_level.lower()]
+                                            degree_level_entity = models.DegreeLevel.get_or_insert(normalized_degree_level_name, name=raw_job.degree_level, rank=degree_level_years)
+                                            # TODO: Deal with synonyms/alternate spellings
+                                            raw_job.converted_job_entity.degree_level = degree_level_entity
                                     
-                                    skill_buckets_unique_by_name[normalized_skillname] = skill_experience_entities
-                                    
-                                # Whether or not the current skill's name has already been encountered, we
-                                # must link the cannonical bucket entity reference to the raw job's skill list.
-#                                raw_skill.bucket_entities = getHighestBucketWithAtMost(skill_experience_entities, raw_skill.years)
-                                raw_skill.bucket_entities = getBucketsAtOrAbove(skill_experience_entities, raw_skill.years)
-                                    
+                                    for skill_category, skill_list in raw_job.skills.items():
+                                        # Retrieve the skillname dict for this category. This dict is persistent across jobs.
+                                        skill_buckets_unique_by_name = used_skill_names_by_category.setdefault(skill_category, {})
+                                        
+                                        for raw_skill in skill_list:
+                                            normalized_skillname = normalizeAndSanitizeKey(raw_skill.name)
+                                            skill_experience_entities = None
+                                            if normalized_skillname in skill_buckets_unique_by_name:
+                                                skill_experience_entities = skill_buckets_unique_by_name[normalized_skillname]
+                                            else:
+                                                # This is the first time this skill name was encountered. Create and assign the model entity instance.
+            
+                                                basic_skill_entity = SKILL_CATEGORY_ENTITY_MAPPING[skill_category](key_name=normalized_skillname, name=raw_skill.name, lower=raw_skill.name.lower())
+                                                
+                                                # queue to be "put()"
+                                                basic_skills_entities_by_category.setdefault(skill_category, []).append( basic_skill_entity )
+                                                
+                                                skill_experience_entities = [models.Exp(parent=basic_skill_entity, key_name=str(years), years=years) for years in models.EXPERIENCE_YEARS_BUCKETS]
+                                                experience_bucketed_skills_entities.extend( skill_experience_entities )  # queue to be "put()"
+                                                
+                                                skill_buckets_unique_by_name[normalized_skillname] = skill_experience_entities
+                                                
+                                            # Whether or not the current skill's name has already been encountered, we
+                                            # must link the cannonical bucket entity reference to the raw job's skill list.
+                                            raw_skill.bucket_entities = getBucketsAtOrAbove(skill_experience_entities, raw_skill.years)
+                                                
                     # put() each type into the datastore in separate groups
                     # Here it's okay if the entity already exists; it will just get overwritten by sharing the same key_name.
                     for skill_category_name, skill_entity_list in basic_skills_entities_by_category.items():
@@ -217,7 +245,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
 
                     # Consolidate the "keywords" as new entities.
                     unified_keyword_dict = {}
-                    for raw_job in joblist:
+                    for raw_job in all_jobs:
                         raw_job.unified_keywords = []
                         for keyword in raw_job.keywords:
                             normalized_keyword = normalizeAndSanitizeKey(keyword)
@@ -226,12 +254,12 @@ class FeedUrlSubmission(webapp.RequestHandler):
 
                     db.put( unified_keyword_dict.values() )
 
-                    for raw_job in joblist:
+                    for raw_job in all_jobs:
                         raw_job.converted_job_entity.kw = [u.key() for u in set(raw_job.unified_keywords)]
 
 
                     # The final thing to do before put()-ing the jobs into the datastore is adding the skill buckets to the correct list.
-                    for raw_job in joblist:
+                    for raw_job in all_jobs:
                         for skill_category, skill_list in raw_job.skills.items():
                             for raw_skill in skill_list:
                                 
@@ -247,7 +275,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
                     # were any problems with data in the feed
                     feed_url_object.put()
                     job_entities = []
-                    for raw_job in joblist:
+                    for raw_job in all_jobs:
                         raw_job.converted_job_entity.feed = feed_url_object
                         job_entities.append( raw_job.converted_job_entity )
 
@@ -274,7 +302,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
                 'current_user': users.get_current_user(),
                 'submission_result': submission_result,
                 'link_hostname': link_hostname,
-                'job_count': len(joblist),
+                'job_count': len(all_jobs),
                 'link_url': link_url
             }
         ))

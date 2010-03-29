@@ -25,17 +25,12 @@
 
 						<zeroOrMore>
 							<element name="site">
-								<element name="name">
-									<text />
-								</element>
+					<attribute name="name" />
                                 <ref name="location"/>
-								<element name="departments">
 									<zeroOrMore>
 										<element name="department">
-											<element name="name">
-												<text />
-											</element>
-											<element name="openings">
+					<attribute name="name" />
+
 												<zeroOrMore>
 													<element name="position">
 														<attribute name="id">
@@ -118,10 +113,8 @@
 														</interleave>
 													</element>
 												</zeroOrMore>
-											</element>
 										</element>
 									</zeroOrMore>
-								</element>
 							</element>
 						</zeroOrMore>
 				</element>

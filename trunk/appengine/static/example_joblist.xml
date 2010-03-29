@@ -7,10 +7,7 @@
 				<geo lat="45.52" lng="-122.68" />
 				<address></address>
 			</location>
-			<departments>
-				<department>
-					<name>Research and Development</name>
-					<openings>
+				<department name="Research and Development">
 						<position id="15366" expires="2010-03-13" link="http://www.example.com/">
 							<title>Sr. Electrical Engineer</title>
 							<subject_matter>
@@ -49,20 +46,16 @@
 								</skills>
 							</qualifications>
 						</position>
-					</openings>
 				</department>
-			</departments>
+
 		</site>
-		<site>
-			<name>Topeka Satellite Office</name>
+		<site name="Topeka Satellite Office">
 			<location>
 				<geo lat="39.05" lng="-95.6" />
 				<address></address>
 			</location>
-			<departments>
-				<department>
-					<name>Manufacturing</name>
-					<openings>
+				<department name="Manufacturing">
+
 						<position id="15370" expires="2010-04-19" link="http://www.example.com/">
 							<title>Quality Control Engineer</title>
 							<subject_matter>
@@ -102,11 +95,9 @@
 								</skills>
 							</qualifications>
 						</position>
-					</openings>
 				</department>
 				<department>
 					<name>Customer Relations</name>
-					<openings>
 						<position id="15369" expires="2010-03-13" contract="true" link="http://www.example.com/">
 							<title>Database Maintainer</title>
 							<qualifications>
@@ -122,13 +113,11 @@
 								</skills>
 							</qualifications>
 						</position>
-					</openings>
 				</department>
 				<department>
 					<name>Marketing</name>
 					<openings />
 				</department>
-			</departments>
 		</site>
 
 	</organization>

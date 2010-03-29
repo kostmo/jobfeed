@@ -7,7 +7,7 @@ import os
 
 APP_DOMAIN = "jobcrawlr.appspot.com"
 if 'SERVER_SOFTWARE' in os.environ and 'Development' in os.environ['SERVER_SOFTWARE']:
-	APP_DOMAIN = "localhost:8080"
+	APP_DOMAIN = "localhost"
 
 
 # Source: http://en.wikipedia.org/wiki/List_of_United_States_cities_by_population
@@ -66,10 +66,7 @@ def generateFeed():
 
 		site = doc.createElement("site")
 		organization.appendChild(site)
-
-		name = doc.createElement("name")
-		name.appendChild( doc.createTextNode("Site Name") )
-		site.appendChild(name)
+		site.setAttribute("name", "Site Name")
 
 		location = doc.createElement("location")
 		site.appendChild(location)
@@ -93,26 +90,17 @@ def generateFeed():
 			address.appendChild( doc.createTextNode( cityname ) )
 			location.appendChild(address)
 
-		departments = doc.createElement("departments")
-		site.appendChild(departments)
 
 		for department_index in range(randint(1, 3)):
 
 			department = doc.createElement("department")
-			departments.appendChild(department)
-
-			name = doc.createElement("name")
-			name.appendChild( doc.createTextNode("Department Name") )
-			department.appendChild(name)
-
-
-			openings = doc.createElement("openings")
-			department.appendChild(openings)
+			site.appendChild(department)
+			department.setAttribute("name", "Department Name")
 
 			for job_index in range(randint(2, 8)):
 
 				position = doc.createElement("position")
-				openings.appendChild(position)
+				department.appendChild(position)
 				position.setAttribute("id", str(jobcounter))
 				jobcounter += 1
 
@@ -216,6 +204,6 @@ if __name__ == '__main__':
 	jobfeed_filehandle.seek(0)
 	from feedparser import fetchJobList, dumpJobs
 	jobs = fetchJobList( jobfeed_filehandle )
-	print len(jobs), "jobs."
-	dumpJobs(jobs)
+	flattened_joblist = dumpJobs(jobs)
+	print len(flattened_joblist), "jobs."
 

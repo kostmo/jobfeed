@@ -27,11 +27,11 @@ EXPERIENCE_YEARS_BUCKETS = [0, 2, 4, 7, 10]
 
 
 # XXX The most commonly used model names are kept short to save storage space in App Engine
-# =============================================================================
+# ==============================================================================
 class SimpleCounter(db.Model):	# TODO Not used
     count = db.IntegerProperty(default=0)
 
-# =============================================================================
+# ==============================================================================
 class Org(db.Model):	# An Organization or Company
     name = db.StringProperty()
 
@@ -47,62 +47,64 @@ class Org(db.Model):	# An Organization or Company
     # Unfortuantely, EINs do not appear to be publically available information.
     ein = db.IntegerProperty()
 
-# =============================================================================
+# ==============================================================================
+class Dept(db.Model): # A department at a Site in an Organization
+    name = db.StringProperty()
+
+# ==============================================================================
+class Site(db.Model):	# A physical job site
+    name = db.StringProperty()
+    geo = db.GeoPtProperty()
+    
+# ==============================================================================
 class Sub(db.Model):	# Subject matter keyword
     # use the "key_name" kwarg for the canonical (lowercase) name,
     # just like Skill.
     name = db.StringProperty()
     lower = db.StringProperty()    # Lowercase version
 
-# =============================================================================
-# TODO Not used
-class Site(db.Model):	# A physical job site
-    name = db.StringProperty()
-    geo = db.GeoPtProperty()
-    org = db.ReferenceProperty(Org, required=True)
-
-# =============================================================================
+# ==============================================================================
 # TODO Not used
 class DegreeArea(db.Model):	# Area of concentration
     name = db.StringProperty()
 
-# =============================================================================
+# ==============================================================================
 class DegreeLevel(db.Model):
     name = db.StringProperty()
     rank = db.IntegerProperty(default=0)
 
-# =============================================================================
+# ==============================================================================
 class Skill(db.Model):	# A named skill.
     name = db.StringProperty(required=True)
     # We need this property for prefix matching, even though it is identical to the "key_name" kwarg:
     lower = db.StringProperty(required=True)    # Lowercase version
 
-# =============================================================================
+# ==============================================================================
 class Api(Skill):	# "Api Skill": A piece of equipment or physical tool
     pass
 
-# =============================================================================
+# ==============================================================================
 class Equip(Skill):	# "Equipment Skill": A piece of equipment or physical tool
     pass
 
-# =============================================================================
+# ==============================================================================
 class Duty(Skill):	# procedure/task/duty/responsibility, or other common activity
     pass
 
-# =============================================================================
+# ==============================================================================
 class App(Skill):	# software application skill
     pass
 
-# =============================================================================
+# ==============================================================================
 class Lang(Skill):	# Programming Language Skill
     pass
 
-# =============================================================================
+# ==============================================================================
 class Exp(db.Model):	# Skill Experience
 #    skill = db.ReferenceProperty(Skill, required=True)    # We can set the parent instead
     years = db.IntegerProperty(required=True, default=-1)   # XXX Duplicates "key_name"
     
-# =============================================================================
+# ==============================================================================
 class Feed(db.Model):	# Job Feed URL
     link = db.LinkProperty(required=True)
     contact =  db.EmailProperty(indexed=False)
@@ -111,12 +113,12 @@ class Feed(db.Model):	# Job Feed URL
     interval = db.IntegerProperty(indexed=False) # in days
     crawlcount = db.IntegerProperty(default=0, indexed=False)
 
-# =============================================================================
+# ==============================================================================
 class JobFeedSpamReport(db.Model):
     reporter = db.UserProperty(auto_current_user_add=True)
     feed = db.ReferenceProperty(Feed, required=True)
 
-# =============================================================================
+# ==============================================================================
 class SavedSearch(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
     title = db.StringProperty()
@@ -126,7 +128,7 @@ class SavedSearch(db.Model):
     kw = db.ListProperty(db.Key, indexed=False)  # Keys of "Sub" (subject) type representing "keywords"
     saved = db.DateTimeProperty(required=True, auto_now=True)
 
-# =============================================================================
+# ==============================================================================
 class Job(GeoModel):	# Job Opening
     """A location-aware model for Job postings."""
 
