@@ -1,0 +1,5 @@
+#summary Completely wipe the datastore
+
+Sometimes when developing a new app, you want to start fresh with the datastore, wiping everything. Unfortunately, this can be a cumbersome process.
+
+*Nuke* is a "plugin" to the admin panel that lets you delete all entities of a specific kind, or all entities of all kinds with a button click.
