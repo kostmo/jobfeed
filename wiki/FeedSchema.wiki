@@ -21,16 +21,16 @@ The following information should be associated with each job record:
 
 Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the company and/or department name.
 
-=== the `<position>` element ===
+=== the `<job>` element ===
 This represents an open "position" within the organization.
 
-Allowed attributes of the `<position>` element are:
+Allowed attributes of the `<job>` element are:
 || *attribute name* || *required?* || *meaning* || *example values* ||
 || `id` || Y || a unique numeric ID for this position within the organization || 12548 ||
 || `expires` || Y || expiration date of this job opening in ISO 8601 format || 2010-03-15 ||
 || `link` || Y || a "permalink" to the job posting hosted on the corporate website || `http://www.example.com/careers/job?id=12548` ||
 
-Allowed immediate children of the `<position>` element are:
+Allowed immediate children of the `<job>` element are:
 || *tag name* || *required?* || *meaning* || *example values* ||
 || `<title>` || Y || title of the open position || Test Engineer ||
 || `<description>` || N || short prose description of the job || Applicant should be familiar with six-sigma and... Responsibilities include... ||
