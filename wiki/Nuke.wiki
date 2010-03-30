@@ -4,7 +4,7 @@ Sometimes when developing a new App Engine, you want to start fresh with the dat
 
 *Nuke* is a "add-in" to the admin panel that lets you delete all entities of a _specific kind_, or all entities of _all kinds_ with a button click.
 
-<img src="http://jobfeed.googlecode.com/svn/screenshots/nuke.png" style="float: right"/>
+http://jobfeed.googlecode.com/svn/screenshots/nuke_torn.png
 
   # Install [http://github.com/arachnid/bulkupdate bulkupdate]
   # Install nuke
