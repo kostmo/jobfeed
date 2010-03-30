@@ -25,7 +25,6 @@ from geo.geomodel import GeoModel
 # and all of the buckets will then be added to the job record.
 EXPERIENCE_YEARS_BUCKETS = [0, 2, 4, 7, 10]
 
-
 # XXX The most commonly used model names are kept short to save storage space in App Engine
 # ==============================================================================
 class SimpleCounter(db.Model):	# TODO Not used
@@ -34,6 +33,7 @@ class SimpleCounter(db.Model):	# TODO Not used
 # ==============================================================================
 class Org(db.Model):	# An Organization or Company
     name = db.StringProperty()
+    lower = db.StringProperty()    # Lowercase version
 
     # This property will be used to uniquely define an Organization across multiple Feeds
     # An aggregated feed containing jobs for this organization will defer to any
@@ -54,6 +54,7 @@ class Dept(db.Model): # A department at a Site in an Organization
 # ==============================================================================
 class Site(db.Model):	# A physical job site
     name = db.StringProperty()
+    address = db.TextProperty()
     geo = db.GeoPtProperty()
     
 # ==============================================================================
@@ -69,9 +70,21 @@ class DegreeArea(db.Model):	# Area of concentration
     name = db.StringProperty()
 
 # ==============================================================================
-class DegreeLevel(db.Model):
+class Level(db.Model):
     name = db.StringProperty()
     rank = db.IntegerProperty(default=0)
+
+# ==============================================================================
+class SeniorityLevel(Level):  # TODO
+    pass
+
+# ==============================================================================
+class PermanenceLevel(Level):  # TODO
+    pass
+
+# ==============================================================================
+class DegreeLevel(Level):
+    pass
 
 # ==============================================================================
 class Skill(db.Model):	# A named skill.
@@ -140,6 +153,8 @@ class Job(GeoModel):	# Job Opening
     feed = db.ReferenceProperty(Feed, indexed=False)
 
     degree_level = db.ReferenceProperty(DegreeLevel)
+    seniority_level = db.ReferenceProperty(SeniorityLevel)
+    permanence_level = db.ReferenceProperty(PermanenceLevel)
 
     # The Lat/Lng information is duplicated in the Site entity,
     # but this duplication is necessary; the Job entity must posess every property
@@ -192,3 +207,27 @@ class Job(GeoModel):	# Job Opening
         self.location.lon = lon
 
     longitude = property(_get_longitude, _set_longitude)
+
+
+# ==============================================================================
+MODEL_LIST = [
+    SimpleCounter,
+    Org,
+    Dept,
+    Site,
+    Sub,
+    DegreeArea,
+    SeniorityLevel,
+    PermanenceLevel,
+    DegreeLevel,
+    Api,
+    Equip,
+    Duty,
+    App,
+    Lang,
+    Exp,
+    Feed,
+    JobFeedSpamReport,
+    SavedSearch,
+    Job
+]

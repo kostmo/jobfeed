@@ -9,6 +9,8 @@
 
 <table class="job_list_item_info">
 <!--<tr><th>Job ID:</th><td><%= result.job_id %></td></tr>-->
+
+<tr><th>Employer:</th><td>TODO<sup><a href="/orgjobs?job_key=<%= result.job_key %>">?</a></sup></td></tr>
 <tr><th>Expires:</th><td><%= (new Date(result.expiration)).format("m/dd/yyyy") %></td></tr>
 <tr><th>Keywords:</th><td><span class="keyword_container"></span></td></tr>
 <tr><th>Description:</th><td><span class="description_container"></span></td></tr>

@@ -171,7 +171,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
                     for organization, sites_dict in org_hierarchy.items():
                         
                         organization_keyname = normalizeAndSanitizeKey(organization.domain)
-                        organization_entity = models.Org.get_or_insert( organization_keyname )
+                        organization_entity = models.Org.get_or_insert( organization_keyname, name=organization.name, lower=organization.name.lower(), domain=organization.domain)
                         
                         for site, departments_dict in sites_dict.items():
                             
@@ -181,16 +181,20 @@ class FeedUrlSubmission(webapp.RequestHandler):
                             if not site_entity:
                                 site_entity = models.Site(parent=organization_entity, key_name=site_keyname)
                                 site_entity.name = site.name
+                                site_entity.address = site.address
+                                site_entity.geo = db.GeoPt(site.geo[0], site.geo[1])
+                                db.put(site_entity)
                             
                             
                             for department, joblist in departments_dict.items():
                                 
-                                department_keyname = normalizeAndSanitizeKey(site.name)
+                                department_keyname = normalizeAndSanitizeKey(department.name)
                                 department_entity_key = db.Key.from_path('Org', organization_keyname, 'Site', site_keyname, 'Dept', department_keyname)
                                 department_entity = models.Dept.get(department_entity_key)
                                 if not department_entity:
                                     department_entity = models.Dept(parent=site_entity, key_name=department_keyname)
                                     department_entity.name = department.name
+                                    db.put(department_entity)
                                 
                                 for raw_job in joblist:
                                     all_jobs.append( raw_job )
@@ -384,6 +388,77 @@ class KeywordsListHandler(webapp.RequestHandler):
 				}
 			)
 		)
+        
+# =============================================================================
+class OrganizationListHandler(webapp.RequestHandler):
+
+	def get(self):
+
+		organization_list = []
+		last_in_pagination = self.request.get('last')
+		next_page = ""
+
+		q = models.Org.all()
+		if last_in_pagination:
+			q.filter("lower >", last_in_pagination)
+		q.order("lower")
+		organization_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+
+		if len(organization_list) > MAX_SKILLS_PER_PAGE:
+			next_page = "<a href='" + self.request.path + "?last=" + organization_list[MAX_SKILLS_PER_PAGE].lower + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " >></a>"
+
+		template_file = '../templates/organizationlist.html'
+		self.response.out.write(template.render(
+			os.path.join(os.path.dirname(__file__), template_file),
+				{
+					'current_user': users.get_current_user(),
+					'organization_list': organization_list[:MAX_SKILLS_PER_PAGE],
+					'next_page': next_page
+				}
+			)
+		)
+
+# =============================================================================
+class OrgJobsListHandler(webapp.RequestHandler):
+
+    def get(self):
+        org_key = None
+        org_key_string = self.request.get('org_key')
+        if org_key_string:
+            org_key = db.Key(org_key_string)
+            logging.info("I was passed the org key!")
+        if not org_key:
+            job_key_string = self.request.get('job_key')
+            if job_key_string:
+#                org_key = db.Key(job_key_string).parent().parent().parent()    # Go up through department, site, organization.
+                org_key = db.Key(job_key_string)
+                while org_key.kind() != "Org":  # Should iterate 3 times
+                    org_key = org_key.parent()
+
+        jobs_list = []
+        last_in_pagination = self.request.get('last')
+        next_page = ""
+
+        q = models.Job.all()
+        q.order("__key__")
+        if last_in_pagination:
+            q.filter("__key__ >", db.Key(last_in_pagination))
+        q.ancestor(org_key)
+        jobs_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+
+        if len(jobs_list) > MAX_SKILLS_PER_PAGE:
+            next_page = "<a href='" + self.request.path + "?org_key=" + str(org_key) + "&last=" + str(jobs_list[MAX_SKILLS_PER_PAGE].key()) + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " &gt;&gt;</a>"
+
+        template_file = '../templates/orgjobslist.html'
+        self.response.out.write(template.render(
+            os.path.join(os.path.dirname(__file__), template_file),
+                {
+                    'current_user': users.get_current_user(),
+                    'jobs_list': jobs_list[:MAX_SKILLS_PER_PAGE],
+                    'next_page': next_page
+                }
+            )
+        )
 
 # =============================================================================
 class PostingExampleHandler(webapp.RequestHandler):
@@ -733,14 +808,29 @@ class KeywordAutoCompleteHandler(webapp.RequestHandler):
     def get(self):
 
         prefix = self.request.get('query')
-	query_string = prefix.lower()
+        query_string = prefix.lower()
 
-	q = models.Sub.all()
-	q.filter("lower >=", query_string)
-	q.filter("lower <", query_string + u"\ufffd")
+        q = models.Sub.all()
+        q.filter("lower >=", query_string)
+        q.filter("lower <", query_string + u"\ufffd")
         
-	for result in q.fetch(20):
-		self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
+        for result in q.fetch(20):
+            self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
+
+# =============================================================================
+class OrganizationAutoCompleteHandler(webapp.RequestHandler):
+    
+    def get(self):
+
+        prefix = self.request.get('query')
+        query_string = prefix.lower()
+
+        q = models.Org.all()
+        q.filter("lower >=", query_string)
+        q.filter("lower <", query_string + u"\ufffd")
+        
+        for result in q.fetch(20):
+            self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
 
 # =============================================================================
 class RandomizedFeedHandler(webapp.RequestHandler):
@@ -768,6 +858,14 @@ class MainHandler(webapp.RequestHandler):
         q.order("rank")
         degree_levels = q.fetch(10)
 
+        q = models.SeniorityLevel.all()
+        q.order("rank")
+        seniority_levels = q.fetch(10)        
+        
+        q = models.PermanenceLevel.all()
+        q.order("rank")
+        permanence_levels = q.fetch(10)   
+
         class SkillType:
             pass
 
@@ -786,7 +884,9 @@ class MainHandler(webapp.RequestHandler):
             	'years_bins': models.EXPERIENCE_YEARS_BUCKETS,
                 'skill_types': skills_types,
                 'skill_type_summaries': feedparser.SKILL_CATEGORY_SUMMARIES,
-		'degree_levels': degree_levels
+                'degree_levels': degree_levels,
+                'seniority_levels': seniority_levels,
+                'permanence_levels': permanence_levels,
             }
         ))
 
@@ -798,8 +898,9 @@ def main():
             ('/register', make_static_handler('../templates/registration.html')),
             ('/urlsubmission', FeedUrlSubmission),
             ('/feeds', FeedList),
-            ('/domains', FeedList),	# TODO
+            ('/organizations', OrganizationListHandler),	# TODO
             ('/skills', SkillsListHandler),
+            ('/orgjobs', OrgJobsListHandler),
             ('/keywords', KeywordsListHandler),
             ('/skillstest', SkillsTestHandler),
             ('/profile', SearchProfileHandler),
@@ -815,6 +916,7 @@ def main():
 
             ('/skills_autocomplete', SkillsAutoCompleteHandler),
             ('/keyword_autocomplete', KeywordAutoCompleteHandler),
+            ('/organization_autocomplete', OrganizationAutoCompleteHandler),
         ],
         debug=('Development' in os.environ['SERVER_SOFTWARE']))
     wsgiref.handlers.CGIHandler().run(application)
