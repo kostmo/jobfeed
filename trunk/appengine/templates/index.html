@@ -45,9 +45,9 @@
   var skill_type_summaries = {{skill_type_summaries}}
 
   var active_skill_objects = [];
-
   var active_keyword_objects = [];
 
+  var active_organization_objects = []; // FIXME
 
 // =============================================================================
 function SkillObject(label, key) {
@@ -57,6 +57,11 @@ function SkillObject(label, key) {
   }
 
   function KeywordObject(label, key) {
+    this.label = label;
+    this.key = key;
+  }
+
+  function OrganizationObject(label, key) {
     this.label = label;
     this.key = key;
   }
@@ -95,8 +100,10 @@ function init() {
 	}
 
 
-	var visibility_checkbox_ids = ["checkbox_skill_filter", "checkbox_keyword_filter", "checkbox_education_filter"];
-	var keyword_list_boxes = ["searchable_skills_list", "searchable_keywords_list", "education_dropdown_component"];
+
+
+	var visibility_checkbox_ids = ["checkbox_skill_filter", "checkbox_keyword_filter", "checkbox_organization_filter", "checkbox_education_filter", "checkbox_permanence_filter", "checkbox_seniority_filter"];
+	var keyword_list_boxes = ["searchable_skills_list", "searchable_keywords_list", "searchable_organization_list", "education_dropdown_component", "permanence_dropdown_component", "seniority_dropdown_component"];
 	for (var i=0; i<visibility_checkbox_ids.length; i++) {
 		var checkbox = document.getElementById( visibility_checkbox_ids[i] );
 		criteriaListVisibility(checkbox, keyword_list_boxes[i] );
@@ -222,6 +229,13 @@ function addActiveKeywordObject(last_selected_keyword_object) {
 	document.getElementById("keywordInput").value = "";
 }
 
+
+// =============================================================================
+function addActiveOrganizationObject(last_selected_keyword_object) {
+
+	alert("FIXME");
+}
+
 // =============================================================================
 function arrayHasItemWithKey(array, key) {
 	for (var i=0; i<array.length; i++)
@@ -283,7 +297,6 @@ function presetAutoComplete(input_element_name, container_element_name, datasour
                 if (!arrayHasItemWithKey(item_list, last_selected_skill_object.key)) insertion_function(last_selected_skill_object);
 	};
 	oAC.itemSelectEvent.subscribe(itemSelectHandler);
-
 
 
 	return oAC;
@@ -421,7 +434,6 @@ BasicRemote = function() {
 <table id="pending_skills_list" class="skills_table" style="margin-top: 5px" width="100%"></table>
 </div>
 
-
 <! ============================= KEYWORDS =====================================>
 
 <span style="display: block">
@@ -454,6 +466,35 @@ BasicRemote2 = function() {
 Jobs that list <strong>any</strong> of the chosen skills/keywords will be matched.
 </p>
 
+
+<! ============================= ORGANIZATION =================================>
+
+<span style="display: block">
+<input name="enable_organization_filter" type="checkbox" id="checkbox_organization_filter" onchange="criteriaListVisibility(this, 'searchable_organization_list')" /><label for="checkbox_organization_filter"> Filter by organization</label><br/>
+</span>
+<div class="search_criteria_component" id="searchable_organization_list">
+<label for="organizationInput">Choose organization:</label><sup><a href="javascript:window.location='/organizations'">?</a></sup>
+ <span class="tooltip"><input id="organizationInput" type="text" class="autocomplete_input"><span class="tooltip_body">Start typing an organization here.</span></input></span>
+ <div id="organizationSuggestionContainer"></div>
+
+
+<script type="text/javascript">
+BasicRemote3 = function() {
+    var oDS = presetDataSource("/organization_autocomplete");
+    var oAC = presetAutoComplete("organizationInput", "organizationSuggestionContainer", oDS, OrganizationObject, addActiveOrganizationObject, active_organization_objects);  // FIXME
+
+    return {
+        oDS: oDS,
+        oAC: oAC
+    };
+}();
+
+</script>
+
+
+<table id="pending_keywords_list" class="skills_table" style="margin-top: 5px" width="100%"></table>
+</div>
+
 <! ============================= EDUCATION =====================================>
 
 <span style="display: block">
@@ -469,6 +510,39 @@ Jobs that list <strong>any</strong> of the chosen skills/keywords will be matche
 </select>
 
 </div>
+
+<! ============================= SENIORITY =====================================>
+
+<span style="display: block">
+<input name="enable_seniority_filter" type="checkbox" id="checkbox_seniority_filter" onchange="criteriaListVisibility(this, 'seniority_dropdown_component')" /><label for="checkbox_seniority_filter"> Filter by seniority</label>
+</span>
+<div class="search_criteria_component" id="seniority_dropdown_component">
+
+<label for="seniority_dropdown">Seniority level:</label>
+<select name="seniority_level" id="seniority_dropdown">
+{% for seniority_level in seniority_levels %}
+<option value="{{seniority_level.key}}">{{seniority_level.name}}</option>
+{% endfor %}
+</select>
+
+</div>
+
+<! ============================= PERMANENCE =====================================>
+
+<span style="display: block">
+<input name="enable_permanence_filter" type="checkbox" id="checkbox_permanence_filter" onchange="criteriaListVisibility(this, 'permanence_dropdown_component')" /><label for="checkbox_permanence_filter"> Filter by employment term</label>
+</span>
+<div class="search_criteria_component" id="permanence_dropdown_component">
+
+<label for="permanence_dropdown">Employment term/duration:</label>
+<select name="permanence_level" id="permanence_dropdown">
+{% for permanence_level in permanence_levels %}
+<option value="{{permanence_level.key}}">{{permanence_level.name}}</option>
+{% endfor %}
+</select>
+
+</div>
+
 
 <! ============================= BEGIN MAIN ===================================>
 </div>
@@ -515,20 +589,25 @@ Jobs that list <strong>any</strong> of the chosen skills/keywords will be matche
           
       <p class="copyright_notice">Copyright &copy; 2010, Karl Ostmo</p>
     
+    <div class="badge">
+      <a href="http://code.google.com/appengine/"><img
+       src="http://code.google.com/appengine/images/appengine-noborder-120x30.gif"
+       alt="Powered by Google App Engine"></a>
+    </div>
     
     
     
     <script type="text/html" id="tpl_result_info_window">
       <div class="result-info-window">
 
-        {% include "skills_bubble.html" %}
+        {% include "microtemplates/skills_bubble.html" %}
 
       </div>
     </script>
     
     <script type="text/html" id="tpl_result_list_item">
     
-       {% include "skills_listview_item.html" %}
+       {% include "microtemplates/skills_listview_item.html" %}
     </script>
   </body>
 </html>

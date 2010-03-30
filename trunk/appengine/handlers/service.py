@@ -1,6 +1,6 @@
 #!/usr/bin/python2.5
 #
-# Copyright 2009 Roman Nurik
+# Copyright 2010 Karl Ostmo
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 """Service /s/* request handlers."""
 
-__author__ = 'api.roman.public@gmail.com (Roman Nurik)'
+__author__ = 'kostmo@gmail.com (Karl Ostmo)'
 
 import os
 import sys
@@ -132,6 +132,10 @@ class SearchService(webapp.RequestHandler):
                 _merge_dicts({
                   'lat': result.location.lat,
                   'lng': result.location.lon,
+                    # The immediate parent is a "Dept" (department) entity, and
+                    # its parent is a "Site" entity. They key can be used to
+                    # merge results clientside.
+                  'site_key': str(result.key().parent().parent()),
                     # Although json usually automatically converts the "datetime" object
                     # to the correct JavaScript representation, it must not recognize
                     # App Engine's DateTimeProperty() as a wrapped instance of "datetime",

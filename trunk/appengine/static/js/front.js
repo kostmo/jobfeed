@@ -54,6 +54,8 @@ var g_listView = false; // Whether or not we're in list view.
  *   {Number} lng
  *   {String} name
  *   {String} icon
+ *   {String} site_key
+ *   {String} job_key
  *   {google.maps.Marker} marker
  *   {Number} [distance] The distance in meters from the search center.
  *   {jQuery object} listItem The list view item for the result.
@@ -224,7 +226,7 @@ function enableMapAutoScroll(enable) {
 
 
 
-function assignOptionsFromUI(commonOptions) {
+function assignSearchOptionsFromUI(commonOptions) {
 
 	// XXX The user may have changed the options since last saving the profile.  Therefore,
 	// the "saved_searchable_experience_keys" may be out of date.  To get around this, we
@@ -254,7 +256,7 @@ function locationAgnosticSearch() {
 	var commonOptions = {
 		clearResultsImmediately: true
 	};
-	assignOptionsFromUI(commonOptions);
+	assignSearchOptionsFromUI(commonOptions);
 	doSearch(updateObject(commonOptions, {
 		type: 'anywhere'
 	}));
@@ -296,7 +298,7 @@ function doGeocodeAndSearch() {
       };
       
       
-	assignOptionsFromUI(commonOptions);
+	assignSearchOptionsFromUI(commonOptions);
 
 
       if (proximitySearch) {
@@ -314,6 +316,89 @@ function doGeocodeAndSearch() {
     }
   });
 }
+
+
+
+
+
+
+
+
+function SiteJobs() {
+  this.joblist = [];
+}
+
+function populateMapResults(options, results, newBounds) {
+  
+  var listView = $('#list-view');
+  
+  // A dictionary from Site keys to lists of jobs
+  var unique_sites = {}
+  for (var i = 0; i < results.length; i++) {
+    var result = results[i];
+
+
+
+    
+    result.icon = '/static/images/markers/simple.png';
+    if (options.type == 'proximity' && i <= 10) {
+      result.icon = '/static/images/markers/' +
+          String.fromCharCode(65 + i) + '.png';
+    }
+
+    var resultLatLng = new google.maps.LatLng(result.lat, result.lng);
+
+
+    if (options.type == 'proximity')
+      result.distance = resultLatLng.distanceFrom(options.center);
+    
+    newBounds.extend(resultLatLng);
+
+
+
+
+    var consolidated_site_jobs;
+    if (result.site_key in unique_sites) {
+      consolidated_site_jobs = unique_sites[result.site_key];
+    } else {
+      // First encounter of this Site
+      consolidated_site_jobs = new SiteJobs()
+      unique_sites[result.site_key] = consolidated_site_jobs;
+
+    }
+    consolidated_site_jobs.joblist.push(result);
+    
+    
+    // Create result list view item.
+    result.listItem = createListViewItem(result);
+    listView.append(result.listItem);
+    
+  }
+  
+
+  
+  // Go through each unique Site and add it to the map
+  for (var site_key in unique_sites) {
+    var joblist = unique_sites[site_key].joblist;
+    var aggregate_marker = createAggregateResultMarker(joblist);
+
+    map.addOverlay(aggregate_marker);
+    
+    
+    g_searchResults.push( aggregate_marker );
+    
+    // Associate result marker.
+    for (var i=0; i<joblist.length; i++) {
+      var result = joblist[i];
+      result.aggregate_marker = aggregate_marker;
+    }
+  }
+}
+
+
+
+
+
 
 /**
  * Performs an asynchronous school search using the search service.
@@ -381,7 +466,6 @@ function doSearch(options) {
   var newBounds = new google.maps.LatLngBounds(
       options.type == 'proximity' ? options.center : null);
   
-  var listView = $('#list-view');
   
   if (options.clearResultsImmediately)
     clearSearchResults();
@@ -450,32 +534,9 @@ function doSearch(options) {
         clearSearchResults();
       
       if (obj.status && obj.status == 'success') {
-        for (var i = 0; i < obj.results.length; i++) {
-          var result = obj.results[i];
-          
-          result.icon = '/static/images/markers/simple.png';
-          if (options.type == 'proximity' && i <= 10) {
-            result.icon = '/static/images/markers/' +
-                String.fromCharCode(65 + i) + '.png';
-          }
-          
-          var resultLatLng = new google.maps.LatLng(result.lat, result.lng);
-          
-          if (options.type == 'proximity')
-            result.distance = resultLatLng.distanceFrom(options.center);
-          
-          newBounds.extend(resultLatLng);
+        
+        populateMapResults(options, obj.results, newBounds);
 
-          // Create result marker.
-          result.marker = createResultMarker(result);
-          map.addOverlay(result.marker);
-          
-          // Create result list view item.
-          result.listItem = createListViewItem(result);
-          listView.append(result.listItem);
-          
-          g_searchResults.push(result);
-        }
         
         if (newBounds.getNorthEast() &&
             !newBounds.getNorthEast().equals(newBounds.getSouthWest()) &&
@@ -518,9 +579,9 @@ function clearSearchResults() {
   if (g_searchResults) {
     $('#list-view').html('');
     $('#list-view-status').text('Enter a search location to ' +
-                                'search for nearby public schools.');
+                                'search for nearby jobs.');
     for (var i = 0; i < g_searchResults.length; i++) {
-      map.removeOverlay(g_searchResults[i].marker);
+      map.removeOverlay( g_searchResults[i] );
     }
   }
   
@@ -560,6 +621,65 @@ function createResultMarker(result) {
   
   return marker;
 }
+
+
+
+
+
+
+
+
+/**
+ * Creates an aggregate search result marker from the given result objects.
+ * @param {Object} result The search result data object.
+ * @type google.maps.Marker
+ */
+function createAggregateResultMarker(results) {
+  
+  // The first of the results will be delegated as the "representative".
+  var representative = results[0];
+  
+  var icon = new google.maps.Icon(G_DEFAULT_ICON);
+  icon.image = representative.icon;
+  icon.iconSize = new google.maps.Size(21, 34);
+  
+  var resultLatLng = new google.maps.LatLng(representative.lat, representative.lng);
+  
+  var marker = new google.maps.Marker(resultLatLng, {
+    icon: icon,
+    title: representative.title + " (" + (results.length - 1) + " more)"
+  });
+  
+//  alert("Result count for this marker: " + results.length);
+  
+  google.maps.Event.addListener(marker, 'click', (function(representative) {
+    return function() {
+      if (g_listView && representative.listItem) {
+        $.scrollTo(representative.listItem, {duration: 1000});
+      } else {
+        var infoHtml = tmpl('tpl_result_info_window', { result: representative });
+        
+        map.openInfoWindowHtml(marker.getLatLng(), infoHtml, {
+          pixelOffset: new GSize(icon.infoWindowAnchor.x - icon.iconAnchor.x,
+                                 icon.infoWindowAnchor.y - icon.iconAnchor.y)});
+      }
+    };
+  })(representative));
+  
+  return marker;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Creates a list view item from the given result object.

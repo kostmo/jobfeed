@@ -102,8 +102,8 @@ def isValidHostname(hostname):
     hostname = hostname.rstrip(".")
     import re
     disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
-    parts = [(label and len(label) <= 63 and \
-        not label.startswith("-") and not label.endswith("-") and \
+    parts = [(label and len(label) <= 63 and
+        not label.startswith("-") and not label.endswith("-") and
         not disallowed.search(label)) for label in hostname.split(".")]
 #   print parts
     return all(parts)
@@ -118,6 +118,7 @@ class JobSite:
     def __init__(self, name):
         self.name = name
         self.geo = None
+        self.address = None
 
 # =============================================================================
 class Organization:
@@ -177,16 +178,15 @@ class JobFeedHandler(ContentHandler):
     #            -> Job
 
     def __init__ (self):
-	self.geo_lookups = 0
-	self.geo = None
-        self.job_ids = []   # For error checking only
-#        self.joblist = []
-        self.sample = False # A feed-wide property
-	self.site_address = ""
-	self.in_address = False
-        self.resetJob()
-
-        self.org_hierarchy = {}
+		self.geo_lookups = 0
+		self.geo = None
+		
+		self.sample = False # A feed-wide property
+		self.site_address = ""
+		self.in_address = False
+		self.resetJob()
+		
+		self.org_hierarchy = {}
 
     # -------------------------------------------------------------------------
     def resetJob(self):
@@ -213,6 +213,7 @@ class JobFeedHandler(ContentHandler):
                 from geocode import getGeo
                 geocoding = getGeo(self.site_address)
                 self.geo = [geocoding[key] for key in GEO_ATTRIBUTES]
+                self.current_site.geo = self.geo
                 self.geo_lookups += 1
 
 #		print "Forced geo lookups:", self.geo_lookups
@@ -249,16 +250,17 @@ class JobFeedHandler(ContentHandler):
             self.in_position = True
             self.jobid = int(attrs.get('id'))
             self.link = attrs.get('link')
-            if self.jobid in self.job_ids:
-                raise DuplicateIdException("Job id " + str(self.jobid) + " was already used")
+            if self.jobid in self.org_job_ids:
+                raise DuplicateIdException("Job id " + str(self.jobid) + " was already used in " + self.current_organization.name)
             else:
-                self.job_ids.append(self.jobid)
+                self.org_job_ids.append(self.jobid)
             
             self.contract = attrs.get('contract')
             self.expiration = attrs.get('expires')
 
         elif name == 'geo':
             self.geo = [float(attrs.get(a)) for a in GEO_ATTRIBUTES]
+            self.current_site.geo = self.geo
 
         elif name == 'address':
             self.in_address = True
@@ -287,6 +289,7 @@ class JobFeedHandler(ContentHandler):
             self.org_hierarchy[self.current_organization][self.current_site] = {}
 
         elif name == 'organization':
+            self.org_job_ids = []   # For error checking only
             self.current_organization = Organization(attrs.get('name'), attrs.get('domain'))
             ein = attrs.get('ein', None)
             if not (ein is None):
@@ -318,10 +321,15 @@ class JobFeedHandler(ContentHandler):
 
         elif name == 'address':
             self.in_address = False
+            self.current_site.address = self.site_address
 
-	# The location is valid only within the context of a <site>;
-	# We clear the location when the closing </site> tag is encountered.
+        # The location is valid only within the context of a <site>;
+        # We clear the location when the closing </site> tag is encountered.
         elif name == 'site':
+
+            if not self.current_site.geo:
+                raise MissingLocationException("site was missing geo")
+
             self.geo = None
             self.site_address = ""
 

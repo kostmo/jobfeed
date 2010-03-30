@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Organizations List</title>
+
+  </head>
+  <body>
+    <h1>Organizations List</h1>
+
+<strong>Organizations currently with at least one job posting:</strong>
+  <ul>
+    {% for organization in organization_list %}
+      <li><a href="/orgjobs?org_key={{organization.key}}">{{organization.name}}</a></li>
+    {% endfor %}
+  </ul>
+
+{{next_page}}
+  </body>
+</html>
