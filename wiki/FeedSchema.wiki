@@ -22,7 +22,7 @@ The following information should be associated with each job record:
 Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the company and/or department name.
 
 === the `<job>` element ===
-This represents an open "position" within the organization.
+This represents an open position within the organization.
 
 Allowed attributes of the `<job>` element are:
 || *attribute name* || *required?* || *meaning* || *example values* ||
@@ -34,7 +34,7 @@ Allowed immediate children of the `<job>` element are:
 || *tag name* || *required?* || *meaning* || *example values* ||
 || `<title>` || Y || title of the open position || Test Engineer ||
 || `<description>` || N || short prose description of the job || Applicant should be familiar with six-sigma and... Responsibilities include... ||
-|| `<keyword>` || N || single keyword that describe the subject matter || {{{R&D}}} ||
+|| `<keyword>` || N || single keyword that describe the subject matter || R&D ||
 || `<qualifications>` || Y || container for `<education>`, `<preferred>`, and `<required>` || See below ||
 
 Within the `<required>` or `<preferred>` tags the following are allowed:
