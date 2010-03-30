@@ -94,19 +94,15 @@ class SkillExperience:
         return "SkillExperience" + str(self)
 
 # =============================================================================
-
 def isValidHostname(hostname):
-    # Process each DNS label individually by excluding invalid characters and ensuring proper length
     if len(hostname) > 255:
         return False
-    hostname = hostname.rstrip(".")
-    import re
+    if hostname.endswith("."):
+        hostname = hostname[:-1] # strip exactly one dot from the right, if present
     disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
-    parts = [(label and len(label) <= 63 and
+    return all((label and len(label) <= 63 and
         not label.startswith("-") and not label.endswith("-") and
-        not disallowed.search(label)) for label in hostname.split(".")]
-#   print parts
-    return all(parts)
+        not disallowed.search(label)) for label in hostname.split("."))
 
 # =============================================================================
 class Department:
@@ -131,35 +127,35 @@ class Organization:
 
 # =============================================================================
 class ParsedJob:
-    def __init__(self, handler):
-        self.job_id = handler.jobid
-        self.geo = handler.geo
-        self.link = handler.link
-        self.title = handler.job_title.strip()
-        self.description = handler.job_description.strip()
+	def __init__(self, handler):
+		self.job_id = handler.jobid
+		self.geo = handler.geo
+		self.link = handler.link
+		self.title = handler.job_title.strip()
+		self.description = handler.job_description.strip()
 
-        self.degree_level = None
-        self.degree_area = None
-	if hasattr(handler, "degree_level"):
-	        self.degree_level = handler.degree_level
-        	if hasattr(handler, "degree_area"):
-			self.degree_area = handler.degree_area
+		self.degree_level = None
+		self.degree_area = None
+		if hasattr(handler, "degree_level"):
+			self.degree_level = handler.degree_level
+			if hasattr(handler, "degree_area"):
+				self.degree_area = handler.degree_area
 
-        self.expiration = datetime.strptime(handler.expiration, "%Y-%m-%d").date()
-        self.contract = bool(handler.contract)
-        self.sample = handler.sample
+		self.expiration = datetime.strptime(handler.expiration, "%Y-%m-%d").date()
+		self.contract = bool(handler.contract)
+		self.sample = handler.sample
 
-        self.skills = handler.skills
-        self.keywords = handler.keywords
+		self.skills = handler.skills
+		self.keywords = handler.keywords
 
 # =============================================================================
 class DuplicateIdException(Exception):
     pass
 
 # =============================================================================
-# We give the submitter 20 geocoding freebies. Too many and we risk exceeding
-# the 30 second HTTP request/response timeout.
-GEOCODING_LIMIT = 20
+# We give the submitter a limited number of geocoding freebies. Too many and we
+# risk exceeding the 30 second HTTP request/response timeout.
+GEOCODING_LIMIT = 5
 class ExcessiveGeocodingException(Exception):
     pass
 
@@ -174,31 +170,32 @@ class JobFeedHandler(ContentHandler):
     # The layers are:
     # Organization
     #    -> Site
-    #        -> Department	# TODO
+    #        -> Department	(optional)
     #            -> Job
 
     def __init__ (self):
-		self.geo_lookups = 0
-		self.geo = None
-		
-		self.sample = False # A feed-wide property
-		self.site_address = ""
-		self.in_address = False
-		self.resetJob()
-		
-		self.org_hierarchy = {}
+        self.geo_lookups = 0
+        self.geo = None
+        self.current_department = None
+
+        self.sample = False # A feed-wide property
+        self.site_address = ""
+        self.in_address = False
+        self.resetJob()
+
+        self.org_hierarchy = {}
 
     # -------------------------------------------------------------------------
     def resetJob(self):
-        self.in_position = False
+        self.in_job = False
         self.in_title = False
         self.in_description = False
         self.job_title = ""
         self.job_description = ""
         self.last_keyword = ""
         self.skills = {}
-	self.in_keyword = False
-	self.keywords = []
+        self.in_keyword = False
+        self.keywords = []
         self.skill_preference_type = None
         self.contract = False
         self.link = None
@@ -216,13 +213,10 @@ class JobFeedHandler(ContentHandler):
                 self.current_site.geo = self.geo
                 self.geo_lookups += 1
 
-#		print "Forced geo lookups:", self.geo_lookups
-
             else:
                 raise MissingLocationException("Location must be specified preceeding job " + str(self.job_id))
 
-        self.org_hierarchy[self.current_organization][self.current_site][self.current_department].append( ParsedJob(self) )
-#        self.joblist.append(ParsedJob(self))
+        self.org_hierarchy[self.current_organization][self.current_site].setdefault(self.current_department, []).append( ParsedJob(self) )
         self.resetJob()
 
     # -------------------------------------------------------------------------
@@ -246,15 +240,15 @@ class JobFeedHandler(ContentHandler):
         elif name in SKILL_PREFERENCE_TYPES:
             self.skill_preference_type = name
 
-        elif name == 'position':
-            self.in_position = True
+        elif name == 'job':
+            self.in_job = True
             self.jobid = int(attrs.get('id'))
             self.link = attrs.get('link')
             if self.jobid in self.org_job_ids:
                 raise DuplicateIdException("Job id " + str(self.jobid) + " was already used in " + self.current_organization.name)
             else:
                 self.org_job_ids.append(self.jobid)
-            
+
             self.contract = attrs.get('contract')
             self.expiration = attrs.get('expires')
 
@@ -306,8 +300,11 @@ class JobFeedHandler(ContentHandler):
 
     # -------------------------------------------------------------------------
     def endElement(self, name):
-        if name == 'position':
+        if name == 'job':
             self.addJob()
+
+        elif name == 'department':
+            self.current_department = None
 
         elif name == 'title':
             self.in_title = False
@@ -366,7 +363,7 @@ def flattenJobs(org_hierarchy):
 		for site, departments_dict in sites_dict.items():
 			for department, joblist in departments_dict.items():
 				jobs.extend( joblist )
-				
+
 	return jobs
 
 # =============================================================================
@@ -382,10 +379,10 @@ def dumpJobs(jobs_dict):
         print "\t\t", job.geo
         if hasattr(job, "degree_level") and hasattr(job, "degree_area"):
             print "\t\t", job.degree_level, "in", job.degree_area
-	print "\t\t", "Keywords:", job.keywords
+        print "\t\t", "Keywords:", job.keywords
         print "\t\t", "Skills:", job.skills
-		
-	return jobs
+
+    return jobs
 
 # =============================================================================
 if __name__ == '__main__':

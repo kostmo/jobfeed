@@ -3,31 +3,29 @@
 
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <title>Jobs Maintenance Panel</title>
-
-
+    <title>Nuke Panel</title>
 
   </head>
   <body>
-    <h1>Jobs Maintenance Panel</h1>
+    <h1>Nuke the datastore</h1>
     
-    {{greeting}}
-    
+<!--    
     <h2>Schema kinds:</h2>
       <ul>
     {% for kind in kinds %}
       <li>{{kind}}</li>
     {% endfor %}
   </ul>
-
+-->
     <h2>Present kinds:</h2>
-<form action="/_ah/maintenance/delete" method="post">
+<form action="/_ah/nuke/delete" method="post">
       
   <select name="kind" id="kind_dropdown">
     {% for kind in present_kinds %}
     <option value="{{kind}}">{{kind}}</option>
     {% endfor %}
   </select>
+  <input name="nuke_all_kinds" type="checkbox" value="enabled" id="checkbox_all_kinds" onchange="document.getElementById('kind_dropdown').disabled = this.checked" /><label for="checkbox_all_kinds"> All Kinds</label>
   <input type="submit" value="Mass Delete" />
 </form>
 

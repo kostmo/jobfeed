@@ -32,7 +32,6 @@ handlers:
   script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
   login: admin
 
-
 - url: /_ah/queue/deferred
   script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
   login: admin
@@ -44,7 +43,6 @@ handlers:
 - url: /_ah/nuke/.*
   script: nuke/nuke.py
   login: admin
-
 
 - url: /static
   static_dir: static
