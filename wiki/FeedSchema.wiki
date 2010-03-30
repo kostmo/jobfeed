@@ -27,7 +27,7 @@ This represents an open position within the organization.
 Allowed attributes of the `<job>` element are:
 || *attribute name* || *required?* || *meaning* || *example values* ||
 || `id` || Y || a unique numeric ID for this position within the organization || 12548 ||
-|| `expires` || Y || expiration date of this job opening in ISO 8601 format || 2010-03-15 ||
+|| `expires` || Y || expiration date of this job opening in [http://en.wikipedia.org/wiki/ISO_8601#Calendar_dates ISO 8601 format] || 2010-03-15 ||
 || `link` || Y || a "permalink" to the job posting hosted on the corporate website || `http://www.example.com/careers/job?id=12548` ||
 
 Allowed immediate children of the `<job>` element are:
