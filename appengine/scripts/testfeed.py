@@ -52,19 +52,19 @@ SAMPLE_ORGANIZATIONS = {	# Name and domain
 # ==============================================================================
 
 from random import randint, sample, choice, shuffle, random
-def insertJobs(parent, doc, current_jobcount):
+def insertJobs(parent, doc, city_tuple, current_jobcount):
     for job_index in range(randint(1, 3)):
 
         position = doc.createElement("job")
         parent.appendChild(position)
-        position.setAttribute("id", str(jobcounter))
+        position.setAttribute("id", str(current_jobcount))
         current_jobcount += 1
 
         from datetime import datetime, timedelta
         position.setAttribute("expires", (datetime.now().date() + timedelta(days=randint(0, 90))).isoformat() )
 
         if randint(0,2):	# Set the "link" attribute with 2/3 probability
-            position.setAttribute("link", "http://" + APP_DOMAIN + "/jobs/posting?id=" + str(jobcounter))
+            position.setAttribute("link", "http://" + APP_DOMAIN + "/jobs/posting?id=" + str(current_jobcount))
 
         title = doc.createElement("title")
         title.appendChild( doc.createTextNode("Position in " + city_tuple[0]) )
@@ -173,9 +173,9 @@ def generateFeed():
 						site.appendChild(department)
 						department.setAttribute("name", "Department " + str(department_index))
 
-						jobcounter = insertJobs(department, doc, jobcounter)
+						jobcounter = insertJobs(department, doc, city_tuple, jobcounter)
 				else:
-					jobcounter = insertJobs(site, doc, jobcounter)
+					jobcounter = insertJobs(site, doc, city_tuple, jobcounter)
 
 	return doc
 

@@ -99,6 +99,7 @@ def isValidHostname(hostname):
         return False
     if hostname.endswith("."):
         hostname = hostname[:-1] # strip exactly one dot from the right, if present
+    import re
     disallowed = re.compile("[^A-Z\d-]", re.IGNORECASE)
     return all((label and len(label) <= 63 and
         not label.startswith("-") and not label.endswith("-") and
