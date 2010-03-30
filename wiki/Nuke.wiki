@@ -3,3 +3,32 @@
 Sometimes when developing a new app, you want to start fresh with the datastore, wiping everything. Unfortunately, this can be a cumbersome process.
 
 *Nuke* is a "plugin" to the admin panel that lets you delete all entities of a specific kind, or all entities of all kinds with a button click.
+
+  # Install [http://github.com/arachnid/bulkupdate bulkupdate]
+  # Install nuke
+    * Checkout from subversion into your application root directory:
+{{{
+svn checkout http://jobfeed.googlecode.com/svn/trunk/appengine/nuke
+}}}
+    * Modify your app.yaml to include the following (this also covers part of the *bulkupdate* installation):
+{{{
+admin_console:
+  pages:
+  - name: Bulk Update Jobs
+    url: /_ah/bulkupdate/admin/
+
+  - name: Nuke
+    url: /_ah/nuke/
+
+handlers:
+- url: /_ah/queue/deferred
+  script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
+  login: admin
+  
+- url: /_ah/bulkupdate/admin/.*
+  script: bulkupdate/handler.py
+  login: admin
+
+- url: /_ah/nuke/.*
+  script: nuke/nuke.py
+  login: admin
