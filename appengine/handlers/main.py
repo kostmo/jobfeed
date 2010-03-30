@@ -148,7 +148,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
             else:
                 try:
 
-		    from urllib import urlopen
+                    from urllib import urlopen
                     org_hierarchy = feedparser.fetchJobList( urlopen(link_url) )
 
                     feed_url_object = models.Feed(link=db.Link(link_url))
@@ -188,19 +188,24 @@ class FeedUrlSubmission(webapp.RequestHandler):
                             
                             for department, joblist in departments_dict.items():
                                 
-                                department_keyname = normalizeAndSanitizeKey(department.name)
-                                department_entity_key = db.Key.from_path('Org', organization_keyname, 'Site', site_keyname, 'Dept', department_keyname)
-                                department_entity = models.Dept.get(department_entity_key)
-                                if not department_entity:
-                                    department_entity = models.Dept(parent=site_entity, key_name=department_keyname)
-                                    department_entity.name = department.name
-                                    db.put(department_entity)
+                                job_parent = None
+                                if department:
+                                    department_keyname = normalizeAndSanitizeKey(department.name)
+                                    department_entity_key = db.Key.from_path('Org', organization_keyname, 'Site', site_keyname, 'Dept', department_keyname)
+                                    department_entity = models.Dept.get(department_entity_key)
+                                    if not department_entity:
+                                        department_entity = models.Dept(parent=site_entity, key_name=department_keyname)
+                                        department_entity.name = department.name
+                                        db.put(department_entity)
+                                    job_parent = department_entity
+                                else:
+                                    job_parent = site_entity
                                 
                                 for raw_job in joblist:
                                     all_jobs.append( raw_job )
                                     
                                     # Convert simple Job() objects into model entities
-                                    raw_job.converted_job_entity = self.convert_job(raw_job, department_entity)
+                                    raw_job.converted_job_entity = self.convert_job(raw_job, job_parent)
                                     
                                     if raw_job.degree_level:
                                         normalized_degree_level_name = raw_job.degree_level.lower()
@@ -319,7 +324,7 @@ class FriendlyFeedRepresentation:
         self.since = str( job_feed_object.since.date() )
 
 
-MAX_SKILLS_PER_PAGE = 20
+MAX_ITEMS_PER_PAGE = 20
 # =============================================================================
 class SkillsListHandler(webapp.RequestHandler):
 
@@ -328,7 +333,7 @@ class SkillsListHandler(webapp.RequestHandler):
         skills_list = []
         skill_category_name = self.request.get('skill_category')
         last_in_pagination = self.request.get('last')
-	category_description = None
+        category_description = None
         category_fullname = None
         next_page = ""
         if skill_category_name in SKILL_CATEGORY_ENTITY_MAPPING:
@@ -338,11 +343,11 @@ class SkillsListHandler(webapp.RequestHandler):
             if last_in_pagination:
                 q.filter("lower >", last_in_pagination)
             q.order("lower")
-            skills_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+            skills_list = q.fetch( MAX_ITEMS_PER_PAGE + 1 ) # TODO - paginate results
 
-            if len(skills_list) > MAX_SKILLS_PER_PAGE:
+            if len(skills_list) > MAX_ITEMS_PER_PAGE:
 
-                next_page = "<a href='" + self.request.path + "?" + "skill_category" + "=" + skill_category_name + "&last=" + skills_list[MAX_SKILLS_PER_PAGE].lower + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " >></a>"
+                next_page = "<a href='" + self.request.path + "?" + "skill_category" + "=" + skill_category_name + "&last=" + skills_list[MAX_ITEMS_PER_PAGE].lower + "'>Next " + str(MAX_ITEMS_PER_PAGE) + " >></a>"
 
             category_fullname = SKILL_CATEGORY_SHORT_TO_FULL_NAME[skill_category_name]
             category_description = SKILL_CATEGORY_SUMMARIES_DICT[skill_category_name]
@@ -354,7 +359,7 @@ class SkillsListHandler(webapp.RequestHandler):
                     'current_user': users.get_current_user(),
                     'category_description': category_description,
                     'category_fullname': category_fullname,
-                    'skills_list': skills_list[:MAX_SKILLS_PER_PAGE],
+                    'skills_list': skills_list[:MAX_ITEMS_PER_PAGE],
                     'next_page': next_page
                 }
             )
@@ -373,22 +378,22 @@ class KeywordsListHandler(webapp.RequestHandler):
 		if last_in_pagination:
 			q.filter("lower >", last_in_pagination)
 		q.order("lower")
-		skills_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+		skills_list = q.fetch( MAX_ITEMS_PER_PAGE + 1 ) # TODO - paginate results
 
-		if len(skills_list) > MAX_SKILLS_PER_PAGE:
-			next_page = "<a href='" + self.request.path + "?last=" + skills_list[MAX_SKILLS_PER_PAGE].lower + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " >></a>"
+		if len(skills_list) > MAX_ITEMS_PER_PAGE:
+			next_page = "<a href='" + self.request.path + "?last=" + skills_list[MAX_ITEMS_PER_PAGE].lower + "'>Next " + str(MAX_ITEMS_PER_PAGE) + " >></a>"
 
 		template_file = '../templates/keywordslist.html'
 		self.response.out.write(template.render(
 			os.path.join(os.path.dirname(__file__), template_file),
 				{
 					'current_user': users.get_current_user(),
-					'skills_list': skills_list[:MAX_SKILLS_PER_PAGE],
+					'skills_list': skills_list[:MAX_ITEMS_PER_PAGE],
 					'next_page': next_page
 				}
 			)
 		)
-        
+
 # =============================================================================
 class OrganizationListHandler(webapp.RequestHandler):
 
@@ -402,17 +407,17 @@ class OrganizationListHandler(webapp.RequestHandler):
 		if last_in_pagination:
 			q.filter("lower >", last_in_pagination)
 		q.order("lower")
-		organization_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+		organization_list = q.fetch( MAX_ITEMS_PER_PAGE + 1 ) # TODO - paginate results
 
-		if len(organization_list) > MAX_SKILLS_PER_PAGE:
-			next_page = "<a href='" + self.request.path + "?last=" + organization_list[MAX_SKILLS_PER_PAGE].lower + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " >></a>"
+		if len(organization_list) > MAX_ITEMS_PER_PAGE:
+			next_page = "<a href='" + self.request.path + "?last=" + organization_list[MAX_ITEMS_PER_PAGE].lower + "'>Next " + str(MAX_ITEMS_PER_PAGE) + " >></a>"
 
 		template_file = '../templates/organizationlist.html'
 		self.response.out.write(template.render(
 			os.path.join(os.path.dirname(__file__), template_file),
 				{
 					'current_user': users.get_current_user(),
-					'organization_list': organization_list[:MAX_SKILLS_PER_PAGE],
+					'organization_list': organization_list[:MAX_ITEMS_PER_PAGE],
 					'next_page': next_page
 				}
 			)
@@ -444,17 +449,17 @@ class OrgJobsListHandler(webapp.RequestHandler):
         if last_in_pagination:
             q.filter("__key__ >", db.Key(last_in_pagination))
         q.ancestor(org_key)
-        jobs_list = q.fetch( MAX_SKILLS_PER_PAGE + 1 ) # TODO - paginate results
+        jobs_list = q.fetch( MAX_ITEMS_PER_PAGE + 1 ) # TODO - paginate results
 
-        if len(jobs_list) > MAX_SKILLS_PER_PAGE:
-            next_page = "<a href='" + self.request.path + "?org_key=" + str(org_key) + "&last=" + str(jobs_list[MAX_SKILLS_PER_PAGE].key()) + "'>Next " + str(MAX_SKILLS_PER_PAGE) + " &gt;&gt;</a>"
+        if len(jobs_list) > MAX_ITEMS_PER_PAGE:
+            next_page = "<a href='" + self.request.path + "?org_key=" + str(org_key) + "&last=" + str(jobs_list[MAX_ITEMS_PER_PAGE].key()) + "'>Next " + str(MAX_ITEMS_PER_PAGE) + " &gt;&gt;</a>"
 
         template_file = '../templates/orgjobslist.html'
         self.response.out.write(template.render(
             os.path.join(os.path.dirname(__file__), template_file),
                 {
                     'current_user': users.get_current_user(),
-                    'jobs_list': jobs_list[:MAX_SKILLS_PER_PAGE],
+                    'jobs_list': jobs_list[:MAX_ITEMS_PER_PAGE],
                     'next_page': next_page
                 }
             )
@@ -790,17 +795,17 @@ class SkillsAutoCompleteHandler(webapp.RequestHandler):
     def get(self):
 
         prefix = self.request.get('query')
-	query_string = prefix.lower()
+        query_string = prefix.lower()
 
-	category = self.request.get('type')
-	model = SKILL_CATEGORY_ENTITY_MAPPING[category]
+        category = self.request.get('type')
+        model = SKILL_CATEGORY_ENTITY_MAPPING[category]
 
-	q = model.all()
-	q.filter("lower >=", query_string)
-	q.filter("lower <", query_string + u"\ufffd")
-        
-	for result in q.fetch(20):
-		self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
+        q = model.all()
+        q.filter("lower >=", query_string)
+        q.filter("lower <", query_string + u"\ufffd")
+
+        for result in q.fetch(20):
+            self.response.out.write(result.name + "\t" + str(result.key()) + "\n")
 
 # =============================================================================
 class KeywordAutoCompleteHandler(webapp.RequestHandler):
@@ -837,11 +842,11 @@ class RandomizedFeedHandler(webapp.RequestHandler):
     
     def get(self):
         
-	from testfeed import generateFeed
-	doc = generateFeed()
+        from testfeed import generateFeed
+        doc = generateFeed()
 
-	self.response.headers['Content-Type'] = "application/xml"
-	doc.writexml( self.response.out, addindent="\t", newl="\n" )
+        self.response.headers['Content-Type'] = "application/xml"
+        doc.writexml( self.response.out, addindent="\t", newl="\n" )
 
 # =============================================================================
 class MainHandler(webapp.RequestHandler):

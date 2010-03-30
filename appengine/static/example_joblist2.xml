@@ -1,51 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <jobfeed vocabulary="1.0" sample="true">
-	<organization name="Example Corporation" domain="example.com">
-		<site name="Topeka Office">
-			<location>
-				<geo lat="39.05" lng="-95.61" />
-			</location>
-				<department name="Mobile Development">
-						<position id="15370" expires="2010-04-30" link="http://www.example.com/">
-							<title>iPhone Developer</title>
-							<subject_matter>
-								<keyword>games</keyword>
-							</subject_matter>
-							<qualifications>
-								<education>
-									<degree level="Bachelors" area="Computer Science"></degree>
-								</education>
-								<skills>
-									<preferred>
-										<lang name="JavaScript" />
-									</preferred>
-									<required>
-										<lang name="C#" years="2" />
-									</required>
-								</skills>
-							</qualifications>
-						</position>
-						<position id="15371" expires="2010-03-25" link="http://www.example.com/">
-							<title>Android Developer</title>
-							<subject_matter>
-								<keyword>games</keyword>
-							</subject_matter>
-							<qualifications>
-								<education>
-									<degree level="Bachelors" area="Computer Science"></degree>
-								</education>
-								<skills>
-									<preferred>
-										<lang name="C++" years="1" />
-										<api name="OpenGL" years="1" />
-									</preferred>
-									<required>
-										<lang name="Java" years="2" />
-									</required>
-								</skills>
-							</qualifications>
-						</position>
-				</department>
-		</site>
-	</organization>
+  <organization name="Example Corporation" domain="example.com">
+    <site name="Topeka Office">
+      <location>
+        <geo lat="39.05" lng="-95.61"/>
+      </location>
+      <department name="Mobile Development">
+        <job id="15370" expires="2010-04-30" link="http://www.example.com/">
+          <title>iPhone Developer</title>
+          <keyword>games</keyword>
+          <qualifications>
+            <education>
+              <degree level="Bachelors" area="Computer Science"/>
+            </education>
+            <skills>
+              <preferred>
+                <lang name="JavaScript"/>
+              </preferred>
+              <required>
+                <lang name="C#" years="2"/>
+              </required>
+            </skills>
+          </qualifications>
+        </job>
+        <job id="15371" expires="2010-03-25" link="http://www.example.com/">
+          <title>Android Developer</title>
+          <keyword>games</keyword>
+          <qualifications>
+            <education>
+              <degree level="Bachelors" area="Computer Science"/>
+            </education>
+            <skills>
+              <preferred>
+                <lang name="C++" years="1"/>
+                <api name="OpenGL" years="1"/>
+              </preferred>
+              <required>
+                <lang name="Java" years="2"/>
+              </required>
+            </skills>
+          </qualifications>
+        </job>
+      </department>
+    </site>
+  </organization>
 </jobfeed>

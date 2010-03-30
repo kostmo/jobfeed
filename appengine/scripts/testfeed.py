@@ -49,8 +49,74 @@ SAMPLE_ORGANIZATIONS = {	# Name and domain
 	"Great Organization": "localhost"
 }
 
+# ==============================================================================
+
+from random import randint, sample, choice, shuffle, random
+def insertJobs(parent, doc, current_jobcount):
+    for job_index in range(randint(1, 3)):
+
+        position = doc.createElement("job")
+        parent.appendChild(position)
+        position.setAttribute("id", str(jobcounter))
+        current_jobcount += 1
+
+        from datetime import datetime, timedelta
+        position.setAttribute("expires", (datetime.now().date() + timedelta(days=randint(0, 90))).isoformat() )
+
+        if randint(0,2):	# Set the "link" attribute with 2/3 probability
+            position.setAttribute("link", "http://" + APP_DOMAIN + "/jobs/posting?id=" + str(jobcounter))
+
+        title = doc.createElement("title")
+        title.appendChild( doc.createTextNode("Position in " + city_tuple[0]) )
+        position.appendChild(title)
+
+        description = doc.createElement("description")
+        description.appendChild( doc.createTextNode( LIPSUM[:300] ) )
+        position.appendChild(description)
+
+        for subject in sample(subjects, randint(1, min(4, len(subjects)))):
+            keyword = doc.createElement("keyword")
+            keyword.appendChild( doc.createTextNode( subject ) )
+            position.appendChild(keyword)
+
+        qualifications = doc.createElement("qualifications")
+        position.appendChild(qualifications)
+
+
+        if randint(0, 1):
+            education = doc.createElement("education")
+            qualifications.appendChild(education)
+            degree = doc.createElement("degree")
+            degree.setAttribute("level", choice(feedparser.degreee_levels))
+            education.appendChild(degree)
+
+
+        skills = doc.createElement("skills")
+        qualifications.appendChild(skills)
+
+        for skill_classification in ["required", "preferred"]:
+            skillbatch = doc.createElement( skill_classification )
+            skills.appendChild( skillbatch )
+
+            skill_elements = []
+
+            for key, value in SKILL_CATEGORY_EXAMPLES.items():
+                for skillname in sample(value, randint(0, min(2, len(value)))):
+
+                    lang = doc.createElement(key)
+                    lang.setAttribute("name", skillname)
+                    lang.setAttribute("years", str(randint(0, 10)))
+                    skill_elements.append(lang)
+
+            shuffle(skill_elements)
+            for skill_element in skill_elements:
+                skillbatch.appendChild(skill_element)
+
+    return current_jobcount
+
+# ==============================================================================
+
 def generateFeed():
-	from random import randint, sample, choice, shuffle, random
 
 	from xml.dom.minidom import Document
 	doc = Document()
@@ -65,25 +131,25 @@ def generateFeed():
 		root.appendChild(organization)
 		organization.setAttribute("name", org_name)
 		organization.setAttribute("domain", org_domain)
-	
+
 		jobcounter = 0
 		for i, city_tuple in enumerate(most_populous_cities[:randint(10, 20)]):
-	
+
 			# Create a small cluster of sites
 			for site_index in range(2):
 				site = doc.createElement("site")
 				organization.appendChild(site)
 				site.setAttribute("name", ", ".join(city_tuple) + " Site " + str(site_index))
-		
+
 				location = doc.createElement("location")
 				site.appendChild(location)
-		
+
 				# Jitter the coordinates so we can distinguish them on the map
 				geo_jitter = 0.01 * site_index + random() * 0.01
-		
+
 				# Give some the address, but for others provide the geo coords directly
 				cityname = ", ".join(city_tuple)
-				if randint(0, 9):	# 1 in 10 chance that we do not geocode the address
+				if randint(0, 99):	# 1 in 100 chance that we do not geocode the address
 					geo = doc.createElement("geo")
 					if ENABLE_GEO_LOOKUP:
 						from geocode import getGeo
@@ -93,81 +159,23 @@ def generateFeed():
 						from feedparser import GEO_ATTRIBUTES
 						for idx, key in enumerate(GEO_ATTRIBUTES):
 							geo.setAttribute(key, "%.4f" % (city_geo_coords[i][idx] + geo_jitter))
-		
+
 					location.appendChild(geo)
 				else:
 					address = doc.createElement("address")
 					address.appendChild( doc.createTextNode( cityname ) )
 					location.appendChild(address)
-		
-		
-				for department_index in range(randint(1, 2)):
-		
-					department = doc.createElement("department")
-					site.appendChild(department)
-					department.setAttribute("name", "Department " + str(department_index))
-		
-					for job_index in range(randint(1, 3)):
-		
-						position = doc.createElement("position")
-						department.appendChild(position)
-						position.setAttribute("id", str(jobcounter))
-						jobcounter += 1
-		
-						from datetime import datetime, timedelta
-						position.setAttribute("expires", (datetime.now().date() + timedelta(days=randint(0, 90))).isoformat() )
-		
-						if randint(0,2):	# Set the "link" attribute with 2/3 probability
-							position.setAttribute("link", "http://" + APP_DOMAIN + "/jobs/posting?id=" + str(jobcounter))
-		
-						title = doc.createElement("title")
-						title.appendChild( doc.createTextNode("Position in " + city_tuple[0]) )
-						position.appendChild(title)
-		
-						description = doc.createElement("description")
-						description.appendChild( doc.createTextNode( LIPSUM[:300] ) )
-						position.appendChild(description)
-		
-						subject_matter = doc.createElement("subject_matter")
-						position.appendChild(subject_matter)
-		
-						for subject in sample(subjects, randint(1, min(4, len(subjects)))):
-							keyword = doc.createElement("keyword")
-							keyword.appendChild( doc.createTextNode( subject ) )
-							subject_matter.appendChild(keyword)
-		
-						qualifications = doc.createElement("qualifications")
-						position.appendChild(qualifications)
-		
-		
-						if randint(0, 1):
-							education = doc.createElement("education")
-							qualifications.appendChild(education)
-							degree = doc.createElement("degree")
-							degree.setAttribute("level", choice(feedparser.degreee_levels))
-							education.appendChild(degree)
-		
-		
-						skills = doc.createElement("skills")
-						qualifications.appendChild(skills)
-		
-						for skill_classification in ["required", "preferred"]:
-							skillbatch = doc.createElement( skill_classification )
-							skills.appendChild( skillbatch )
-		
-							skill_elements = []
-		
-							for key, value in SKILL_CATEGORY_EXAMPLES.items():
-								for skillname in sample(value, randint(0, min(2, len(value)))):
-		
-									lang = doc.createElement(key)
-									lang.setAttribute("name", skillname)
-									lang.setAttribute("years", str(randint(0, 10)))
-									skill_elements.append(lang)
-		
-							shuffle(skill_elements)
-							for skill_element in skill_elements:
-								skillbatch.appendChild(skill_element)
+
+				if randint(0, 2):   # 1/3 probability of no departmental affiliation
+					for department_index in range(randint(1, 2)):
+
+						department = doc.createElement("department")
+						site.appendChild(department)
+						department.setAttribute("name", "Department " + str(department_index))
+
+						jobcounter = insertJobs(department, doc, jobcounter)
+				else:
+					jobcounter = insertJobs(site, doc, jobcounter)
 
 	return doc
 
@@ -183,7 +191,6 @@ if __name__ == '__main__':
 	print "Generating feed..."
 
 	doc = generateFeed()
-#	print doc.toprettyxml(indent="\t")
 
 	if output_filename:
 		filename = "foo.xml"

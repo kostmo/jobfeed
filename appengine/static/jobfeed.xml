@@ -1,176 +1,172 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0"
-	datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-	<start>
-		<element name="jobfeed">
-		    <optional>
-			<attribute name="vocabulary">
-				<data type="float" />
-			</attribute>
-		    </optional>
-		    <optional>
-		        <attribute name="sample">
-		            <data type="boolean" />
-		        </attribute>
-		    </optional>
-			<zeroOrMore>
-				<element name="organization">
-					<attribute name="domain" />
-					<attribute name="name" />
-					    <optional>
-						<attribute name="ein">
-						    <data type="nonNegativeInteger" />
-						</attribute>
-					    </optional>
-
-						<zeroOrMore>
-							<element name="site">
-					<attribute name="name" />
-                                <ref name="location"/>
-									<zeroOrMore>
-										<element name="department">
-					<attribute name="name" />
-
-												<zeroOrMore>
-													<element name="position">
-														<attribute name="id">
-															<data type="nonNegativeInteger" />
-														</attribute>
-														<attribute name="expires">
-															<data type="date" />
-														</attribute>
-                                                        <optional>
-                                                            <attribute name="contract">
-                                                                <data type="boolean" />
-                                                            </attribute>
-                                                        </optional>
-                                                        <optional>
-                                                            <attribute name="link">
-                                                                <data type="anyURI" />
-                                                            </attribute>
-                                                        </optional>
-
-														<interleave>
-															<element name="title">
-																<text />
-															</element>
-<optional>
-															<element name="description">
-																<text />
-															</element>
-</optional>
-															<optional>
-																<element name="subject_matter">
-																	<zeroOrMore>
-																		<element name="keyword">
-																			<text />
-																		</element>
-																	</zeroOrMore>
-																</element>
-															</optional>
-															<element name="qualifications">
-																<interleave>
-																	<optional>
-																		<element name="education">
-																			<zeroOrMore>
-																				<element name="degree">
-																					<attribute name="level" />
-																					<optional>
-																						<attribute name="area" />
-																					</optional>
-																					<optional>
-																						<attribute name="or_related">
-																							<data type="boolean" />
-																						</attribute>
-																					</optional>
-																				</element>
-																			</zeroOrMore>
-																			<zeroOrMore>
-																				<element name="certification">
-																					<attribute name="type" />
-																				</element>
-																			</zeroOrMore>
-																		</element>
-																	</optional>
-																	<optional>
-																		<element name="skills">
-																			<interleave>
-																				<optional>
-																					<element name="required">
-																						<ref name="skillset" />
-																					</element>
-																				</optional>
-																				<optional>
-																					<element name="preferred">
-																						<ref name="skillset" />
-																					</element>
-																				</optional>
-																			</interleave>
-																		</element>
-																	</optional>
-																</interleave>
-															</element>
-														</interleave>
-													</element>
-												</zeroOrMore>
-										</element>
-									</zeroOrMore>
-							</element>
-						</zeroOrMore>
-				</element>
-			</zeroOrMore>
-		</element>
-	</start>
-	<define name="skillset">
-        <zeroOrMore>
-            <choice>
-                <element name="duty">
-                    <ref name="skillprops"/>
-                </element>
-                <element name="equip">
-                    <ref name="skillprops"/>
-                </element>
-                <element name="api">
-                    <ref name="skillprops"/>
-                </element>
-                <element name="app">
-                    <ref name="skillprops"/>
-                </element>
-                <element name="lang">
-                    <ref name="skillprops"/>
-                </element>
-            </choice>
-        </zeroOrMore>
-	</define>
-    <define name="skillprops">
-        <attribute name="name" />
-        <optional>
-            <attribute name="years">
-                <data type="float" />
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="jobfeed">
+      <optional>
+        <attribute name="vocabulary">
+          <data type="float"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="sample">
+          <data type="boolean"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <element name="organization">
+          <attribute name="domain"/>
+          <attribute name="name"/>
+          <optional>
+            <attribute name="ein">
+              <data type="nonNegativeInteger"/>
             </attribute>
-        </optional>
-    </define>
-    <define name="location">
-        <element name="location">
-	<interleave>
-	<optional>
-
-            <element name="geo">
-                <attribute name="lat">
-                    <data type="double" />
-                </attribute>
-                <attribute name="lng">
-                    <data type="double" />
-                </attribute>
+          </optional>
+          <zeroOrMore>
+            <element name="site">
+              <attribute name="name"/>
+              <ref name="location"/>
+              <interleave>
+                <ref name="jobset"/>
+                <zeroOrMore>
+                  <element name="department">
+                    <attribute name="name"/>
+                    <ref name="jobset"/>
+                  </element>
+                </zeroOrMore>
+              </interleave>
             </element>
-		</optional>
-<optional>
-            <element name="address">
-                <text />
-            </element>
-		</optional>
-
-	</interleave>
+          </zeroOrMore>
         </element>
-    </define>
+      </zeroOrMore>
+    </element>
+  </start>
+  <define name="skillset">
+    <zeroOrMore>
+      <choice>
+        <element name="duty">
+          <ref name="skillprops"/>
+        </element>
+        <element name="equip">
+          <ref name="skillprops"/>
+        </element>
+        <element name="api">
+          <ref name="skillprops"/>
+        </element>
+        <element name="app">
+          <ref name="skillprops"/>
+        </element>
+        <element name="lang">
+          <ref name="skillprops"/>
+        </element>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <define name="skillprops">
+    <attribute name="name"/>
+    <optional>
+      <attribute name="years">
+        <data type="float"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="jobset">
+    <zeroOrMore>
+      <element name="job">
+        <attribute name="id">
+          <data type="nonNegativeInteger"/>
+        </attribute>
+        <attribute name="expires">
+          <data type="date"/>
+        </attribute>
+        <optional>
+          <attribute name="contract">
+            <data type="boolean"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="link">
+            <data type="anyURI"/>
+          </attribute>
+        </optional>
+        <interleave>
+          <element name="title">
+            <text/>
+          </element>
+          <optional>
+            <element name="description">
+              <text/>
+            </element>
+          </optional>
+          <zeroOrMore>
+            <element name="keyword">
+              <text/>
+            </element>
+          </zeroOrMore>
+          <element name="qualifications">
+            <interleave>
+              <optional>
+                <element name="education">
+                  <zeroOrMore>
+                    <element name="degree">
+                      <attribute name="level"/>
+                      <optional>
+                        <attribute name="area"/>
+                      </optional>
+                      <optional>
+                        <attribute name="or_related">
+                          <data type="boolean"/>
+                        </attribute>
+                      </optional>
+                    </element>
+                  </zeroOrMore>
+                  <zeroOrMore>
+                    <element name="certification">
+                      <attribute name="type"/>
+                    </element>
+                  </zeroOrMore>
+                </element>
+              </optional>
+              <optional>
+                <element name="skills">
+                  <interleave>
+                    <optional>
+                      <element name="required">
+                        <ref name="skillset"/>
+                      </element>
+                    </optional>
+                    <optional>
+                      <element name="preferred">
+                        <ref name="skillset"/>
+                      </element>
+                    </optional>
+                  </interleave>
+                </element>
+              </optional>
+            </interleave>
+          </element>
+        </interleave>
+      </element>
+    </zeroOrMore>
+  </define>
+  <define name="location">
+    <element name="location">
+      <interleave>
+        <optional>
+          <element name="geo">
+            <attribute name="lat">
+              <data type="double"/>
+            </attribute>
+            <attribute name="lng">
+              <data type="double"/>
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <element name="address">
+            <text/>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
 </grammar>
