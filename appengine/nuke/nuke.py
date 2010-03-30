@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Main frontend/UI handlers."""
+"""Plugin for Google App Engine admin panel."""
 
 __author__ = 'kostmo@gmail.com (Karl Ostmo)'
 
@@ -44,10 +44,8 @@ class MainHandler(webapp.RequestHandler):
 	def GetSchemaKinds(self):
 		"""Returns the list of kinds for this app."""
 
-
 		class KindStatError(Exception):
 		  """Unable to find kind stats for an all-kinds download."""
-
 
 		from google.appengine.ext.db import stats
 		global_stat = stats.GlobalStat.all().get()
@@ -65,9 +63,9 @@ class MainHandler(webapp.RequestHandler):
 	def getDefinedModels(self, module):
 		defined_models = []
 		import models
-		import inspect
 		for name in dir(module):
 			obj = getattr(module, name)
+			import inspect
 			if inspect.isclass(obj) and issubclass(obj, db.Model):
 				defined_models.append(obj)
 
