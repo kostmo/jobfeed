@@ -1,8 +1,8 @@
 #summary Completely wipe the datastore
 
-Sometimes when developing a new app, you want to start fresh with the datastore, wiping everything. Unfortunately, this can be a cumbersome process.
+Sometimes when developing a new App Engine, you want to start fresh with the datastore, wiping everything. Unfortunately, this can be a cumbersome process with the existing interface.
 
-*Nuke* is a "plugin" to the admin panel that lets you delete all entities of a _specific kind_, or all entities of _all kinds_ with a button click.
+*Nuke* is a "add-in" to the admin panel that lets you delete all entities of a _specific kind_, or all entities of _all kinds_ with a button click.
 
   # Install [http://github.com/arachnid/bulkupdate bulkupdate]
   # Install nuke
