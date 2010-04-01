@@ -47,9 +47,10 @@ Allowed immediate children of the `<job>` element are:
 || *tag name* || *required?* || *meaning* || *example values* ||
 || `<title>` || Y || title of the open position || Test Engineer ||
 || `<description>` || N || short prose description of the job || Applicant should be familiar with six-sigma and... Responsibilities include... ||
-|| `<keyword>` || N`*` || single keyword that describe the subject matter || R&D ||
+|| `<keyword>` || N<sup>†</sup> || single keyword that describe the subject matter || R&D ||
 || `<qualifications>` || Y || container for `<education>`, `<preferred>`, and `<required>` || See below ||
-`*`Multiple `<keyword>` tags may be used to specify up to 4 keywords.
+
+<sup>†</sup>Multiple `<keyword>` tags may be used to specify up to 4 keywords.
 
 Within the `<required>` or `<preferred>` tags the following are allowed:
 || *tag name* || *meaning* || *example values* ||
