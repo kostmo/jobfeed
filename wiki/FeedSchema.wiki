@@ -29,16 +29,16 @@ Allowed attributes of the `<job>` element are:
 || `id` || Y || a numeric ID for the job posting, unique across the organization || 12548 ||
 || `expires` || Y || expiration date of this job opening in hyphenated [http://en.wikipedia.org/wiki/ISO_8601#Calendar_dates ISO 8601 format] || 2010-03-15 ||
 || `link` || Y || a "permalink" to the job posting hosted on the corporate website || `http://www.example.com/careers/job?id=12548` ||
-|| `permanence` || N || an integer representing contract/permanent employment || 2 ||
-|| `seniority` || N || an integer representing senior/entry-level status || 1 ||
+|| `permanence`<sup>†</sup> || N || an integer representing contract/permanent employment || 2 ||
+|| `seniority`<sup>‡</sup> || N || an integer representing senior/entry-level status || 1 ||
 
-Values for `permanence`:
+<sup>†</sup>Values for `permanence`:
 || *value* || *label* || *meaning* ||
 || 0 || intern/co-op || definite-term employment for students ||
 || 1 || contract || definite-term employment for professionals ||
 || 2 || permanent || permanent, full-time employment ||
 
-Values for `seniority`:
+<sup>‡</sup>Values for `seniority`:
 || *value* || *label* || *meaning* ||
 || 0 || entry-level || first job in this field, just entering the workforce ||
 || 1 || senior || a highly experienced veteran of the field ||
