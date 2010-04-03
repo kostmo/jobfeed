@@ -11,18 +11,19 @@
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
 
 == features ==
+=== UI ===
   * signify whether a posting is "authoritative"
-  * implement periodic feed checks
-  * Use contact email to notify upon failed feed parse
-  * Add (optional and non-indexed) salary field
+  * filter (or at least grey-out) expired jobs
   * Add job count to main page
-  * limit number of jobs, keywords, and skills per domain
   * List jobs by domain (may span multiple "feeds")
   * List feeds by domain
   * *perform in-memory (post-datastore fetch) ranking of results by number of skills matched*
     * higher years experience requirement on an equivalent skill across jobs should rank higher (since merely "years >= requirement" qualifies as a "match")
-  * match by required education level
-  * filter (or at least grey-out) expired jobs
+
+=== backend ===
+  * implement periodic feed checks
+    * Use contact email to notify upon failed feed parse
+  * Add (optional and non-indexed) salary field?
   * implement synomyms for keywords
     * Approach 1: use key parents; the canonical word is the parent of all synonyms
     * Approach 2: maintain a ListProperty of all synonyms as a member of the canonical word entity
