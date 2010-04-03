@@ -11,13 +11,10 @@
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
 
 == features ==
-  * Consolidate "Site" entities on mapview
   * implement periodic feed checks
   * Use contact email to notify upon failed feed parse
   * Add (optional and non-indexed) salary field
   * Add job count to main page
-  * make "department" and "site" tags optional
-    * allow `<location>` element to occur as child of `<organization>` or `<position>`
   * limit number of jobs, keywords, and skills per domain
   * List jobs by domain (may span multiple "feeds")
   * List feeds by domain
