@@ -19,7 +19,8 @@
   * limit number of jobs, keywords, and skills per domain
   * List jobs by domain (may span multiple "feeds")
   * List feeds by domain
-  * *perform in-memory ranking of results by number of skills matched*
+  * *perform in-memory (post-datastore fetch) ranking of results by number of skills matched*
+    * higher years experience requirement on an equivalent skill across jobs should rank higher (since merely "years >= requirement" qualifies as a "match")
   * match by required education level
   * filter (or at least grey-out) expired jobs
   * implement synomyms for keywords
