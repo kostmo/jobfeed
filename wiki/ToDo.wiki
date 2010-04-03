@@ -11,6 +11,7 @@
   * Store key_name's in `StringListProperty` instead of key's in `ListProperty`?
 
 == features ==
+  * signify whether a posting is "authoritative"
   * implement periodic feed checks
   * Use contact email to notify upon failed feed parse
   * Add (optional and non-indexed) salary field
