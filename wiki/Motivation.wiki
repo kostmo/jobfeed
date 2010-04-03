@@ -17,7 +17,6 @@ The greatest challenge is that direct cooperation is required from employers in 
   * project is not profit-motivated
     * accomplished on no-cost infrastructure (until possibly a point in the distant future)
        * minimal storage and bandwidth used
-         * prose job descriptions stored on original host, fetched client-side on demand
-    * coded in a couple weeks (low cost of effort)
+         * prose job descriptions can be stored on original host, fetched client-side on demand
   * free in every respect for job searchers and employers
   * need not replace existing systems; can merely augment them
