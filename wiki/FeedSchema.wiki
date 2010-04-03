@@ -19,7 +19,7 @@ The following information should be associated with each job record:
   * required/preferred skills
   * expiration date
 
-Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site while being inherited by all the children.  Likewise for the organization and (optionally) the department.
+Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site to be inherited by all of its children.  Likewise for the organization and the (optional) department.
 
 === the `<job>` element ===
 The `<job>` element represents an open position within the organization.
