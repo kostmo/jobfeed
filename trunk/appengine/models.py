@@ -56,7 +56,7 @@ class Site(db.Model):	# A physical job site
     name = db.StringProperty()
     address = db.TextProperty()
     geo = db.GeoPtProperty()
-    
+
 # ==============================================================================
 class Sub(db.Model):	# Subject matter keyword
     # use the "key_name" kwarg for the canonical (lowercase) name,
@@ -116,7 +116,7 @@ class Lang(Skill):	# Programming Language Skill
 class Exp(db.Model):	# Skill Experience
 #    skill = db.ReferenceProperty(Skill, required=True)    # We can set the parent instead
     years = db.IntegerProperty(required=True, default=-1)   # XXX Duplicates "key_name"
-    
+
 # ==============================================================================
 class Feed(db.Model):	# Job Feed URL
     link = db.LinkProperty(required=True)
@@ -147,7 +147,6 @@ class Job(GeoModel):	# Job Opening
 
     job_id = db.IntegerProperty()
     title = db.StringProperty(indexed=False)
-    contract = db.BooleanProperty(default=False) # vs. permanent employment
     expiration = db.DateProperty()
     expired = db.BooleanProperty(default=False)
     feed = db.ReferenceProperty(Feed, indexed=False)
@@ -159,10 +158,11 @@ class Job(GeoModel):	# Job Opening
     # The Lat/Lng information is duplicated in the Site entity,
     # but this duplication is necessary; the Job entity must posess every property
     # that the user might want to filter on, including the geohash.
+    # TODO - This property is redundant, since "Site" is an ancestor of every Job.
     site = db.ReferenceProperty(Site)
 
     description = db.TextProperty()	# NOTE: This property is not indexed.	# TODO
-    
+
     link = db.LinkProperty(indexed=False)   # Optionally link back to the full description on employer's website
     required = db.ListProperty(db.Key)  # Exp
     preferred = db.ListProperty(db.Key, indexed=False)  # Exp
@@ -173,9 +173,9 @@ class Job(GeoModel):	# Job Opening
     # TODO: Allow this property to be indexed, but ensure that it does not occur in the same index
     # as the "required" ListProperty, or if it does, limit the number of items (exploding indexes).
     kw = db.ListProperty(db.Key, indexed=True)	# Keys of "Sub" (subject) type representing "keywords"
-    
+
     sample = db.BooleanProperty(default=False)  # For debugging/test deployments
-    
+
 #    since = db.DateTimeProperty(required=True, auto_now_add=True)   # Redundant with the feed
     updated = db.DateTimeProperty(required=True, auto_now=True, indexed=False)
 

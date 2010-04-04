@@ -3,17 +3,30 @@
 import models
 from google.appengine.ext import db
 
+# =============================================================================
+def recoverAncestor(base_key, type):
+	key = base_key
+	while key.kind() != type:
+		key = key.parent()
+	return key
+
+# =============================================================================
+def recoverSiteKey(base_key):
+	return recoverAncestor(base_key, "Site")
+
+# =============================================================================
+def recoverOrgKey(base_key):
+	return recoverAncestor(base_key, "Org")
 
 # =============================================================================
 def recoverExperienceEntity(parent_keystring, years_int):
         parent_key_object = db.Key(parent_keystring)
         return db.Key.from_path(parent_key_object.kind(), parent_key_object.name(), 'Exp', str(years_int))
 
-
 # =============================================================================
 # skill_experience_entities is guaranteed to have at least one item
 def getHighestBinWithAtMost(bins, years):
-    
+
     last_bucket = bins[0]
     for bin in bins:
         if bin > years:
@@ -24,7 +37,7 @@ def getHighestBinWithAtMost(bins, years):
 # =============================================================================
 # skill_experience_entities is guaranteed to have at least one item
 def getHighestBucketWithAtMost(skill_experience_entities, years):
-    
+
     last_bucket = skill_experience_entities[0]
     for bucket in skill_experience_entities:
         if bucket.years > years:
@@ -35,9 +48,9 @@ def getHighestBucketWithAtMost(skill_experience_entities, years):
 # =============================================================================
 # skill_experience_entities is guaranteed to have at least one item
 def getBucketsAtOrAbove(skill_experience_entities, years):
-    
+
     min_bin = getHighestBinWithAtMost(models.EXPERIENCE_YEARS_BUCKETS, years)
-    
+
     qualifying_buckets = []
     for bucket in skill_experience_entities:
         if bucket.years >= min_bin:

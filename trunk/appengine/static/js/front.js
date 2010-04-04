@@ -31,7 +31,7 @@ var SCHOOL_TYPES = {
 var MIN_PROXIMITY_SEARCH_GEOCODE_ACCURACY = 6;
 
 var MAX_PROXIMITY_SEARCH_MILES = 50;
-var MAX_PROXIMITY_SEARCH_RESULTS = 10;
+var MAX_PROXIMITY_SEARCH_RESULTS = 20;
 var MAX_BOUNDS_SEARCH_RESULTS = 25;
 
 
@@ -93,24 +93,23 @@ function initMap() {
   map.setUIToDefault();
 }
 
-/**
- * Initializes various UI features.
- */
-function initUI() {
 
 
-  
-  
-  $('#view-toggle a').click(function() {
+
+
+
+
+
+function toggleListViewHelper(toggler) {
     g_programmaticPanning = true;
     var center = map.getCenter();
     
     if (g_listView) {
-      $(this).html('List view &raquo;');
+      $(toggler).html('List view &raquo;');
       $('#content').removeClass('list-view');
       enableSearchOnPan(g_searchOptions != null);
     } else {
-      $(this).html('&laquo; Map view');
+      $(toggler).html('&laquo; Map view');
       $('#content').addClass('list-view');
       enableSearchOnPan(false);
     }
@@ -123,7 +122,27 @@ function initUI() {
     map.setCenter(center);
     g_programmaticPanning = false;
     return false;
-  });
+}
+
+
+function toggleListView() {
+
+    toggleListViewHelper(this);
+
+}
+
+
+
+
+/**
+ * Initializes various UI features.
+ */
+function initUI() {
+
+
+  
+  
+  $('#view-toggle a').click(toggleListView);
   
   var advancedOptionsVisible = false;
   
@@ -245,7 +264,17 @@ function assignSearchOptionsFromUI(commonOptions) {
 	if (document.getElementById("checkbox_education_filter").checked && education_dropdown.selectedIndex >= 0) {
 		commonOptions.education_level = education_dropdown.value;
 	}
-      
+	
+	var seniority_dropdown = document.getElementById("seniority_dropdown");
+	if (document.getElementById("checkbox_seniority_filter").checked && seniority_dropdown.selectedIndex >= 0) {
+		commonOptions.seniority_level = seniority_dropdown.value;
+	}
+	
+	var permanence_dropdown = document.getElementById("permanence_dropdown");
+	if (document.getElementById("checkbox_permanence_filter").checked && permanence_dropdown.selectedIndex >= 0) {
+		commonOptions.permanence_level = permanence_dropdown.value;
+	}
+	
 	// XXX also new:
 	commonOptions.sample_search = document.getElementById("checkbox_sample_jobs").checked;
 }
@@ -291,7 +320,7 @@ function doGeocodeAndSearch() {
       map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
       
       var proximitySearch = (response.Placemark[0].AddressDetails.Accuracy >=
-                             MIN_PROXIMITY_SEARCH_GEOCODE_ACCURACY);
+                             MIN_PROXIMITY_SEARCH_GEOCODE_ACCURACY) || document.getElementById("checkbox_proximity").checked;
       
       var commonOptions = {
         clearResultsImmediately: true
@@ -338,14 +367,6 @@ function populateMapResults(options, results, newBounds) {
     var result = results[i];
 
 
-
-    
-    result.icon = '/static/images/markers/simple.png';
-    if (options.type == 'proximity' && i <= 10) {
-      result.icon = '/static/images/markers/' +
-          String.fromCharCode(65 + i) + '.png';
-    }
-
     var resultLatLng = new google.maps.LatLng(result.lat, result.lng);
 
 
@@ -362,37 +383,55 @@ function populateMapResults(options, results, newBounds) {
       consolidated_site_jobs = unique_sites[result.site_key];
     } else {
       // First encounter of this Site
-      consolidated_site_jobs = new SiteJobs()
+      consolidated_site_jobs = new SiteJobs();
       unique_sites[result.site_key] = consolidated_site_jobs;
 
     }
     consolidated_site_jobs.joblist.push(result);
-    
-    
-    // Create result list view item.
-    result.listItem = createListViewItem(result);
-    listView.append(result.listItem);
-    
   }
   
 
   
   // Go through each unique Site and add it to the map
+  var i=0;
   for (var site_key in unique_sites) {
     var joblist = unique_sites[site_key].joblist;
-    var aggregate_marker = createAggregateResultMarker(joblist);
+    
 
-    map.addOverlay(aggregate_marker);
+	var marker_icon_file = '/static/images/markers/simple.png';
+//    if (options.type == 'proximity' && i <= 10) {
+    if (i <= 10) {
+      marker_icon_file = '/static/images/markers/' +
+          String.fromCharCode(65 + i) + '.png';	// Starts lettering at capital 'A'.
+    }
+    
+    var map_marker = createAggregateResultMarker(joblist, marker_icon_file);
+
+
+
+
+
+
+
+    map.addOverlay(map_marker);
     
     
-    g_searchResults.push( aggregate_marker );
+    g_searchResults.push( map_marker );
     
     // Associate result marker.
-    for (var i=0; i<joblist.length; i++) {
-      var result = joblist[i];
-      result.aggregate_marker = aggregate_marker;
+    for (var j=0; j<joblist.length; j++) {
+      var result = joblist[j];
+      result.icon = marker_icon_file;
+      result.map_marker = map_marker;
+      
+      // Create result list view item.
+      result.listItem = createListViewItem(result);
+      listView.append(result.listItem);
     }
+    
+    i++;
   }
+  return unique_sites;
 }
 
 
@@ -476,12 +515,13 @@ function doSearch(options) {
     type: options.type
   };
   
+  var miles_input_field = document.getElementById("miles_input");
   if (options.type == 'proximity') {
     searchParameters = updateObject(searchParameters, {
       lat: options.center.lat(),
       lon: options.center.lng(),
       maxresults: MAX_PROXIMITY_SEARCH_RESULTS,
-      maxdistance: MAX_PROXIMITY_SEARCH_MILES * MILES_TO_METERS
+      maxdistance: (miles_input_field.value ? parseInt(miles_input_field.value) : MAX_PROXIMITY_SEARCH_MILES) * MILES_TO_METERS
     });
   } else if (options.type == 'bounds') {
     searchParameters = updateObject(searchParameters, {
@@ -505,6 +545,14 @@ function doSearch(options) {
   if (options.education_level) {
     searchParameters.education_level = options.education_level;
   }
+
+  if (options.permanence_level) {
+    searchParameters.permanence_level = options.permanence_level;
+  }  
+
+  if (options.seniority_level) {
+    searchParameters.seniority_level = options.seniority_level;
+  }  
 
   if (options.sample_search) {
     searchParameters.sample_search = options.sample_search;
@@ -535,8 +583,7 @@ function doSearch(options) {
       
       if (obj.status && obj.status == 'success') {
         
-        populateMapResults(options, obj.results, newBounds);
-
+        var unique_sites = populateMapResults(options, obj.results, newBounds);
         
         if (newBounds.getNorthEast() &&
             !newBounds.getNorthEast().equals(newBounds.getSouthWest()) &&
@@ -551,12 +598,12 @@ function doSearch(options) {
         if (!obj.results.length) {
           $('#search-error, #list-view-status').text(
               (options.type == 'proximity')
-                ? 'No results within ' + MAX_PROXIMITY_SEARCH_MILES + ' miles.'
+                ? 'No results within ' + (options.maxdistance / MILES_TO_METERS) + ' miles.'
                 : 'No results in view.');
           $('#search-error').css('visibility', 'visible');
         } else {
           $('#list-view-status').html(
-              'Found ' + obj.results.length + ' result(s)' +
+              'Found ' + obj.results.length + ' jobs(s) at ' + getAssocArrayLength(unique_sites) + ' site(s)' +
               (options.centerAddress
                 ? ' near ' + options.centerAddress + ':'
                 : ':'));
@@ -588,43 +635,32 @@ function clearSearchResults() {
   g_searchResults = [];
 }
 
-/**
- * Creates a search result marker from the given result object.
- * @param {Object} result The search result data object.
- * @type google.maps.Marker
- */
-function createResultMarker(result) {
-  var icon = new google.maps.Icon(G_DEFAULT_ICON);
-  icon.image = result.icon;
-  icon.iconSize = new google.maps.Size(21, 34);
-  
-  var resultLatLng = new google.maps.LatLng(result.lat, result.lng);
-  
-  var marker = new google.maps.Marker(resultLatLng, {
-    icon: icon,
-    title: result.name
-  });
-  
-  google.maps.Event.addListener(marker, 'click', (function(result) {
-    return function() {
-      if (g_listView && result.listItem) {
-        $.scrollTo(result.listItem, {duration: 1000});
-      } else {
-        var infoHtml = tmpl('tpl_result_info_window', { result: result });
-        
-        map.openInfoWindowHtml(marker.getLatLng(), infoHtml, {
-          pixelOffset: new GSize(icon.infoWindowAnchor.x - icon.iconAnchor.x,
-                                 icon.infoWindowAnchor.y - icon.iconAnchor.y)});
-      }
-    };
-  })(result));
-  
-  return marker;
+
+
+
+
+
+
+
+function createBubbleDomTree(results, representative) {
+
+      var bubble = document.createElement('span');
+      bubble.appendChild( document.createTextNode( "There are " + results.length + " jobs at this site." ) );
+
+      var expand_link = document.createElement('a');
+      expand_link.setAttribute("href", "javascript:");
+      expand_link.appendChild( document.createTextNode( "see all" ) );
+      
+      var footnote = document.createElement('p');
+      footnote.appendChild( expand_link );
+      bubble.appendChild( footnote );
+
+
+	expand_link.onclick = function() {scrollToListItem(representative);}; 
+
+
+	return bubble;
 }
-
-
-
-
 
 
 
@@ -634,13 +670,13 @@ function createResultMarker(result) {
  * @param {Object} result The search result data object.
  * @type google.maps.Marker
  */
-function createAggregateResultMarker(results) {
+function createAggregateResultMarker(results, marker_icon_file) {
   
   // The first of the results will be delegated as the "representative".
   var representative = results[0];
   
   var icon = new google.maps.Icon(G_DEFAULT_ICON);
-  icon.image = representative.icon;
+  icon.image = marker_icon_file;
   icon.iconSize = new google.maps.Size(21, 34);
   
   var resultLatLng = new google.maps.LatLng(representative.lat, representative.lng);
@@ -657,9 +693,12 @@ function createAggregateResultMarker(results) {
       if (g_listView && representative.listItem) {
         $.scrollTo(representative.listItem, {duration: 1000});
       } else {
-        var infoHtml = tmpl('tpl_result_info_window', { result: representative });
+      
+      //        var infoHtml = tmpl('tpl_result_info_window', { result: result });
+        var node = createBubbleDomTree(results, representative);
+//        var infoHtml = tmpl('tpl_result_info_window', { result: representative });
         
-        map.openInfoWindowHtml(marker.getLatLng(), infoHtml, {
+        map.openInfoWindow(marker.getLatLng(), node, {
           pixelOffset: new GSize(icon.infoWindowAnchor.x - icon.iconAnchor.x,
                                  icon.infoWindowAnchor.y - icon.iconAnchor.y)});
       }

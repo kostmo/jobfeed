@@ -50,7 +50,7 @@ SKILL_CATEGORY_NAMES = [
 ]
 
 SKILL_CATEGORY_SUMMARIES = [
-	"library, API, or environment",
+	"library, API, software toolkit or environment",
 	"physical tool or equipment",
 	"process, task, duty, responsibility or other common activity",
 	"software application",
@@ -77,6 +77,18 @@ degree_level_years = [2, 4, 5, 7]
 DEGREE_LEVEL_YEARS_DICT = {}
 for i, level_name in enumerate(degreee_levels):
 	DEGREE_LEVEL_YEARS_DICT[level_name.lower()] = degree_level_years[i]
+
+SENIORITY_OPTIONS = {
+	0: "entry-level",
+	1: "senior"
+}
+
+PERMANENCE_OPTIONS = {
+	0: "intern/co-op",
+	1: "contract",
+	2: "permanent",
+}
+
 
 # =============================================================================
 class SkillExperience:
@@ -131,7 +143,12 @@ class ParsedJob:
 	def __init__(self, handler):
 		self.job_id = handler.jobid
 		self.geo = handler.geo
+
 		self.link = handler.link
+		from urlparse import urlsplit
+		if self.link and not urlsplit(self.link).hostname.endswith(handler.current_organization.domain):
+			raise DomainMismatchException("Domain for URL \"" + self.link + "\" does not match Organization domain \"" + handler.current_organization.domain + "\"")
+
 		self.title = handler.job_title.strip()
 		self.description = handler.job_description.strip()
 
@@ -143,14 +160,19 @@ class ParsedJob:
 				self.degree_area = handler.degree_area
 
 		self.expiration = datetime.strptime(handler.expiration, "%Y-%m-%d").date()
-		self.contract = bool(handler.contract)
-		self.sample = handler.sample
+		self.permanence = None if handler.permanence is None else int(handler.permanence)
+		self.seniority = None if handler.seniority is None else int(handler.seniority)
 
+		self.sample = handler.sample
 		self.skills = handler.skills
 		self.keywords = handler.keywords
 
 # =============================================================================
 class DuplicateIdException(Exception):
+    pass
+
+# =============================================================================
+class DomainMismatchException(Exception):
     pass
 
 # =============================================================================
@@ -198,7 +220,8 @@ class JobFeedHandler(ContentHandler):
         self.in_keyword = False
         self.keywords = []
         self.skill_preference_type = None
-        self.contract = False
+        self.permanence = None
+        self.seniority = None
         self.link = None
 
     # -------------------------------------------------------------------------
@@ -250,7 +273,8 @@ class JobFeedHandler(ContentHandler):
             else:
                 self.org_job_ids.append(self.jobid)
 
-            self.contract = attrs.get('contract')
+            self.permanence = attrs.get('permanence')
+            self.seniority = attrs.get('seniority')
             self.expiration = attrs.get('expires')
 
         elif name == 'geo':
@@ -374,7 +398,6 @@ def dumpJobs(jobs_dict):
     for job in jobs:
 
         print "\t", job.title
-        print "\t\t", "Contract employment?", job.contract
         print "\t\t", job.expiration
         print "\t\t", job.job_id
         print "\t\t", job.geo

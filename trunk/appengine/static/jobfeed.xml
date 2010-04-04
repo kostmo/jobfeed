@@ -88,6 +88,16 @@
             <data type="anyURI"/>
           </attribute>
         </optional>
+        <optional>
+          <attribute name="seniority">
+            <data type="nonNegativeInteger"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="permanence">
+            <data type="nonNegativeInteger"/>
+          </attribute>
+        </optional>
         <interleave>
           <element name="title">
             <text/>

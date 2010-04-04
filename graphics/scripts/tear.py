@@ -69,7 +69,7 @@ def ellipsize_image(source, upper_cutoff_y, lower_cutoff_y, gap_height, tooth_am
 	composited.paste(bottom_cropped_region, (0, bottom_offset), lower_alpha_mask.crop( lower_alpha_mask.getbbox() ))
 #	composited.save("foo.png")
 
-	shadowed = dropShadow(composited, offset=(6, 2), shadow=0xFF000000, iterations=6)
+	shadowed = dropShadow(composited, offset=(6, 2), shadow=0xFF000000, iterations=6, border=10)
 	return shadowed
 
 # =============================================================================

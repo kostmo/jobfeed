@@ -218,46 +218,6 @@ table.job_list_item_info th {
   top: 0;
 }
 
-/* marker info window */
-
-.result-info-window h2 {
-  color: #333;
-  font-weight: bold;
-  font-size: 1.8em;
-  margin-bottom: 0.5em;
-  padding-top: 0.5em;
-  position: relative;
-}
-
-.result-info-window h2,
-.result-info-window .details {
-  padding-left: 25px;
-}
-
-.result-info-window address,
-.result-info-window p,
-.result-info-window ul {
-  font-size: 1.3em;
-  margin-bottom: 0.5em;
-}
-
-.result-info-window .distance {
-  color: #888;
-}
-
-.result-info-window li {
-  position: relative;
-  padding-left: 8em;
-  margin-bottom: 0.5em;
-}
-
-.result-info-window li .label {
-  font-weight: bold;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
 /* list view items */
 
 #list-view li.result {

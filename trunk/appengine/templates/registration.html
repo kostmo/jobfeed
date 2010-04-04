@@ -11,7 +11,7 @@
     <hr>
       
       <form action="/urlsubmission" method="post">
-      <label for="url_textbox" >Submission url:</label> <input id="url_textbox" type="text" name="submission_url" size="40"/> <br />
+      <label for="url_textbox" >Submission URL:</label> <input id="url_textbox" type="text" name="submission_url" size="40"/> <br />
 	  <label for="interval_textbox" >Crawl interval (weeks):</label> <input id="interval_textbox" type="text" name="crawl_interval_weeks" size="2" value="6" /> <br />
       <label for="email_textbox" >Contact email:</label> <input id="email_textbox" type="text" name="contact_email"/> (optional - for feed parse error notification and spam resolution)<br />
     <input type="submit" value="Register URL"/> <br />
@@ -22,10 +22,19 @@
 
     </form>
     
-	<p>
 	  <!-- The development server is not multithreaded, so we can't feed a local page to the parser unless we run separate instances of the server. -->
-	  <!--<a href="/static/example_joblist.xml">example feed</a>-->
-	  examples: <a href="/static/example_joblist.xml">feed1</a>, <a href="/static/example_joblist2.xml">feed2</a>, <a href="/randomized_feed.xml">randomized</a> (drag into box)
-	  | <a href="/feeds">all feeds</a> (<a href="/feeds?format=xml">XML</a>)</p>
+	  
+	  <ul>
+	  <li><a href="http://code.google.com/p/jobfeed/wiki/FeedSchema">help</a></li>
+	  <li>example feeds (drag into "<label for="url_textbox" >Submission URL</label>" box)
+	  <ul>
+	  	<li><a href="/static/example_joblist.xml">static feed1</a></li>
+	  <li><a href="/static/example_joblist2.xml">static feed2</a></li>
+	  <li><a href="/randomized_feed.xml">dynamic, randomly generated feed</a></li>
+	  <li><a href="http://sites.google.com/site/kostmo/open-source-contributions/jobfeed/random_feed.xml">static, randomly generated feed</a></li>
+	  </ul>
+	  <li><a href="/feeds">all feeds</a> (<a href="/feeds?format=xml">XML</a>)</li>
+	  
+	  </ul>
   </body>
 </html>

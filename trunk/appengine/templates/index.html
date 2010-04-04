@@ -69,23 +69,27 @@ function SkillObject(label, key) {
 // =============================================================================
 function keywordIsAdded(keyword) {
   var lowercased = keyword.toLowerCase();
-  for (var i=0; i<active_keyword_objects.length; i++) {
-    if (active_keyword_objects[i].label.toLowerCase() == lowercased) {
+  for (var i=0; i<active_keyword_objects.length; i++)
+    if (active_keyword_objects[i].label.toLowerCase() == lowercased)
       return true;
-    }
-  }
-
   return false;
 }
 
 // =============================================================================
 function loadSearchProfile() {
 
-        var dropdown = document.getElementById("saved_searches_dropdown");
-	if (dropdown)
-	        pickNewProfileAdvanced(dropdown);
+   var dropdown = document.getElementById("saved_searches_dropdown");
+	if (dropdown) pickNewProfileAdvanced(dropdown);
 }
-      
+
+// =============================================================================
+function toggleAnywhereButton(checkbox) {
+	var dependent_list = ['search-query', 'miles_input', 'checkbox_proximity'];
+	for (var i in dependent_list) {
+		document.getElementById(dependent_list[i]).disabled = checkbox.checked;
+	}
+}
+
 // =============================================================================
 function init() {
         loadSearchProfile();
@@ -210,7 +214,6 @@ function addActiveSkillObject(last_selected_skill_object) {
 
 	var skills_table = document.getElementById("pending_skills_list");
 	regenerateExperienceTable(active_skill_objects, skills_table);
-
 
 	document.getElementById("skillInput").value = "";
 }
@@ -455,7 +458,6 @@ BasicRemote2 = function() {
         oAC: oAC
     };
 }();
-
 </script>
 
 
@@ -488,7 +490,6 @@ BasicRemote3 = function() {
         oAC: oAC
     };
 }();
-
 </script>
 
 
@@ -514,11 +515,11 @@ BasicRemote3 = function() {
 <! ============================= SENIORITY =====================================>
 
 <span style="display: block">
-<input name="enable_seniority_filter" type="checkbox" id="checkbox_seniority_filter" onchange="criteriaListVisibility(this, 'seniority_dropdown_component')" /><label for="checkbox_seniority_filter"> Filter by seniority</label>
+<input name="enable_seniority_filter" type="checkbox" id="checkbox_seniority_filter" onchange="criteriaListVisibility(this, 'seniority_dropdown_component')" /><label for="checkbox_seniority_filter"> Filter by seniority (career level)</label>
 </span>
 <div class="search_criteria_component" id="seniority_dropdown_component">
 
-<label for="seniority_dropdown">Seniority level:</label>
+<label for="seniority_dropdown">Position seniority:</label>
 <select name="seniority_level" id="seniority_dropdown">
 {% for seniority_level in seniority_levels %}
 <option value="{{seniority_level.key}}">{{seniority_level.name}}</option>
@@ -556,8 +557,9 @@ BasicRemote3 = function() {
             <p><label for="search-query">Search for job openings near:</label></p>
             <input id="search-query" type="search" value="Houston, TX" />
 
-            <input type="submit" value="Search"/> <input name="enable_search_anywhere" type="checkbox" id="checkbox_search_anywhere" onchange="document.getElementById('search-query').disabled = this.checked" /><label for="checkbox_search_anywhere"> Anywhere</label><br/>
-                  <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs"/><label for="checkbox_sample_jobs"> Search in "sample" jobs</label><br/>
+            <input type="submit" value="Search"/> <input name="enable_search_anywhere" type="checkbox" id="checkbox_search_anywhere" onchange="toggleAnywhereButton(this);" /><label for="checkbox_search_anywhere"> Anywhere</label><br/>
+            <input name="enable_proximity" type="checkbox" checked="false" id="checkbox_proximity" onchange="document.getElementById('miles_input').disabled = !this.checked;" /><label for="checkbox_proximity"> Within </label><input name="proximity_miles" size="2" maxlength="3" value="50" type="text" id="miles_input" disabled="true"/><label for="miles_input"> mile radius</label><br/>
+                  <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs" /><label for="checkbox_sample_jobs"> Use simulated data</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
 
             <div id="search-error">&nbsp;</div>
@@ -565,17 +567,14 @@ BasicRemote3 = function() {
         </form>
         </td></tr></table>
 
-      
+          <span id="list-view-status">Enter a search location to search for nearby jobs.</span><span id="status_bar"></span>
       <div id="view-toggle">
-	<span id="status_bar"></span>
-        <a href="#">List view &raquo;</a>
+	
+        <a href="javascript:" id="list_view_toggler">List view &raquo;</a>
       </div>
       
       <div id="content" class="clearfix">
         <div id="list-view-container">
-          <p id="list-view-status">
-            Enter a search location to search for nearby jobs.
-          </p>
           <ul id="list-view">
           </ul>
         </div>
@@ -596,17 +595,9 @@ BasicRemote3 = function() {
     </div>
     
     
-    
-    <script type="text/html" id="tpl_result_info_window">
-      <div class="result-info-window">
 
-        {% include "microtemplates/skills_bubble.html" %}
-
-      </div>
-    </script>
     
     <script type="text/html" id="tpl_result_list_item">
-    
        {% include "microtemplates/skills_listview_item.html" %}
     </script>
   </body>

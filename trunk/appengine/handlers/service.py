@@ -98,20 +98,25 @@ class SearchService(webapp.RequestHandler):
             # Can't provide an ordering here in case inequality filters are used.
 
             base_query = models.Job.all()
-            
+
             # We might only be interested in the "sample" jobs.
             base_query.filter('sample =', self.request.get('sample_search') == "true")
 
             # Main criteria
+            if self.request.get('education_level'):
+                base_query.filter('degree_level =', db.Key(self.request.get('education_level')))
+
+            if self.request.get('permanence_level'):
+                base_query.filter('permanence_level =', db.Key(self.request.get('permanence_level')))
+
+            if self.request.get('seniority_level'):
+                base_query.filter('seniority_level =', db.Key(self.request.get('seniority_level')))
+
             if keyword_keylist:
                 base_query.filter('kw IN', map(db.Key, keyword_keylist))
 
             if experience_keylist:
                 base_query.filter('required IN', experience_keylist)
-
-            if self.request.get('education_level'):
-                base_query.filter('degree_level =', db.Key(self.request.get('education_level')))
-            
 
             # Perform proximity or bounds fetch.
             if query_type == 'proximity':
@@ -127,15 +132,26 @@ class SearchService(webapp.RequestHandler):
 
             public_attrs = models.Job.public_attributes()
 
+            # Many jobs might share the same organization, so we avoid
+            # fetching the entity for each
+            organization_entity_lookup = {}
+            from auxilliary import recoverOrgKey, recoverSiteKey
+            for result in results:
+                organization_entity_lookup.setdefault(result.key(), db.get( recoverOrgKey( result.key() ) ))
+
+
             from datetime import datetime, time
             results_obj = [
                 _merge_dicts({
                   'lat': result.location.lat,
                   'lng': result.location.lon,
+                  'orgname': organization_entity_lookup[ result.key() ].name,
+                  'permanence_index': result.permanence_level.name if result.permanence_level else None,	# FIXME - This might look up the entity from the property each time
+                  'seniority_index': result.seniority_level.name if result.seniority_level else None,	# FIXME - This might look up the entity from the property each time
                     # The immediate parent is a "Dept" (department) entity, and
                     # its parent is a "Site" entity. They key can be used to
                     # merge results clientside.
-                  'site_key': str(result.key().parent().parent()),
+                  'site_key': str( recoverSiteKey( result.key() ) ),
                     # Although json usually automatically converts the "datetime" object
                     # to the correct JavaScript representation, it must not recognize
                     # App Engine's DateTimeProperty() as a wrapped instance of "datetime",

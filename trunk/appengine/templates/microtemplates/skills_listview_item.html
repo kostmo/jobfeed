@@ -1,5 +1,9 @@
 <table width="100%"><tr><td style="vertical-align: top">
-<img src="<%= result.icon %>" onclick="recenterOnJob(<%= result.lat %>, <%= result.lng %>)" style="vertical-align: middle"/><big style="vertical-align: middle; font-weight: bold">
+<img src="<%= result.icon %>" onclick="recenterOnJob(<%= result.lat %>, <%= result.lng %>)" style="vertical-align: middle"/>
+<% if (result.distance) { %>
+  <span class="distance"><%= formatDistance(result.distance) %></span>
+<% } %>
+<big style="vertical-align: middle; font-weight: bold">
 <% if (result.link) { %>
   <a href="<%= result.link %>"><%= result.title %></a>
 <% } else { %>
@@ -10,15 +14,26 @@
 <table class="job_list_item_info">
 <!--<tr><th>Job ID:</th><td><%= result.job_id %></td></tr>-->
 
-<tr><th>Employer:</th><td>TODO<sup><a href="/orgjobs?job_key=<%= result.job_key %>">?</a></sup></td></tr>
+<tr><th>Employer:</th><td><%= result.orgname %><sup><a href="/orgjobs?job_key=<%= result.job_key %>">?</a></sup></td></tr>
 <tr><th>Expires:</th><td><%= (new Date(result.expiration)).format("m/dd/yyyy") %></td></tr>
+<tr><th>Term:</th><td>
+<% if (result.permanence_index) { %>
+  <%= result.permanence_index %>
+<% } else { %>
+  <i>not specified</i>
+<% } %>
+</td></tr>
+<tr><th>Seniority:</th><td>
+<% if (result.seniority_index) { %>
+  <%= result.seniority_index %>
+<% } else { %>
+  <i>not specified</i>
+<% } %>
+</td></tr>
 <tr><th>Keywords:</th><td><span class="keyword_container"></span></td></tr>
 <tr><th>Description:</th><td><span class="description_container"></span></td></tr>
 </table>
 
-<% if (result.distance) { %>
-  <p class="distance"><%= formatDistance(result.distance) %></p>
-<% } %>
 </td><td width="200px" style="vertical-align: top">
 <span id="<%= "skills_list_item_" + result.job_key %>" />
 </td>
