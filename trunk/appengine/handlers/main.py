@@ -138,6 +138,7 @@ class FeedUrlSubmission(webapp.RequestHandler):
 
 
         joblist = []
+        all_jobs = []
         if link_hostname:
 
             q = models.Feed.all()
@@ -168,7 +169,6 @@ class FeedUrlSubmission(webapp.RequestHandler):
                     used_permanence_entity_refs = {}
                     used_seniority_entity_refs = {}
 
-                    all_jobs = []
                     for organization, sites_dict in org_hierarchy.items():
 
                         organization_keyname = normalizeAndSanitizeKey(organization.domain)

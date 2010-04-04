@@ -405,7 +405,8 @@ function populateMapResults(options, results, newBounds) {
           String.fromCharCode(65 + i) + '.png';	// Starts lettering at capital 'A'.
     }
     
-    var map_marker = createAggregateResultMarker(joblist, marker_icon_file);
+    
+    var map_marker = joblist.length > 1 ? createAggregateResultMarker(joblist, marker_icon_file) : createSingleResultMarker(joblist, marker_icon_file);
 
 
 
@@ -642,7 +643,7 @@ function clearSearchResults() {
 
 
 
-function createBubbleDomTree(results, representative) {
+function createAggregateBubbleDomTree(results, representative) {
 
       var bubble = document.createElement('span');
       bubble.appendChild( document.createTextNode( "There are " + results.length + " jobs at this site." ) );
@@ -695,7 +696,7 @@ function createAggregateResultMarker(results, marker_icon_file) {
       } else {
       
       //        var infoHtml = tmpl('tpl_result_info_window', { result: result });
-        var node = createBubbleDomTree(results, representative);
+        var node = createAggregateBubbleDomTree(results, representative);
 //        var infoHtml = tmpl('tpl_result_info_window', { result: representative });
         
         map.openInfoWindow(marker.getLatLng(), node, {
@@ -707,6 +708,129 @@ function createAggregateResultMarker(results, marker_icon_file) {
   
   return marker;
 }
+
+
+
+
+
+
+
+
+
+
+
+function createResultBubbleDomTree(representative) {
+
+      var bubble = document.createElement('span');
+
+      var table = document.createElement('table');
+      table.setAttribute("class", "bubble_job_table");
+      bubble.appendChild( table );
+      {
+            var row = document.createElement('tr');
+      table.appendChild( row );
+      var header = document.createElement('th');
+      header.setAttribute("colspan", "2");
+      row.appendChild( header );
+      
+      var title_textnode = document.createTextNode( representative.title );
+      if (representative.link) {
+      	header.appendChild( title_textnode );
+      } else {
+      var job_link = document.createElement('a');
+      job_link.setAttribute("href", representative.link);
+      header.appendChild( job_link );
+      }
+      
+
+      var org_link = document.createElement('a');
+      }
+      
+      {
+      var row = document.createElement('tr');
+      table.appendChild( row );
+      var header = document.createElement('th');
+      row.appendChild( header );
+      header.appendChild( document.createTextNode( "Employer:" ) );
+      var header2 = document.createElement('td');
+      row.appendChild( header2 );
+      header2.appendChild( document.createTextNode( representative.orgname ) );
+      var sup = document.createElement('sup');
+      var org_link = document.createElement('a');
+      sup.appendChild( org_link );
+      org_link.appendChild( document.createTextNode( "?" ) );
+      org_link.setAttribute("href", "/orgjobs?job_key=" + representative.job_key);
+      header2.appendChild( sup );
+      }
+
+
+
+
+
+
+
+      var expand_link = document.createElement('a');
+      expand_link.setAttribute("href", "javascript:");
+      expand_link.appendChild( document.createTextNode( "details" ) );
+      
+      var footnote = document.createElement('p');
+      footnote.appendChild( expand_link );
+      bubble.appendChild( footnote );
+
+	expand_link.onclick = function() {scrollToListItem(representative);}; 
+
+
+	return bubble;
+}
+
+
+/**
+ * Creates an aggregate search result marker from the given result objects.
+ * @param {Object} result The search result data object.
+ * @type google.maps.Marker
+ */
+function createSingleResultMarker(results, marker_icon_file) {
+  
+  // The first of the results will be delegated as the "representative".
+  var representative = results[0];
+  
+  var icon = new google.maps.Icon(G_DEFAULT_ICON);
+  icon.image = marker_icon_file;
+  icon.iconSize = new google.maps.Size(21, 34);
+  
+  var resultLatLng = new google.maps.LatLng(representative.lat, representative.lng);
+  
+  var marker = new google.maps.Marker(resultLatLng, {
+    icon: icon,
+    title: representative.title + " (" + (results.length - 1) + " more)"
+  });
+  
+//  alert("Result count for this marker: " + results.length);
+  
+  google.maps.Event.addListener(marker, 'click', (function(representative) {
+    return function() {
+      if (g_listView && representative.listItem) {
+        $.scrollTo(representative.listItem, {duration: 1000});
+      } else {
+      
+      //        var infoHtml = tmpl('tpl_result_info_window', { result: result });
+        var node = createResultBubbleDomTree(representative);
+//        var infoHtml = tmpl('tpl_result_info_window', { result: representative });
+        
+        map.openInfoWindow(marker.getLatLng(), node, {
+          pixelOffset: new GSize(icon.infoWindowAnchor.x - icon.iconAnchor.x,
+                                 icon.infoWindowAnchor.y - icon.iconAnchor.y)});
+      }
+    };
+  })(representative));
+  
+  return marker;
+}
+
+
+
+
+
 
 
 

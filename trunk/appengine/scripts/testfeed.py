@@ -131,7 +131,7 @@ def insertJobs(parent, doc, domain, city_tuple, current_jobcount):
     return current_jobcount
 
 # ==============================================================================
-def generateFeed(organization_dict):
+def generateFeed(organization_dict=SAMPLE_ORGANIZATIONS):
 
 	from xml.dom.minidom import Document
 	doc = Document()

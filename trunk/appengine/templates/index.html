@@ -558,8 +558,8 @@ BasicRemote3 = function() {
             <input id="search-query" type="search" value="Houston, TX" />
 
             <input type="submit" value="Search"/> <input name="enable_search_anywhere" type="checkbox" id="checkbox_search_anywhere" onchange="toggleAnywhereButton(this);" /><label for="checkbox_search_anywhere"> Anywhere</label><br/>
-            <input name="enable_proximity" type="checkbox" checked="false" id="checkbox_proximity" onchange="document.getElementById('miles_input').disabled = !this.checked;" /><label for="checkbox_proximity"> Within </label><input name="proximity_miles" size="2" maxlength="3" value="50" type="text" id="miles_input" disabled="true"/><label for="miles_input"> mile radius</label><br/>
-                  <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs" /><label for="checkbox_sample_jobs"> Use simulated data</label><br/>
+            <input name="enable_proximity" type="checkbox" id="checkbox_proximity" onchange="document.getElementById('miles_input').disabled = !this.checked;" /><label for="checkbox_proximity"> Within </label><input name="proximity_miles" size="2" maxlength="3" value="50" type="text" id="miles_input" disabled="true"/><label for="miles_input"> mile radius</label><br/>
+            <input name="enable_sample_jobs" type="checkbox" checked="true" id="checkbox_sample_jobs" /><label for="checkbox_sample_jobs"> Use simulated data</label><br/>
             <img id="loading" src="/static/images/loading.gif" alt="Loading..."/>
 
             <div id="search-error">&nbsp;</div>
