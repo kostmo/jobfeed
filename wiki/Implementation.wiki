@@ -1,6 +1,8 @@
 #summary Implementation details
 #labels Featured
 
+  * geospatial query implementation is based on [http://code.google.com/p/geomodel/ geomodel]
+
 == useful links ==
   * [http://www.djangoproject.com/documentation/0.96/templates/#built-in-filter-reference Django Built-in filter reference]
   * Validating domain names
