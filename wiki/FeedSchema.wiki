@@ -6,17 +6,20 @@ The [http://code.google.com/p/jobfeed/#example excerpt on the main page] gives a
 Here is the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/static/jobfeed.xml official jobfeed schema] written in [http://en.wikipedia.org/wiki/RELAX_NG RELAX NG]. You should validate your own feed (with [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/scripts/validate.py this Python script] or [http://xml-copy-editor.sourceforge.net/ a GUI utility]) against this schema before [http://jobcrawlr.appspot.com/register submitting] it.
 
 == job records ==
-The following information should be associated with each job record:
+The following information can be associated with each job record:
   * location
     * Nominal location/address
     * geographic coordinates (Lat/Lon)
   * company name
+  * company department
   * position title
+  * required/preferred skills
   * educational requirements
     * degree area/concentration
+    * certifications
   * subject matter keywords
   * contract vs. permanent employment
-  * required/preferred skills
+  * senior vs. entry-level position
   * expiration date
 
 Since there may be many job openings at the same physical site, the XML schema allows one to specify the geographic coordinates just once for the site to be inherited by all of its children.  Likewise for the organization and the (optional) department.
