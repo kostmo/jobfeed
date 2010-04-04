@@ -9,11 +9,18 @@
 
   </head>
   <body>
-    <h1>Organization Job Posting List</h1>
+   <h2>Jobs listed for <emph>{{org_name}}</emph> ({{org_domain}})</h2>
 <a href="/organizations">All organizations</a>
+
   <ul>
     {% for job in jobs_list %}
-      <li>{{job.title}}: {{job.expiration}}</li>
+      <li>
+      {% if job.link %}
+      <a href="{{job.link}}">{{job.title}}</a>
+      {% else %}
+      {{job.title}}
+      {% endif %}
+      : {{job.expiration}}</li>
     {% endfor %}
   </ul>
 

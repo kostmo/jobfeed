@@ -7,7 +7,7 @@
         <address/>
       </location>
       <department name="Research and Development">
-        <job id="15366" expires="2010-03-13" link="http://www.example.com/">
+        <job id="15366" expires="2010-03-13" link="http://www.example.org/careers?job=15366">
           <title>Sr. Electrical Engineer</title>
           <keyword>automotive</keyword>
           <keyword>control systems</keyword>
@@ -23,7 +23,7 @@
             </skills>
           </qualifications>
         </job>
-        <job id="15368" expires="2010-03-16" link="http://www.example.com/">
+        <job id="15368" expires="2010-03-16" link="http://www.example.org/careers?job=15368">
           <title>Entry-level CAD Designer</title>
           <keyword>automotive</keyword>
           <keyword>wiring</keyword>
@@ -49,7 +49,7 @@
         <address/>
       </location>
       <department name="Manufacturing">
-        <job id="15370" expires="2010-04-19" link="http://www.example.com/">
+        <job id="15370" expires="2010-04-19" link="http://www.example.org/careers?job=15370">
           <title>Quality Control Engineer</title>
           <keyword>automotive</keyword>
           <qualifications>
@@ -67,7 +67,7 @@
             </skills>
           </qualifications>
         </job>
-        <job id="15371" expires="2010-03-25" link="http://www.example.com/">
+        <job id="15371" expires="2010-03-25" link="http://www.example.org/careers?job=15371">
           <title>Field Technician</title>
           <keyword>repair</keyword>
           <qualifications>
@@ -86,7 +86,7 @@
         </job>
       </department>
       <department name="Customer Relations">
-        <job id="15369" expires="2010-03-13" contract="true" link="http://www.example.com/">
+        <job id="15369" expires="2010-03-13" permanence="2" link="http://www.example.org/careers?job=15369">
           <title>Database Maintainer</title>
           <qualifications>
             <education>

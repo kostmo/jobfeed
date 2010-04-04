@@ -19,6 +19,18 @@ limitations under the License.
 
   var SKILL_DROPDOWN_PREFIX = "dropdown_";
   
+  
+  // ==========================================================================  
+  
+function getAssocArrayLength(tempArray) {
+   var result = 0;
+   for ( tempValue in tempArray ) {
+      result++;
+   }
+	
+   return result;
+}  
+  
   // ==========================================================================  
   String.prototype.startsWith = function(str)
 {return (this.match("^"+str)==str)}
@@ -28,18 +40,18 @@ limitations under the License.
   
   // ==========================================================================
 
-
-
-
 function recenterOnJob(lat, lng) {
 	map.panTo( new google.maps.LatLng(lat, lng), 4 );
 }
 
 
 
+function scrollToListItem(result) {
 
-
-
+   var toggler = document.getElementById("list_view_toggler");
+	toggleListViewHelper(toggler);
+    $.scrollTo(result.listItem, {duration: 1000});
+}
 
 
 

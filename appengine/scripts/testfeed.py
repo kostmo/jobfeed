@@ -19,8 +19,8 @@ ENABLE_GEO_LOOKUP = False
 
 
 
-apis = ['MFC', 'Google App Engine', 'OpenGL', 'DirectX', 'YUI']
-equipment = ['multimeter', 'cash register']
+apis = ['MFC', 'Google App Engine', 'OpenGL', 'DirectX', 'YUI', 'Cairo', 'PyGTK', 'Clutter', 'QT']
+equipment = ['multimeter', 'oscilloscope', 'cash register']
 activities = ['system administration', 'PCB layout']
 applications = ['Visual Studio', 'Blender', 'Eclipse', 'AutoCAD', 'git', 'subversion', 'CVS', 'Excel', 'Photoshop', 'SPICE']
 # Source: http://www.langpop.com/
@@ -37,22 +37,29 @@ SKILL_CATEGORY_EXAMPLES = {
 
 
 
-subjects = ["aerospace", "automotive", "control systems", "biomedical", "bioinformatics", "genomics", "quality assurance", "embedded systems", "computer vision"]
+subjects = ["aerospace", "automotive", "control systems", "biomedical", "bioinformatics", "genomics", "quality assurance", "embedded systems", "computer vision", "robotics"]
 
 
 LIPSUM = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+
 
 # ==============================================================================
 
 SAMPLE_ORGANIZATIONS = {	# Name and domain
 	"Generic Organization": "jobcrawlr.appspot.com",
-	"Great Organization": "localhost"
+	"Random Company": "localhost"
+}
+
+ALTERNATE_ORGANIZATIONS = {	# Name and domain
+	"Sample Organization": "sites.google.com",
+	"Example Company": "example.net"
 }
 
 # ==============================================================================
 
 from random import randint, sample, choice, shuffle, random
-def insertJobs(parent, doc, city_tuple, current_jobcount):
+def insertJobs(parent, doc, domain, city_tuple, current_jobcount):
     for job_index in range(randint(1, 3)):
 
         position = doc.createElement("job")
@@ -64,7 +71,16 @@ def insertJobs(parent, doc, city_tuple, current_jobcount):
         position.setAttribute("expires", (datetime.now().date() + timedelta(days=randint(0, 90))).isoformat() )
 
         if randint(0,2):	# Set the "link" attribute with 2/3 probability
-            position.setAttribute("link", "http://" + APP_DOMAIN + "/jobs/posting?id=" + str(current_jobcount))
+            position.setAttribute("link", "http://" + domain + "/jobs/posting?id=" + str(current_jobcount))
+
+
+        if randint(0,1):	# Set the "permanence" attribute with 1/2 probability
+            position.setAttribute("permanence", str(choice(feedparser.PERMANENCE_OPTIONS.keys())))
+
+        if randint(0,1):	# Set the "seniority" attribute with 1/2 probability
+            position.setAttribute("seniority", str(choice(feedparser.SENIORITY_OPTIONS.keys())))
+
+
 
         title = doc.createElement("title")
         title.appendChild( doc.createTextNode("Position in " + city_tuple[0]) )
@@ -115,8 +131,7 @@ def insertJobs(parent, doc, city_tuple, current_jobcount):
     return current_jobcount
 
 # ==============================================================================
-
-def generateFeed():
+def generateFeed(organization_dict):
 
 	from xml.dom.minidom import Document
 	doc = Document()
@@ -126,7 +141,7 @@ def generateFeed():
 	root.setAttribute("sample", "true")
 	doc.appendChild(root)
 
-	for org_name, org_domain in SAMPLE_ORGANIZATIONS.items():
+	for org_name, org_domain in organization_dict.items():
 		organization = doc.createElement("organization")
 		root.appendChild(organization)
 		organization.setAttribute("name", org_name)
@@ -136,7 +151,7 @@ def generateFeed():
 		for i, city_tuple in enumerate(most_populous_cities[:randint(10, 20)]):
 
 			# Create a small cluster of sites
-			for site_index in range(2):
+			for site_index in range(randint(1, 3)):	# Create between 1 and 3 physical sites
 				site = doc.createElement("site")
 				organization.appendChild(site)
 				site.setAttribute("name", ", ".join(city_tuple) + " Site " + str(site_index))
@@ -173,28 +188,32 @@ def generateFeed():
 						site.appendChild(department)
 						department.setAttribute("name", "Department " + str(department_index))
 
-						jobcounter = insertJobs(department, doc, city_tuple, jobcounter)
+						jobcounter = insertJobs(department, doc, org_domain, city_tuple, jobcounter)
 				else:
-					jobcounter = insertJobs(site, doc, city_tuple, jobcounter)
+					jobcounter = insertJobs(site, doc, org_domain, city_tuple, jobcounter)
 
 	return doc
 
 # =============================================================================
 if __name__ == '__main__':
 
-	import sys
+	from optparse import OptionParser
+	usage = "usage: %prog [options] arg"
+	parser = OptionParser(usage)
+	parser.add_option("-f", "--file", dest="filename",
+					  help="write xml to FILENAME")
+	parser.add_option("-a", "--alternate", dest="alternate", action="store_true",
+					  help="Create \"alternate\" feed with different companies")
 
-	output_filename = None
-	if len(sys.argv) > 1:
-		output_filename = sys.argv[1]
+	(options, args) = parser.parse_args()
+
 
 	print "Generating feed..."
+	doc = generateFeed(ALTERNATE_ORGANIZATIONS if options.alternate else SAMPLE_ORGANIZATIONS)
 
-	doc = generateFeed()
-
-	if output_filename:
+	if options.filename:
 		filename = "foo.xml"
-		doc.writexml( open(output_filename, "w"), addindent="\t", newl="\n" )
+		doc.writexml( open(options.filename, "w"), addindent="\t", newl="\n" )
 	else:
 		import StringIO
 		fileHandle = StringIO.StringIO()
@@ -203,8 +222,8 @@ if __name__ == '__main__':
 
 	print "Validating feed..."
 
-	if output_filename:
-		jobfeed_filehandle = open(output_filename, "r")
+	if options.filename:
+		jobfeed_filehandle = open(options.filename, "r")
 	else:
 		jobfeed_filehandle = fileHandle
 		jobfeed_filehandle.seek(0)
