@@ -26,10 +26,15 @@ limitations under the License.
 	margin-right: auto
 }
 
-
 sup {
   position: relative;
   top: -0.5em;
+}
+
+table.bubble_job_table th {
+  font-weight: bold;
+  padding-right: 0.5em;
+  vertical-align: top;
 }
 
 
