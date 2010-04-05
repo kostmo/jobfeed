@@ -6,13 +6,15 @@ Sometimes when developing a new App Engine, you want to start fresh with the dat
 
 http://jobfeed.googlecode.com/svn/screenshots/nuke_torn.png
 
-  # Install [http://github.com/arachnid/bulkupdate bulkupdate]
-  # Install nuke
-    * Checkout from subversion into your application root directory:
+  # Copy [http://github.com/arachnid/bulkupdate bulkupdate] into your application's root directory:
 {{{
-svn checkout http://jobfeed.googlecode.com/svn/trunk/appengine/nuke
+git clone git://github.com/Arachnid/bulkupdate.git
 }}}
-    * Modify your app.yaml to include the following (this also covers part of the *bulkupdate* installation):
+  # Copy `nuke` into your application's root directory:
+{{{
+svn export http://jobfeed.googlecode.com/svn/trunk/appengine/nuke
+}}}
+    * Modify your app.yaml to include the following (this will install both *nuke* and *bulkupdate*):
 {{{
 admin_console:
   pages:
@@ -35,5 +37,6 @@ handlers:
   script: nuke/nuke.py
   login: admin
 }}}
+  # Redeploy your application
   # Nuke your datastore
     * *Nuke* expects you to have a file named `models.py` in your root application directory. If this is not the case, you may edit the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/nuke/nuke.py nuke.py] script as desired.
