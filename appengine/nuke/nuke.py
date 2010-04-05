@@ -33,6 +33,18 @@ import logging
 import models
 
 # =============================================================================
+def getDefinedModels(module):
+	defined_models = []
+	import models
+	for name in dir(module):
+		obj = getattr(module, name)
+		import inspect
+		if inspect.isclass(obj) and issubclass(obj, db.Model):
+			defined_models.append(obj)
+
+	return defined_models
+
+# =============================================================================
 class MainHandler(webapp.RequestHandler):
 
 	def GetSchemaKinds(self):
@@ -54,24 +66,12 @@ class MainHandler(webapp.RequestHandler):
 		return list(kind_set)
 
 	# --------------------------------------------------------------------------
-	def getDefinedModels(self, module):
-		defined_models = []
-		import models
-		for name in dir(module):
-			obj = getattr(module, name)
-			import inspect
-			if inspect.isclass(obj) and issubclass(obj, db.Model):
-				defined_models.append(obj)
-
-		return defined_models
-
-	# --------------------------------------------------------------------------
 	def get(self):
 
 		import models
 
 #		model_list = models.MODEL_LIST
-		model_list = self.getDefinedModels(models)
+		model_list = getDefinedModels(models)
 
 #		all_kinds = self.GetSchemaKinds()
 		all_kinds = [kind_class.kind() for kind_class in model_list]
@@ -121,8 +121,9 @@ class MassDeletionHandler(webapp.RequestHandler):
             else:
                 result = "Module does not have the class \"" + kind_string + "\""
         else:
-#            logging.info("Nuking everything!")
-            for kind_class in models.MODEL_LIST:
+#           model_list = models.MODEL_LIST
+            model_list = getDefinedModels(models)
+            for kind_class in model_list:
                 job = bulkupdate.BulkDelete(kind_class.all(keys_only=True))
                 job.start()
             result = "Deleting entities of all kinds!"
