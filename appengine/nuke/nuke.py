@@ -33,12 +33,6 @@ import logging
 import models
 
 # =============================================================================
-
-template.register_template_library(
-    'django.contrib.humanize.templatetags.humanize')
-template.register_template_library('templatelib')
-
-# =============================================================================
 class MainHandler(webapp.RequestHandler):
 
 	def GetSchemaKinds(self):
