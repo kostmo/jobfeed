@@ -14,7 +14,7 @@ git clone git://github.com/Arachnid/bulkupdate.git
 {{{
 svn export http://jobfeed.googlecode.com/svn/trunk/appengine/nuke
 }}}
-    * Modify your app.yaml to include the following (this will install both *nuke* and *bulkupdate*):
+  # Modify your app.yaml to include the following (this will install both *nuke* and *bulkupdate*):
 {{{
 admin_console:
   pages:
@@ -38,5 +38,8 @@ handlers:
   login: admin
 }}}
   # Redeploy your application
+{{{
+appcfg.py update .
+}}}
   # Nuke your datastore
     * *Nuke* expects you to have a file named `models.py` in your root application directory. If this is not the case, you may edit the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/nuke/nuke.py nuke.py] script as desired.
