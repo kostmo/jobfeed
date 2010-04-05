@@ -42,4 +42,4 @@ handlers:
 appcfg.py update .
 }}}
   # Nuke your datastore
-    * *Nuke* expects you to have a file named `models.py` in your root application directory. If this is not the case, you may edit the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/nuke/nuke.py nuke.py] script as desired.
+    * *Nuke* expects all of your models to be defined in a file named `models.py` in your root application directory. If this is not the case, you may edit the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/nuke/nuke.py nuke.py] script as desired.
