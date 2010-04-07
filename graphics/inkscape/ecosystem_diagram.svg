@@ -15,7 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.47pre4 r22446"
-   sodipodi:docname="ecosystem_diagram.svg">
+   sodipodi:docname="ecosystem_diagram.svg"
+   inkscape:export-filename="/home/kostmo/hacks/jobfeed/graphics/inkscape/ecosystem_diagram.png"
+   inkscape:export-xdpi="28.526705"
+   inkscape:export-ydpi="28.526705">
   <defs
      id="defs4">
     <marker
@@ -2398,7 +2401,7 @@
            style="text-align:center;line-height:89.99999762%;writing-mode:lr-tb;text-anchor:middle" /></flowRegion><flowPara
          id="flowPara5747"
          style="font-size:56px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:89.99999762%;writing-mode:lr-tb;text-anchor:middle;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch Bold">clone</flowPara><flowPara
-         style="font-size:56px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:89.99999762%;writing-mode:lr-tb;text-anchor:middle;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch Bold"
+         style="font-size:56px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:89.99999762000000203%;writing-mode:lr-tb;text-anchor:middle;font-family:Courier 10 Pitch;-inkscape-font-specification:Courier 10 Pitch Bold;fill:#0000ff"
          id="flowPara5751">site</flowPara></flowRoot>    <g
        transform="matrix(0.23286178,0,0,0.23286178,362.1994,894.52226)"
        id="layer1-8-3"
@@ -2852,14 +2855,15 @@
        transform="translate(22.857143,-17.142857)"><flowRegion
          id="flowRegion9674"><rect
            id="rect9676"
-           width="222.85715"
-           height="231.42859"
+           width="245.71426"
+           height="245.71428"
            x="465.71429"
            y="469.50504" /></flowRegion><flowPara
          id="flowPara9678">jobfeed</flowPara><flowPara
-         id="flowPara9684">monitors</flowPara><flowPara
-         id="flowPara9680">direct</flowPara><flowPara
-         id="flowPara9682">listings</flowPara></flowRoot>    <flowRoot
+         id="flowPara9684">aggregates</flowPara><flowPara
+         id="flowPara9680">direct job</flowPara><flowPara
+         id="flowPara9682">listings</flowPara><flowPara
+         id="flowPara3376">(&quot;feeds&quot;)</flowPara></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot9672-7"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
@@ -2881,7 +2885,7 @@
            height="199.99992"
            x="465.71429"
            y="469.50504" /></flowRegion><flowPara
-         id="flowPara9682-0-4">jobfeed directs users to human-formatted, employer-hosted job listing</flowPara></flowRoot>    <flowRoot
+         id="flowPara9682-0-4">jobfeed directs job seekers to human-formatted, employer-hosted job listing</flowPara></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot9766"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
