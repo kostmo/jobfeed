@@ -402,6 +402,54 @@ class KeywordsListHandler(webapp.RequestHandler):
 		)
 
 # =============================================================================
+class MakeBookmarkHandler(webapp.RequestHandler):
+
+	def get(self):
+		message = "Did nothing."
+
+		job_key_string = self.request.get('job_key')
+		if job_key_string and users.get_current_user():
+			job_key = db.Key(job_key_string)
+			db.put(models.Bkmk(job=job_key))
+			message = "Added bookmark"
+
+		self.response.out.write(template.render(
+			os.path.join(os.path.dirname(__file__), '../templates/redirect.html'),
+			{
+				'message': message,
+			}))
+
+# =============================================================================
+class BookmarksListHandler(webapp.RequestHandler):
+
+	def get(self):
+
+		bookmark_list = []
+		last_in_pagination = self.request.get('last')
+		next_page = ""
+
+		q = models.Bkmk.all()
+		if last_in_pagination:
+			q.filter("since >", last_in_pagination)
+		q.order("since")
+		q.filter("user =", users.get_current_user())
+		bookmark_list = q.fetch( MAX_ITEMS_PER_PAGE + 1 )
+
+		if len(bookmark_list) > MAX_ITEMS_PER_PAGE:
+			next_page = "<a href='" + self.request.path + "?last=" + bookmark_list[MAX_ITEMS_PER_PAGE].since + "'>Next " + str(MAX_ITEMS_PER_PAGE) + " >></a>"
+
+		template_file = '../templates/bookmarklist.html'
+		self.response.out.write(template.render(
+			os.path.join(os.path.dirname(__file__), template_file),
+				{
+					'current_user': users.get_current_user(),
+					'bookmark_list': bookmark_list[:MAX_ITEMS_PER_PAGE],
+					'next_page': next_page
+				}
+			)
+		)
+
+# =============================================================================
 class OrganizationListHandler(webapp.RequestHandler):
 
 	def get(self):
@@ -929,6 +977,8 @@ def main():
 
             ('/jobs/posting', PostingExampleHandler),
 
+            ('/bookmarks', BookmarksListHandler),
+            ('/add_bookmark', MakeBookmarkHandler),
 
             ('/skills_autocomplete', SkillsAutoCompleteHandler),
             ('/keyword_autocomplete', KeywordAutoCompleteHandler),
