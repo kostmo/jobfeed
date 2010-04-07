@@ -210,6 +210,12 @@ class Job(GeoModel):	# Job Opening
 
 
 # ==============================================================================
+class Bkmk(db.Model):	# A Job bookmarked by a User
+    user = db.UserProperty(auto_current_user_add=True)
+    job = db.ReferenceProperty(Job)
+    since = db.DateTimeProperty(required=True, auto_now_add=True)
+
+# ==============================================================================
 MODEL_LIST = [
     SimpleCounter,
     Org,
@@ -229,5 +235,6 @@ MODEL_LIST = [
     Feed,
     JobFeedSpamReport,
     SavedSearch,
-    Job
+    Job,
+	Bkmk
 ]
