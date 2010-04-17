@@ -14,6 +14,9 @@ I envision the feeds to serve a role similar to Google's [http://en.wikipedia.or
 [http://www.hr-xml.org The HR-XML Consortium]
   "... the only independent, non-profit, volunteer-led organization dedicated to the development and promotion of a standard suite of XML specifications to enable e-business and the automation of human resources-related data exchanges."
   * [http://ns.hr-xml.org/schemas/org_hr-xml/3_0/Documentation/ComponentDoc/PositionOpening-noun.php PositionOpening schema]
+  * [http://ns.hr-xml.org/schemas/org_hr-xml/3_0/Documentation/ComponentDoc/PositionCompetencyModel-noun.php PositionCompetencyModel]
+  * [http://ns.hr-xml.org/schemas/org_hr-xml/3_0/Documentation/ComponentDoc/CompetencyDefinitions-noun.php CompetencyDefinitions]
+
 == feed solicitation ==
 
 This is not the first effort to solicit XML job feeds from companies.
