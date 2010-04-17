@@ -6,6 +6,14 @@ Crawler implementation would use a [http://en.wikipedia.org/wiki/Ping_%28bloggin
 
 I envision the feeds to serve a role similar to Google's [http://en.wikipedia.org/wiki/Sitemaps Sitemaps format]. Maybe they could be called "Jobmaps: crawler friendly job listings".
 
+== XML standards ==
+
+[http://xmlresume.sourceforge.net/ The XML Résumé Library]
+  "... an XML and XSL based system for marking up, adding metadata to, and formatting résumés and curricula vitae."
+
+[http://www.hr-xml.org The HR-XML Consortium]
+  "... the only independent, non-profit, volunteer-led organization dedicated to the development and promotion of a standard suite of XML specifications to enable e-business and the automation of human resources-related data exchanges."
+
 == feed solicitation ==
 
 This is not the first effort to solicit XML job feeds from companies.
