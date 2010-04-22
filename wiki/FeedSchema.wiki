@@ -55,7 +55,7 @@ Allowed immediate children of the `<job>` element are:
 
 <sup>†</sup>Multiple `<keyword>` tags may be used to specify up to 4 keywords.
 
-Within the `<required>` or `<preferred>` tags the following are allowed:
+Within the `<required>` or `<preferred>` tags the following types of "competencies" are allowed:
 || *tag name* || *meaning* || *example values* ||
 || `<lang>` || programming language || Java, C++ ||
 || `<api>` || Library/API/environment || Google App Engine, OpenGL, Boost ||
