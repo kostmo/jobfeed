@@ -9,7 +9,7 @@ Here is the [http://code.google.com/p/jobfeed/source/browse/trunk/appengine/stat
 The following information can be associated with each job record:
   * location
     * Nominal location/address
-    * geographic coordinates (Lat/Lon)
+    * precise geographic coordinates (Lat/Lon)
   * company name
   * company department
   * position title
