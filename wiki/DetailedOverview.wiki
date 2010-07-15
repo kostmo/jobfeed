@@ -4,6 +4,6 @@
 For a brief overview (executive summary) of the project, see the [http://code.google.com/p/jobfeed main page].
 
 ==Usage==
-Companies should self-publish a feed in the format specified by FeedSchema, then submit it to the *jobfeed* tracker.
+Companies should self-publish a feed in the format specified by FeedSchema, then [http://jobcrawlr.appspot.com/register submit] it to the *jobfeed* tracker.
 
-As an open source project, there is the potential for clone sites to arise, possibly with greater bandwidth and storage capabilities. Clone sites may wish to cooperate, and can publish and subscribe to feeds amongst each other to form a *jobfeed* network.  Ideally, all jobs within the network can be found from searching any cloned *jobfeed* deployment.  For now, companies should consider the [http://jobcrawlr.appspot.com/ original reference implementation hosted on App Engine] as the "root" *jobfeed* deployment.
+As an open source project, there is the potential for clone sites to arise, possibly with greater bandwidth and storage capabilities. Clone sites may wish to cooperate, and can publish and subscribe to feeds amongst each other to form a *jobfeed* network.  Ideally, all jobs within the network could be found from searching any cloned *jobfeed* deployment.  For now, companies should consider the [http://jobcrawlr.appspot.com/ original reference implementation hosted on App Engine] as the "root" *jobfeed* deployment.
