@@ -1,4 +1,4 @@
 #summary A more in-depth description of the project and this website
 #labels Featured
 
-For a brief overview (executive summary) of the project, see the [/ main page].
+For a brief overview (executive summary) of the project, see the [http://code.google.com/p/jobfeed main page].
