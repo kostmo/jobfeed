@@ -1,4 +1,4 @@
-#summary Important things to know
+#summary Notes about feed publishing and engine implementation
 #labels Featured
 
 == feeds ==
@@ -7,7 +7,7 @@
   * only the first 5 skills and first 3 keywords in a job are made searchable
     * This is to limit the space consumed by [http://code.google.com/appengine/docs/python/datastore/queriesandindexes.html#Big_Entities_and_Exploding_Indexes exploding indexes]
   * Order of heterogeneous tags in certain elements is enforced by the schema, due to how the the SAX parser works.
-    * In a `<site>`, the`<location>` tag must precede any `<department>` or `<job>` tags.
+    * In a `<site>`, the `<location>` tag must precede any `<department>` or `<job>` tags.
   * The `<department>` tag is optional. `<job>` tags may be placed inside this or as direct children of `<site>`.
   * The `link` attribute of a `<job>` *must* have a URL within the domain or a subdomain of that specified in the `domain` attribute of the `<organization>` tag.
   * Feed search is an "opt-in" service. Anyone can submit a job feed on behalf of any organization. However, only feeds that originate from the same domain as the organization domain shall be considered "authoritative".
