@@ -35,6 +35,8 @@ Here are just a couple I found in a Google search, along with some aspects to co
   * not as focused in scope (they also offer "live interview" services)
   * does not facilitate fine-grained search based on individual skills.
 
+[http://www.job-search-engine.com/add-jobs/feeds/ Juju XML Job Feed Specification]
+  * Also a commercial site
 == skill search ==
 
 Wikipedia's [http://en.wikipedia.org/wiki/User_box userboxes] identify discrete, quantifiable skills.
