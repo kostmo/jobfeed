@@ -17,6 +17,8 @@ I envision the feeds to serve a role similar to Google's [http://en.wikipedia.or
   * [http://ns.hr-xml.org/schemas/org_hr-xml/3_0/Documentation/ComponentDoc/PositionCompetencyModel-noun.php PositionCompetencyModel]
   * [http://ns.hr-xml.org/schemas/org_hr-xml/3_0/Documentation/ComponentDoc/CompetencyDefinitions-noun.php CompetencyDefinitions]
 
+[http://www.job-search-engine.com/add-jobs/feeds/ Juju XML Job Feed Specification]
+
 == feed solicitation ==
 
 This is not the first effort to solicit XML job feeds from companies.
@@ -35,8 +37,9 @@ Here are just a couple I found in a Google search, along with some aspects to co
   * not as focused in scope (they also offer "live interview" services)
   * does not facilitate fine-grained search based on individual skills.
 
-[http://www.job-search-engine.com/add-jobs/feeds/ Juju XML Job Feed Specification]
+[http://www.job-search-engine.com/add-jobs/ Juju]
   * Also a commercial site
+
 == skill search ==
 
 Wikipedia's [http://en.wikipedia.org/wiki/User_box userboxes] identify discrete, quantifiable skills.
