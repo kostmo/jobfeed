@@ -253,7 +253,7 @@ function RopeSimulation(
 	}
 
 	this.getTipMass = function(index) {
-		return this.getMass( this.numOfMasses - 1);
+		return this.getMass( this.numOfMasses - 1 );
 	}
 
 
@@ -367,11 +367,14 @@ function RopeSimulation(
 				var tip_distance = pos_delta.length();
 
 
-				distance_field.value = tip_distance;
+				if (this.id == 0)
+					distance_field.value = tip_distance;
 
 
 				var impact_radius = face.getRadius();
-				threshold_field.value = impact_radius;
+
+				if (this.id == 0)
+					threshold_field.value = impact_radius;
 
 
 
@@ -395,7 +398,7 @@ function RopeSimulation(
 
 	this.operate = function(dt, main_loop_iteration_number) {
 
-		// FIXME Periodically apply random gravity?
+		// TODO Periodically apply random gravity?
 		this.current_elapsed_time += dt;
 //		printf("Current elapsed time: %0.3f\n", current_elapsed_time);
 

@@ -10,7 +10,10 @@ var next_spawn_time = new Date();
 var AVERAGE_SPAWN_SECONDS = 5;
 
 var WHIP_SPEED_THRESHOLD = 8;
+var NOMINAL_ARM_LENGTH = 1.8;
+var arm_mass_count = 30;
 
+//var MAX_FLYERS = 1;	// FIXME
 var MAX_FLYERS = 5;
 var score = 0;
 
@@ -61,9 +64,6 @@ function FlyingFace() {
 	this.angle = Math.random()*2*Math.PI;
 	this.progress = 0;	// A fractional distance from the center
 
-	// FIXME
-//	this.progress = 0.5;
-
 	this.period = this.BASE_PERIOD*(Math.random() + 1/2.0);	// +/- 50%
 	this.rotational_frequency = (Math.random() - 0.5)*5;
 	this.male = Math.random() > 0.5;
@@ -73,6 +73,7 @@ function FlyingFace() {
 
 	this.setHit = function() {
 		this.enraged = true;
+		this.rotational_frequency *= 2;
 		this.img = getFaceImage(this.male, this.enraged);
 	}
 
@@ -111,6 +112,7 @@ function FlyingFace() {
 
 	this.simulate = function(dt) {	// dt must be given in seconds
 		this.progress += dt/this.period;
+//		this.progress = 0.1;	// FIXME
 	}
 
 	this.isFinished = function() {
@@ -128,7 +130,7 @@ function FlyingFace() {
 
 
 	this.getRadius = function() {
-		return Math.max(this.img.width, this.img.height)/scale_size;
+		return this.progress * Math.max(this.img.width, this.img.height)/scale_size;
 	}
 }
 
@@ -167,11 +169,11 @@ function sceneInit() {
 	for (var i=0; i<ropeSimulations.length; i++)
 		ropeSimulations[i] = new RopeSimulation(
 			i,
-			30,				// 3 Particles (Masses)
+			arm_mass_count,		// 3 Particles (Masses)
 			0.05,				// Each Particle Has A Weight Of 50 Grams
 	//		10000.0,			// springConstant In The Rope
 			1000.0,				// springConstant In The Rope
-			0.06,				// Normal Length Of Springs In The Rope
+			NOMINAL_ARM_LENGTH/(arm_mass_count - 1),	// Normal Length Of Springs In The Rope
 			0.2,				// Spring Inner Friction Constant
 			new Vector2D(0, -GRAVITATIONAL_CONSTANT),		// Gravitational Acceleration
 			0.02,				// Air Friction Constant
@@ -191,17 +193,12 @@ function sceneInit() {
 	threshold_field = document.getElementById("threshold_field");
 	score_field = document.getElementById("score_field");
 
-
-	// FIXME - Remove
-//	flying_faces.push( new FlyingFace() );
-
-
+//	flying_faces.push( new FlyingFace() );	// FIXME
 //	trollface.src = 'http://i.imgur.com/VO1NP.jpg';
 	trollface.src = 'http://i.imgur.com/r6WI2.png';
 
 	setInterval(mainIteration, 40);
 }
-
 
 
 function mainIteration() {
@@ -230,6 +227,7 @@ function mainIteration() {
 
 
 			if (flying_faces.length < MAX_FLYERS) {
+//				flying_faces.push( new FlyingFace() );	// FIXME
 				flying_faces.push( new FlyingFace() );
 			}
 
