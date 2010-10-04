@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us" >
 <head>
 
+<title>FFFFFFFUUUUUUUUUUUU: An interactive art piece</title>
 
 <style type="text/css">
 body {font-family: sans-serif}
@@ -78,10 +79,20 @@ function drag(object, event) {
 }
 
 
+function chrome_detect() {
+	var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+	if (!is_chrome)
+		document.getElementById("browser_recommendation").style.display = "block";
+}
+
+
 </script>
 
 </head>
-<body onkeydown="return press_key(event);" onload="sceneInit()">
+<body onkeydown="return press_key(event);" onload="chrome_detect(); sceneInit()">
+
+<div id="browser_recommendation" style="display: none; font-weight: bold">IMPORTANT: <a href="http://www.google.com/chrome">Google Chrome</a> is recommended for viewing this page. Firefox doesn't handle it very well.</a>
+<hr /></div>
 
 <p>Move with the arrow keys. Left and middle mouse buttons manipulate arms.</p>
 
