@@ -13,6 +13,8 @@ var WHIP_SPEED_THRESHOLD = 8;
 var NOMINAL_ARM_LENGTH = 1.8;
 var arm_mass_count = 30;
 
+
+
 //var MAX_FLYERS = 1;	// FIXME
 var MAX_FLYERS = 5;
 var score = 0;
@@ -23,6 +25,8 @@ var speed_field;
 var distance_field;
 var threshold_field;
 var score_field;
+var sound_enabled_button;
+var quadrant_counter_field;
 
 
 
@@ -34,18 +38,27 @@ var keys_pressed;
 var started_simulation;
 var which_click_button = 1;
 
+var guitar_image_loaded = false;
 
 var whip_sound_effect = new Audio("whip.ogg");
-
+var guitar_img = new Image();
+guitar_img.src = "guitar.png";
+guitar_img.onload = function() {
+	guitar_image_loaded = true;
+};
 
 function MaleFace() {
-	this.happy = "http://ragecomic.appspot.com/packs/happy/images/Happy.png";
-	this.rage = "http://ragecomic.appspot.com/packs/rage/images/OriginalRage.png";
+//	this.happy = "http://ragecomic.appspot.com/packs/happy/images/Happy.png";
+	this.happy = "Happy.png";
+//	this.rage = "http://ragecomic.appspot.com/packs/rage/images/OriginalRage.png";
+	this.rage = "OriginalRage.png";
 }
 
 function FemaleFace() {
-	this.happy = "http://ragecomic.appspot.com/packs/happy/images/FemaleHappy.png";
-	this.rage = "http://ragecomic.appspot.com/packs/rage/images/FemaleRage.png";
+//	this.happy = "http://ragecomic.appspot.com/packs/happy/images/FemaleHappy.png";
+	this.happy = "FemaleHappy.png";
+//	this.rage = "http://ragecomic.appspot.com/packs/rage/images/FemaleRage.png";
+	this.rage = "FemaleRage.png";
 }
 
 
@@ -159,6 +172,8 @@ function KeysPressed() {
 
 function sceneInit() {
 
+
+
 	keys_pressed = new KeysPressed();
 	started_simulation = false;
 
@@ -192,6 +207,9 @@ function sceneInit() {
 	distance_field = document.getElementById("distance_field");
 	threshold_field = document.getElementById("threshold_field");
 	score_field = document.getElementById("score_field");
+	sound_enabled_button = document.getElementById("sound_enabled_button");
+	quadrant_counter_field = document.getElementById("quadrant_counter_field");
+	
 
 //	flying_faces.push( new FlyingFace() );	// FIXME
 //	trollface.src = 'http://i.imgur.com/VO1NP.jpg';
@@ -377,8 +395,53 @@ function drawGravityRing(pointer_pos) {
 }
 
 
+function drawCenteredImage(ctx, img) {
+	ctx.drawImage( img, -img.width/2, -img.height/2);
+}
 
-function drawArms(width, height) {
+function drawBody(ctx, width, height) {
+
+	var face_height = trollface.height
+
+	// The head
+	ctx.drawImage(trollface, -trollface.width/2, -face_height);
+
+	var torso_height = face_height/2;
+
+	// Stick body/legs
+	ctx.beginPath();
+	ctx.moveTo(0, 0);
+	ctx.lineTo(0, torso_height);
+
+	ctx.moveTo(-torso_height, 2*torso_height);
+	ctx.lineTo(0, torso_height);
+	ctx.lineTo(torso_height, 2*torso_height);
+	ctx.stroke();
+
+	// The guitar
+	if (guitar_image_loaded) {
+
+		var windmilling = false;
+		for (var i=0; i<ropeSimulations.length; i++) {
+			if (ropeSimulations[i].getWindmillActive()) {
+				windmilling = true;
+				break;
+			}
+		}
+
+
+		if (windmilling) {
+
+			ctx.save();
+				ctx.translate(0, torso_height);
+				drawCenteredImage(ctx, guitar_img);
+			ctx.restore();
+		}
+	}
+}
+
+
+function drawArms(ctx, width, height) {
 	for (var i=0; i<ropeSimulations.length; i++) {
 		if (i == 0) ctx.strokeStyle = "#F00";
 		else ctx.strokeStyle = "#00F";
@@ -408,7 +471,7 @@ function draw(width, height) {
 	ctx.save();
 		ctx.translate(width/2.0, height/2.0);
 
-		ctx.drawImage(trollface, -trollface.width/2, -trollface.height);
+		drawBody(ctx)
 
 
 		ctx.save();
@@ -419,7 +482,7 @@ function draw(width, height) {
 			if (last_click_pos)
 				drawGravityRing(last_click_pos);
 
-			drawArms(width, height);
+			drawArms(ctx, width, height);
 
 		ctx.restore();
 

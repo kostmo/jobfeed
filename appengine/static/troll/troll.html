@@ -91,7 +91,7 @@ function chrome_detect() {
 </head>
 <body onkeydown="return press_key(event);" onload="chrome_detect(); sceneInit()">
 
-<div id="browser_recommendation" style="display: none; font-weight: bold">IMPORTANT: <a href="http://www.google.com/chrome">Google Chrome</a> is recommended for viewing this page. Firefox doesn't handle it very well.</a>
+<div id="browser_recommendation" style="display: none; font-weight: bold">IMPORTANT: <a href="http://www.google.com/chrome">Google Chrome</a> is recommended for viewing this page. Firefox doesn't handle it very well.
 <hr /></div>
 
 <p>Move with the arrow keys. Left and middle mouse buttons manipulate arms.</p>
@@ -106,8 +106,14 @@ FFFFFFFUUUUUUUUUUUU's: <span style="color: red" id="score_field">0</span>
 	onmousemove="drag(this, event)"
 	style="cursor: crosshair;">Your browser does not support HTML5 Canvas.</canvas>
 
+<form name="user_controls">
+<input type="checkbox" id="sound_enabled_button" /><label for="sound_enabled_button"> Sound</label>
+</form>
+
 
 <form style="display: none">
+Quadrant: <span id="quadrant_counter_field"></span><br/>
+
 <label for="timestep_field">Simulation timestep (seconds): </label><input type="text" maxlength="5" id="timestep_field" value="0.005" onblur="validateTimestep(this);"/> (Simulation will explode if this is too high)
 
 <br />
@@ -118,22 +124,7 @@ Tip distance <input type="text" maxlength="10" id="distance_field" value="0" />
 Threshold distance <input type="text" maxlength="10" id="threshold_field" value="0" />
 </form>
 
-
-<h3>Related</h3>
-
-<ul>
-<li><a href="http://gafferongames.com/game-physics/spring-physics/">Spring Physics</a></li>
-<li><a href="http://www.andrew-hoyer.com/experiments/cloth/">Cloth in Canvas</a></li>
-<li><a href="http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=40">NeHe Rope Simulation Tutorial</a></li>
-</ul>
-
-<h3>TODO</h3>
-<ul>
-<li>Earn more points for hitting the correct gender with the appropriate arm</li>
-<li>Earn more for striking within a certain distance (penalizes air guitar moves)</li>
-<li>Double indicator arrows</li>
-<li>Random gravity</li>
-</ul>
+[<a href="info.html">more info</a>]
 
 </body>
 </html>
