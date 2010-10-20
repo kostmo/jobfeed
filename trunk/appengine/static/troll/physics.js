@@ -155,6 +155,9 @@ function Spring(mass1, mass2, springConstant, springLength, frictionConstant) {
 };
 
 
+var WINDIMILL_DETECTION_MIN_REVOLUTIONS = 4;
+var WINDIMILL_DETECTION_REVOLUTION_SECONDS = 1.2;
+
 // ============================================================================
 // RopeSimulation is derived from class Simulation (see Physics1.h). It simulates a rope with 
 //  point-like particles binded with springs. The springs have inner friction and normal length. One tip of 
@@ -213,6 +216,20 @@ function RopeSimulation(
 	this.groundHeight = groundHeight;				//a value to represent the y position value of the ground (the ground is a planer surface facing +y direction)
 
 
+	// Note: the arm should be sampled at least once in each quadrant
+	// to verify windmill behavior
+	this.getWindmillActive = function() {
+		return (this.windmill_quadrant_offset / 4 >= WINDIMILL_DETECTION_MIN_REVOLUTIONS);
+	}
+	this.last_arm_angular_position = 0;
+	this.windmill_start_angular_position = 0;
+	this.windmill_established_clockwise = false;
+	this.previous_windmill_angular_position = 0;
+	this.last_tip_relative_pos = new Vector2D(0, 0);
+	this.windmill_start_time = 0;
+	this.windmill_quadrant_offset = 0;
+
+
 	// Initializes the rope in a force-neutral position with respect to the springs
 	for (var index = 0; index < this.numOfMasses; ++index) {
 
@@ -239,8 +256,6 @@ function RopeSimulation(
 	}
 
 
-
-	// Duplicated superclass implementation
 	this.init = function()								// this method will call the init() method of every mass
 	{
 		for (var count = 0; count < this.numOfMasses; ++count)
@@ -317,9 +332,6 @@ function RopeSimulation(
 
 
 
-
-	//simulate(float dt) is overriden because we want to simulate
-	//the motion of the ropeConnectionPos
 	this.simulate = function(dt) {
 
 		this.ropeConnectionPos.add( this.ropeConnectionVel.multipliedBy( dt ) );	//iterate the positon of ropeConnectionPos
@@ -383,11 +395,63 @@ function RopeSimulation(
 						face.setHit();
 						score++;
 						score_field.innerHTML = score;
-						whip_sound_effect.play();
+						if (sound_enabled_button.checked)
+							whip_sound_effect.play();
 					}
 				}
 			}
 		}
+
+
+
+		if (true) {
+
+
+			var tip_relative_pos = this.getAnchorMass().pos.subtractedBy(this.getTipMass().pos);
+
+			// The result of atan2 will be between -PI and PI
+			var current_windmill_angular_position = Math.atan2(tip_relative_pos.y, tip_relative_pos.x);
+			var biased_current_angle = current_windmill_angular_position + Math.PI;
+			var biased_previous_angle = this.previous_windmill_angular_position + Math.PI;
+
+			// There are two possible arcs: the big one and the small one.
+			// We assume that the smaller one is the direction of travel.
+			var biased_angular_delta = biased_current_angle - biased_previous_angle;
+			if (Math.abs(biased_angular_delta) > Math.PI) {
+				biased_angular_delta = -biased_angular_delta;
+			}
+
+			var currently_clockwise = biased_angular_delta > 0;
+
+
+			if (currently_clockwise != this.windmill_established_clockwise) {
+				// The direction has changed and we must reset values.
+
+				this.windmill_start_angular_position = 0;
+				this.windmill_start_time = 0;
+				this.windmill_quadrant_offset = 0;
+
+			} else {
+
+				// Increment the quadrant offset if we have entered a new quadrant.
+				if ((this.last_tip_relative_pos.x > 0) != (tip_relative_pos.x > 0)
+					|| (this.last_tip_relative_pos.y > 0) != (tip_relative_pos.y > 0)) {
+
+					this.windmill_quadrant_offset++;
+				}
+			}
+
+			if (this.id == 0)
+				quadrant_counter_field.innerHTML = this.windmill_quadrant_offset;
+
+			this.windmill_established_clockwise = currently_clockwise;
+
+
+			this.last_tip_relative_pos = tip_relative_pos;
+			this.previous_windmill_angular_position = current_windmill_angular_position;
+		}
+
+
 	}
 
 	//the method to set ropeConnectionVel (accepts a Vector2D)
@@ -434,6 +498,9 @@ function RopeSimulation(
 		}
 		ctx.lineJoin = "round";
 
+		ctx.moveTo(pos.x + ctx.lineWidth, pos.y);
+		ctx.arc(pos.x, pos.y, ctx.lineWidth, 0, 2*Math.PI, false);
+
 
 		var tip_speed = this.getTipMass().vel.length();
 		if (this.id == 0) {
@@ -451,32 +518,4 @@ function RopeSimulation(
 
 		ctx.stroke();
 	}
-
-
-
-/*
-	// Draw the arms as connected (quadratic) Bezier curves
-	this.drawToCanvas = function(ctx) {
-
-		ctx.beginPath();
-
-		var pos = this.getAnchorMass().pos;
-		ctx.moveTo(pos.x, pos.y);
-
-		var last_pos = pos;
-		var penultimate_pos = last_pos;
-		for (var index = 1; index < this.numOfMasses; ++index) {
-			var pos = this.getMass(index).pos;
-//			ctx.bezierCurveTo(last_pos.x, last_pos.y, pos.x, pos.y, pos.x, pos.y);
-
-			var prev_extension = last_pos.addedBy( last_pos.subtractedBy(penultimate_pos) );
-			ctx.quadraticCurveTo(prev_extension.x, prev_extension.y, pos.x, pos.y);
-
-			penultimate_pos = last_pos;
-			last_pos = pos;
-		}
-		ctx.lineJoin = "round";
-		ctx.stroke();
-	}
-*/
 };
