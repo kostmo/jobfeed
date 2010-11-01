@@ -1,3 +1,27 @@
+/*
+ * Copyright (C) 2010 Karl Ostmo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/* 
+ *
+ * Author: Karl Ostmo
+ * Date: November 1, 2010
+ *
+ */
+
 function getRand() {
 	return Math.random() - 1/2.0;
 }
@@ -188,7 +212,7 @@ function RopeSimulation(
 	this.current_elapsed_time = 0;
 	this.gravitational_change_time = 0;
 
-
+	this.last_click_pos = new Vector2D(0, 0);
 
 	// superclass initializer
 	this.numOfMasses = num_masses;
@@ -392,9 +416,19 @@ function RopeSimulation(
 
 				if (tip_distance < impact_radius) {
 					if (!face.enraged) {
+
+						strikes_score++;
+						strikes_score_field.innerHTML = strikes_score;
+
+						// Match the arm to the gender for more points
+						if ((this.id == 0 && !face.male) || (this.id == 1 && face.male)) {
+							matches_score++;
+						} else {
+							matches_score--;
+						}
+						matches_score_field.innerHTML = matches_score;
+
 						face.setHit();
-						score++;
-						score_field.innerHTML = score;
 						if (sound_enabled_button.checked)
 							whip_sound_effect.play();
 					}
