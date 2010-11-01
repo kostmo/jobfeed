@@ -1,8 +1,34 @@
-var canvas;  
+/*
+ * Copyright (C) 2010 Karl Ostmo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+/* 
+ *
+ * Author: Karl Ostmo
+ * Date: November 1, 2010
+ *
+ */
+
+
+var canvas;
 var ctx;
 var timestep = 0.005;
 var trollface;
-var last_click_pos;
+
 var scale_size;
 var mouse_button_down = false;
 var GRAVITATIONAL_CONSTANT = 9.81;
@@ -13,18 +39,20 @@ var WHIP_SPEED_THRESHOLD = 8;
 var NOMINAL_ARM_LENGTH = 1.8;
 var arm_mass_count = 30;
 
+var arrow_key_impulse_velocity = 3.0;
 
 
-//var MAX_FLYERS = 1;	// FIXME
 var MAX_FLYERS = 5;
-var score = 0;
+var matches_score = 0;
+var strikes_score = 0;
 
 
 var flying_faces = [];
 var speed_field;
 var distance_field;
 var threshold_field;
-var score_field;
+var strikes_score_field, matches_score_field;
+	
 var sound_enabled_button;
 var quadrant_counter_field;
 
@@ -206,7 +234,8 @@ function sceneInit() {
 	speed_field = document.getElementById("speed_field");
 	distance_field = document.getElementById("distance_field");
 	threshold_field = document.getElementById("threshold_field");
-	score_field = document.getElementById("score_field");
+	strikes_score_field = document.getElementById("strikes_score_field");
+	matches_score_field = document.getElementById("matches_score_field");
 	sound_enabled_button = document.getElementById("sound_enabled_button");
 	quadrant_counter_field = document.getElementById("quadrant_counter_field");
 	
@@ -281,28 +310,33 @@ function updateSimulation(milliseconds, iteration_count, maxPossible_dt) {
 
 
 	// Get direction from anchor point to click point
-	if (last_click_pos) {
-		var gravity_vector = transformClickCoords(last_click_pos);
-		gravity_vector.y *= -1;
-		gravity_vector.unitize();
-		gravity_vector.multiply(GRAVITATIONAL_CONSTANT);
+	for (var i=0; i<ropeSimulations.length; i++) {
 
-		ropeSimulations[which_click_button].gravitation = gravity_vector;
+		var rope_simulation = ropeSimulations[i];
+		if (rope_simulation.last_click_pos) {
+			var gravity_vector = transformClickCoords(rope_simulation.last_click_pos);
+			gravity_vector.y *= -1;
+			gravity_vector.unitize();
+			gravity_vector.multiply(GRAVITATIONAL_CONSTANT);
+
+			rope_simulation.gravitation = gravity_vector;
+		}
 	}
+
 
 	var ropeConnectionVel = new Vector2D(0, 0);	// Create A Temporary Vector2D
 
 	if (keys_pressed.left)
-		ropeConnectionVel.x -= 3.0;						// Add Velocity In -X Direction
+		ropeConnectionVel.x -= arrow_key_impulse_velocity;		// Add Velocity In -X Direction
 
 	if (keys_pressed.right)
-		ropeConnectionVel.x += 3.0;						// Add Velocity In +X Direction
+		ropeConnectionVel.x += arrow_key_impulse_velocity;		// Add Velocity In +X Direction
 
 	if (keys_pressed.up)
-		ropeConnectionVel.y += 3.0;						// Add Velocity In +Y Direction
+		ropeConnectionVel.y += arrow_key_impulse_velocity;		// Add Velocity In +Y Direction
 
 	if (keys_pressed.down)
-		ropeConnectionVel.y -= 3.0;						// Add Velocity In -Y Direction
+		ropeConnectionVel.y -= arrow_key_impulse_velocity;		// Add Velocity In -Y Direction
 
 
 	keys_pressed.reset();
@@ -337,61 +371,70 @@ function updateSimulation(milliseconds, iteration_count, maxPossible_dt) {
 }
 
 
+// Both of them
+function drawGravityRings() {
 
-function drawGravityRing(pointer_pos) {
+	for (var i=0; i<ropeSimulations.length; i++) {
 
-	var transformed_click_center = transformClickCoords(pointer_pos);
-	transformed_click_center.y *= -1;
+		var pointer_pos = ropeSimulations[i].last_click_pos;
 
-	// Point of button click
-	if (false) {
-		ctx.beginPath();
-		ctx.arc(transformed_click_center.x, transformed_click_center.y, 5*ctx.lineWidth, 0, 2*Math.PI, false);
-		ctx.closePath();
-		ctx.stroke();
+		var transformed_click_center = transformClickCoords(pointer_pos);
+		transformed_click_center.y *= -1;
+
+		// Point of button click
+		if (false) {
+			ctx.beginPath();
+			ctx.arc(transformed_click_center.x, transformed_click_center.y, 5*ctx.lineWidth, 0, 2*Math.PI, false);
+			ctx.closePath();
+			ctx.stroke();
+		}
+
+
+		var ring_thickness = 20;
+
+		// Gravity indicator ring
+		var gravity_indicator_radius = 2.5 + i*(1.5*ctx.lineWidth*ring_thickness);
+		ctx.save();
+			ctx.lineWidth *= ring_thickness;
+
+			if (i == 0)
+				ctx.strokeStyle = "rgba(255, 0, 0, 0.25)";
+			else
+				ctx.strokeStyle = "rgba(0, 0, 255, 0.25)";
+
+			ctx.beginPath();
+			ctx.arc(0, 0, gravity_indicator_radius, 0, 2*Math.PI, false);
+			ctx.closePath();
+			ctx.stroke();
+		ctx.restore();
+
+		// Direction indicator triangle
+		ctx.save();
+	//		var grav_delta = transformed_click_center.subtractedBy(ropeSimulations[0].getAnchorMass().pos);
+			var grav_delta = transformed_click_center;
+			ctx.rotate(Math.atan2(grav_delta.y, grav_delta.x));
+			ctx.translate(gravity_indicator_radius, 0);
+			var triangle_overscale = 1.3;
+			ctx.scale(triangle_overscale, triangle_overscale);
+
+			var size = ctx.lineWidth * ring_thickness;
+			// Draw triangle
+			ctx.beginPath();
+			ctx.moveTo(-size/2.0, 0);
+			ctx.lineTo(size/2.0, size/2.0);
+			ctx.lineTo(size/2.0, -size/2.0);
+			ctx.closePath();
+
+			ctx.lineJoin = "round";
+			if (i == 0)
+				ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+			else
+				ctx.strokeStyle = "rgba(0, 0, 255, 1)";
+			ctx.stroke();
+			ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+			ctx.fill();
+		ctx.restore();
 	}
-
-
-	var ring_thickness = 20;
-
-	// Gravity indicator ring
-	var gravity_indicator_radius = 2.5;
-	ctx.save();
-		ctx.lineWidth *= ring_thickness;
-
-		if (which_click_button == 0)
-			ctx.strokeStyle = "rgba(255, 0, 0, 0.25)";
-		else
-			ctx.strokeStyle = "rgba(0, 0, 255, 0.25)";
-
-		ctx.beginPath();
-		ctx.arc(0, 0, gravity_indicator_radius, 0, 2*Math.PI, false);
-		ctx.closePath();
-		ctx.stroke();
-	ctx.restore();
-
-
-	ctx.save();
-//		var grav_delta = transformed_click_center.subtractedBy(ropeSimulations[0].getAnchorMass().pos);
-		var grav_delta = transformed_click_center;
-		ctx.rotate(Math.atan2(grav_delta.y, grav_delta.x));
-		ctx.translate(gravity_indicator_radius, 0);
-		var triangle_overscale = 1.3;
-		ctx.scale(triangle_overscale, triangle_overscale);
-
-		var size = ctx.lineWidth * ring_thickness;
-		// Draw triangle
-		ctx.beginPath();
-		ctx.moveTo(-size/2.0, 0);
-		ctx.lineTo(size/2.0, size/2.0);
-		ctx.lineTo(size/2.0, -size/2.0);
-		ctx.closePath();
-
-		ctx.lineJoin = "round";
-		ctx.stroke();
-		ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
-		ctx.fill();
-	ctx.restore();
 }
 
 
@@ -404,7 +447,8 @@ function drawBody(ctx, width, height) {
 	var face_height = trollface.height
 
 	// The head
-	ctx.drawImage(trollface, -trollface.width/2, -face_height);
+	if (trollface)
+		ctx.drawImage(trollface, -trollface.width/2, -face_height);
 
 	var torso_height = face_height/2;
 
@@ -471,16 +515,20 @@ function draw(width, height) {
 	ctx.save();
 		ctx.translate(width/2.0, height/2.0);
 
-		drawBody(ctx)
 
+		var anchor_pos = ropeSimulations[0].getAnchorMass().pos;
+
+		ctx.save();
+			ctx.translate(anchor_pos.x*scale_size, -anchor_pos.y*scale_size);
+
+			drawBody(ctx)
+		ctx.restore();
 
 		ctx.save();
 			ctx.scale(scale_size, -scale_size);
 			ctx.lineWidth /= scale_size;
 
-
-			if (last_click_pos)
-				drawGravityRing(last_click_pos);
+			drawGravityRings();
 
 			drawArms(ctx, width, height);
 
