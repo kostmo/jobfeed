@@ -244,6 +244,8 @@ function sceneInit() {
 //	trollface.src = 'http://i.imgur.com/VO1NP.jpg';
 	trollface.src = 'http://i.imgur.com/r6WI2.png';
 
+
+	scale_size = Math.min(canvas.width, canvas.height)/8.0;
 	setInterval(mainIteration, 40);
 }
 
@@ -263,18 +265,13 @@ function mainIteration() {
 		updateSimulation( elapsed_millis, iteration_count, timestep);
 
 
-
-
 		var now = new Date();
 		if (now.getTime() >= next_spawn_time.getTime()) {
 
 			next_spawn_time = new Date( now.getTime() + Math.random()*AVERAGE_SPAWN_SECONDS*1000 );
-
 			// TODO Maybe should use an Exponential random variable with lambda = 1/AVERAGE_SPAWN_SECONDS;
 
-
 			if (flying_faces.length < MAX_FLYERS) {
-//				flying_faces.push( new FlyingFace() );	// FIXME
 				flying_faces.push( new FlyingFace() );
 			}
 
@@ -284,8 +281,6 @@ function mainIteration() {
 	}
 
 
-
-	scale_size = Math.min(canvas.width, canvas.height)/5.0;
 	draw(canvas.width, canvas.height);
 }
 
