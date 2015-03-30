@@ -14,34 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-application: jobcrawlr-hrd
-version: 1
+application: geomodel-demo
+version: 2
 runtime: python
 api_version: 1
-
-admin_console:
-  pages:
-  - name: Bulk Update Jobs
-    url: /_ah/bulkupdate/admin/
-
-  - name: Nuke
-    url: /_ah/nuke/
 
 handlers:
 - url: /remote_api
   script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
-  login: admin
-
-- url: /_ah/queue/deferred
-  script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
-  login: admin
-  
-- url: /_ah/bulkupdate/admin/.*
-  script: bulkupdate/handler.py
-  login: admin
-
-- url: /_ah/nuke/.*
-  script: nuke/nuke.py
   login: admin
 
 - url: /static
